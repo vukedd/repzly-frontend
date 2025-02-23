@@ -1,0 +1,39 @@
+<div class="h-full">
+    <p-card styleClass="h-full">
+        <ng-template pTemplate="header">
+            <img src="dinja.jpg" 
+                 
+                 class="w-full h-12rem object-cover"/>
+        </ng-template>
+        
+        <div class="flex flex-column gap-3">
+            <div class="text-xl font-bold text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                {{program.name}}
+            </div>
+            
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-user"></i>
+                <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
+                    {{program.creatorUsername}}
+                </span>
+            </div>
+        </div>
+        
+        <ng-template pTemplate="footer">
+            <div class="flex justify-content-between">
+                <p-button 
+                    label="View Details" 
+                    icon="pi pi-info-circle"
+                    [rounded]="true"
+                    [text]="true">
+                </p-button>
+                <p-button 
+                    icon="pi pi-heart" 
+                    [rounded]="true"
+                    severity="danger"
+                    [text]="true">
+                </p-button>
+            </div>
+        </ng-template>
+    </p-card>
+</div>

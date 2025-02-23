@@ -1,0 +1,22 @@
+<div class="surface-ground">
+    <div class="flex justify-content-center">
+        <div class="w-max px-4 max-w-7xl">
+            <div *ngIf="loading" class="flex justify-content-center">
+                <p-progressSpinner
+                    styleClass="w-4rem h-4rem"
+                    strokeWidth="4"
+                    fill="var(--surface-ground)"
+                    animationDuration=".5s">
+                </p-progressSpinner>
+            </div>
+
+            <div *ngIf="!loading" class="grid">
+                <div *ngFor="let program of programs" 
+                     class="col-12 sm:col-6 lg:col-4 p-2">
+                    <app-program-card [program]="program">
+                    </app-program-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
