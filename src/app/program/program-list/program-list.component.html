@@ -1,6 +1,6 @@
-<div class="surface-ground">
+<div>
     <div class="flex justify-content-center">
-        <div class="w-max px-4 max-w-7xl">
+        <div class="w-9 px-4">
             <div *ngIf="loading" class="flex justify-content-center">
                 <p-progressSpinner
                     styleClass="w-4rem h-4rem"
@@ -18,5 +18,16 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card flex justify-content-center">
+        <p-paginator
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="[3, 10, 20, 30]"
+            (onPageChange)="onPageChange($any($event))"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} programs"
+        ></p-paginator>
     </div>
 </div>
