@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {ProgramOverviewDTO} from "../program-overview-dto"
+import { ProgramOverviewDTO } from "../program-overview-dto"
 import { PageResponse } from '../../common/page/page-response';
 
 @Injectable({

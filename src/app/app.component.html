@@ -1,5 +1,7 @@
 <p-button 
-            [icon]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
-            (onClick)="toggleTheme()"
-        ></p-button>
-<app-program-list></app-program-list>
+    [icon]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
+    (onClick)="toggleTheme()">
+</p-button>
+<a [routerLink]="['register']">Register</a>
+<a [routerLink]="['']">Products</a>
+<router-outlet></router-outlet>
