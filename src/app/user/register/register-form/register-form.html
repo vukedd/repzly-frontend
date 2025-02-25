@@ -1,0 +1,37 @@
+<div class="flex justify-content-center align-items-center flex-column p-2 ">
+    <h1>Register</h1>
+    <form class="flex justify-content-center align-items-center flex-column" [formGroup]="registerForm" (submit)="sendRegisterRequest()">
+        <div class="flex flex-col align-items-center justify-content-center mt-1">
+            <p-floatlabel variant="in">
+                <input id="firstName" pInputText formControlName="firstName" pTooltip="First name must contain textual characters without spaces (2-20 characters)"/>
+                <label for="firstName">First name:</label>
+            </p-floatlabel>
+        </div>
+        <div class="flex flex-col align-items-center justify-content-center mt-1">
+            <p-floatlabel variant="in">
+                <input id="lastName" pInputText formControlName="lastName" pTooltip="Last name must contain textual characters without spaces (2-20 characters)"/>
+                <label for="lastName">Last name:</label>
+            </p-floatlabel>
+        </div>
+        <div class="flex flex-col align-items-center justify-content-center mt-1">
+            <p-floatlabel variant="in">
+                <input id="email" pInputText formControlName="email" type="email" pTooltip="Please enter a valid e-mail address"/>
+                <label for="email">E-mail:</label>
+            </p-floatlabel>
+        </div>
+        <div class="flex flex-col align-items-center justify-content-center mt-1">
+            <p-floatlabel variant="in">
+                <input id="username" pInputText formControlName="username" pTooltip="Username must contain a combination of textual and numerical characters (5-15 characters)"/>
+                <label for="username">Username:</label>
+            </p-floatlabel>
+        </div>
+        <div class="flex flex-col align-items-center justify-content-center mt-1">
+            <p-floatlabel variant="in">
+                <input id="password" pInputText formControlName="password" type="password" pTooltip="Password must contain minimum eight characters, at least one letter and one numbers"/>
+                <label for="password">Password:</label>
+            </p-floatlabel>
+        </div>
+        <small class="my-3">You already have an account? <a [routerLink]="['login']">Log in here</a></small>
+        <p-button label="Submit" type="submit" severity="contrast" [disabled]="!registerForm.valid"/>
+    </form>
+</div>

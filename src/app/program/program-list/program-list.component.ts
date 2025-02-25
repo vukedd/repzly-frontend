@@ -17,6 +17,7 @@ interface PageEvent {
 
 @Component({
   selector: 'app-program-list',
+  standalone: true,
   imports: [ToolbarModule, ButtonModule, ProgressSpinnerModule, ProgramCardComponent,CommonModule,PaginatorModule],
   templateUrl: './program-list.component.html',
   styleUrl: './program-list.component.css'

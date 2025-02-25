@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ProgramListComponent } from "./program/program-list/program-list.component";
+import { RouterOutlet,RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ThemeService } from './theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProgramListComponent,ButtonModule],
+  imports: [RouterOutlet, ButtonModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
