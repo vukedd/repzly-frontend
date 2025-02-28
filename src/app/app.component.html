@@ -6,15 +6,13 @@
 <a [routerLink]="['']">Products</a>
 <router-outlet></router-outlet> -->
 <div class="layout-wrapper flex">
-  <!-- Sidebar - Hidden on mobile, shown on xl screens -->
+
   <app-sidebar class="hidden xl:block"></app-sidebar>
-  
-  <!-- Main Content Area -->
+ 
   <div class="content-area flex flex-column flex-grow-1">
-    <!-- Header -->
+
     <app-header></app-header>
-    
-    <!-- Main Content with Router Outlet -->
+
     <div class="w-full">
       <div class="main-content">
         <router-outlet></router-outlet>
@@ -22,3 +20,4 @@
     </div>
   </div>
 </div>
+<!-- <app-program-create></app-program-create> -->

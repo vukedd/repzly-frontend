@@ -1,0 +1,28 @@
+<div class="h-full">
+    <p-card
+      styleClass="h-full border-round-lg cursor-pointer border-2 border-dashed surface-ground transition-colors transition-duration-300 justify-content-center"
+      [style]="{'border-color': 'var(--surface-border)'}"
+      (mouseenter)="onHover = true"
+      (mouseleave)="onHover = false"
+      (click)="navigateToCreate()">
+      
+      <!-- Use the same template structure as your program-card.component -->
+      <div class="flex flex-column h-full justify-content-center">
+        <div class="flex flex-column align-items-center justify-content-center gap-3 py-5">
+          <div
+            class="flex align-items-center justify-content-center border-circle border-2 border-dashed w-5rem h-5rem surface-card"
+            [ngClass]="{'border-primary': onHover}">
+            <i class="pi pi-plus text-4xl" [ngClass]="{'text-primary': onHover}"></i>
+          </div>
+         
+          <div class="text-xl font-bold">
+            Add New Program
+          </div>
+         
+          <div class="text-center text-color-secondary px-3">
+            Create a new training program
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
