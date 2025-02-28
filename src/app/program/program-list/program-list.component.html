@@ -1,6 +1,6 @@
 <div>
     <div class="flex justify-content-center">
-        <div class="w-9 px-4">
+        <div class="w-full">
             <div *ngIf="loading" class="flex justify-content-center">
                 <p-progressSpinner
                     styleClass="w-4rem h-4rem"
@@ -12,7 +12,7 @@
 
             <div *ngIf="!loading" class="grid">
                 <div *ngFor="let program of programs" 
-                     class="col-12 sm:col-6 lg:col-4 p-2">
+                     class="col-12 sm:col-6 lg:col-3 p-2">
                     <app-program-card [program]="program">
                     </app-program-card>
                 </div>

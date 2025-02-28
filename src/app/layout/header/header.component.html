@@ -1,0 +1,18 @@
+<p-toolbar styleClass="flex surface-50 justify-content-between fixed top-0 right-0 border-noround border-none headercomponent p-2">
+  <div class="p-toolbar-group-start flex align-items-center">
+    <p-button icon="pi pi-align-justify" styleClass="mr-2 xl:hidden p-button-text p-button-rounded" severity="secondary" (onClick)="sidemenuVisible = true" />
+    <p-inputgroup styleClass="w-25rem">
+      <input pInputText placeholder="Search" />
+      <p-inputgroup-addon>
+          <p-button icon="pi pi-search" severity="secondary" variant="text"/>
+      </p-inputgroup-addon>
+  </p-inputgroup>
+  </div>
+  <div class="p-toolbar-group-end flex align-items-center">
+    <p-button icon="pi pi-lightbulb" styleClass="p-button-rounded p-button-text" (click)="toggleTheme()" />
+    <p-menubar [model]="items" styleClass="border-none bg-transparent" />
+    <p-drawer [(visible)]="sidemenuVisible" styleClass="w-18rem">
+      <app-sidebar></app-sidebar>
+    </p-drawer>
+  </div>
+</p-toolbar>
