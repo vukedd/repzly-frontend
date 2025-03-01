@@ -1,0 +1,116 @@
+<div class="side-menu fixed h-full surface-50 xl:22rem font-roboto left-0 top-0 z-4 sidebar">
+  <div class="content w-full flex flex-column pt-3 text-color">
+    <!-- Logo and App Name -->
+    <div class="header flex justify-content-center align-items-center gap-2 mb-5">
+      <img class="w-2 h-3" src="/fitness-logo.png" alt="Fitness Logo" />
+      <span class="text-xl font-medium">Fitness Programs</span>
+    </div>
+    
+    <!-- User Profile -->
+    <div class="user flex flex-column justify-content-center align-items-center gap-1 mb-4">
+      <p-avatar size="xlarge" shape="circle" [image]="this.photo" />
+      <span class="name text-lg font-medium mt-2">{{this.username || 'Loading...'}}</span>
+      <span class="email text-sm text-600">{{this.email || 'Loading...'}}</span>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <div class="flex flex-column options px-2">
+      <!-- Home -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="''"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-home mr-3" style="font-size: 1rem"></i>
+          <span>Home</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Running Programs -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/running-programs'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-play mr-3" style="font-size: 1rem"></i>
+          <span>Running Programs</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- My Programs (Conditional) -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/my-programs'"
+        *ngIf="this.role == 'TRAINER' || this.role == 'ADMIN'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-list mr-3" style="font-size: 1rem"></i>
+          <span>My Programs</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Followed Programs -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/followed-programs'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-heart mr-3" style="font-size: 1rem"></i>
+          <span>Followed Programs</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Workout History -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/workout-history'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-calendar mr-3" style="font-size: 1rem"></i>
+          <span>Workout History</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Nutrition -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/nutrition'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-apple mr-3" style="font-size: 1rem"></i>
+          <span>Nutrition</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Analytics -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/analytics'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-chart-line mr-3" style="font-size: 1rem"></i>
+          <span>Analytics</span>
+        </ng-template>
+      </p-button>
+      
+      <!-- Settings -->
+      <p-button
+        styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
+        [text]="true"
+        [routerLink]="'/home/settings'"
+      >
+        <ng-template pTemplate="content">
+          <i class="pi pi-cog mr-3" style="font-size: 1rem"></i>
+          <span>Settings</span>
+        </ng-template>
+      </p-button>
+    </div>
+  </div>
+</div>
