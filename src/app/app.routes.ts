@@ -3,6 +3,7 @@ import { ProgramListComponent } from './program/program-list/program-list.compon
 import { RegisterComponent } from './user/register/register.component';
 import { LoginComponent } from './user/login/login.component';
 import { ProgramCreateComponent } from './program/program-create/program-create.component';
+import { ProgramDetailsComponent } from './program/program-details/program-details.component';
 
 export const routes: Routes = [
     {
@@ -24,6 +25,11 @@ export const routes: Routes = [
         path: 'create-program',
         component: ProgramCreateComponent,
         title: 'Create program'
+    },
+    {
+        path: 'programs/:id',
+        component: ProgramDetailsComponent,
+        title:'Program details'
     }
 ];
 
