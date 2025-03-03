@@ -147,28 +147,28 @@
                                   </div>
                                   <div class="col-12 md:col-6 lg:col-4">
                                     <!-- Volume - Show range inputs according to metric type -->
-                                    <div class="flex align-items-center">
+                                    <div class="flex align-items-center" formGroupName="volume">
                                       <p-inputnumber
                                         *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)"
-                                        inputId="volumeMin{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="volumeMin" />
+                                        inputId="minimumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                        formControlName="minimumVolume" />
                                       <span class="mx-2" *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)">-</span>
                                       <p-inputnumber
-                                        inputId="volumeMax{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="volumeMax" />
+                                        inputId="maximumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                        formControlName="maximumVolume" />
                                     </div>
                                   </div>
                                   <div class="col-12 md:col-6 lg:col-4">
                                     <!-- Intensity - Show range inputs according to metric type -->
-                                    <div class="flex align-items-center">
+                                    <div class="flex align-items-center" formGroupName="intensity">
                                       <p-inputnumber
                                         *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)"
-                                        inputId="intensityMin{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="intensityMin" />
+                                        inputId="minimumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                        formControlName="minimumIntensity" />
                                       <span class="mx-2" *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)">-</span>
                                       <p-inputnumber
-                                        inputId="intensityMax{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="intensityMax" />
+                                        inputId="maximumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                        formControlName="maximumIntensity" />
                                     </div>
                                   </div>
                                   <div class="col-12 md:col-6 lg:col-1">
@@ -216,3 +216,4 @@
     </div>
   </form>
 </div>
+<p-toast></p-toast>

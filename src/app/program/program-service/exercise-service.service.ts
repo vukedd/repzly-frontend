@@ -1,18 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Exercise } from '../program.model';
+import { Exercise, ExerciseOverview } from '../program.model';
+import { API_URL } from '../../../globals';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExerciseService {
-  private apiUrl = 'api/exercises';
+  private apiUrl = `${API_URL}/exercises`;
 
   constructor(private http: HttpClient) { }
 
-  getExercises(): Observable<Exercise[]> {
-    return this.http.get<Exercise[]>(this.apiUrl);
+  getExercisesOverview(): Observable<ExerciseOverview[]> {
+    return this.http.get<ExerciseOverview[]>(this.apiUrl);
   }
 
   getExercise(id: number): Observable<Exercise> {

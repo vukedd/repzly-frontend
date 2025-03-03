@@ -30,15 +30,29 @@ export interface Program {
   
   export interface WorkoutExerciseSet {
     id?: number;
-    volume: VolumeMetric;
-    intensity: IntensityMetric;
+    volume: {
+      minimumVolume: number;
+      maximumVolume: number;
+    };
+    intensity: {
+      minimumIntensity: number;
+      maximumIntensity: number;
+    };
+    volumeMetric: VolumeMetric;
+    intensityMetric: IntensityMetric;
   }
+  
   
   export interface Exercise {
     id: number;
     title: string;
     description?: string;
     workedMuscles?: Muscle[];
+  }
+
+  export interface ExerciseOverview {
+    id: number;
+    title: string;
   }
   
   export interface Muscle {

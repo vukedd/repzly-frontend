@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Exercise, IntensityMetric, VolumeMetric } from '../program.model';
+import { Exercise, ExerciseOverview, IntensityMetric, VolumeMetric } from '../program.model';
 import { ProgramService } from '../program-service/program.service';
 import { ExerciseService } from '../program-service/exercise-service.service';
 import { MetricService } from '../program-service/metric-service.service';
@@ -18,6 +18,7 @@ import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { forkJoin } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-program-create',
@@ -34,7 +35,8 @@ import { forkJoin } from 'rxjs';
     InputTextModule,
     TextareaModule,
     TabsModule,
-    InputNumberModule
+    InputNumberModule,
+    ToastModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -48,7 +50,7 @@ export class ProgramCreateComponent implements OnInit {
   activeWeekTab: string = '0';
 
   // Data for dropdowns
-  exercises: Exercise[] = [];
+  exercises: ExerciseOverview[] = [];
   volumeMetrics: VolumeMetric[] = [];
   intensityMetrics: IntensityMetric[] = [];
   
@@ -72,18 +74,18 @@ export class ProgramCreateComponent implements OnInit {
 
   ngOnInit(): void {
     // Create observables for all data loading
-    const exercises$ = this.exerciseService.getExercises();
+    const exercises$ = this.exerciseService.getExercisesOverview();
     const volumeMetrics$ = this.metricService.getVolumeMetrics();
     const intensityMetrics$ = this.metricService.getIntensityMetrics();
     
     // Use forkJoin to wait for all data to load
     forkJoin({
-      // exercises: exercises$,
+      exercises: exercises$,
       volumeMetrics: volumeMetrics$,
       intensityMetrics: intensityMetrics$
     }).subscribe({
       next: (result) => {
-        // this.exercises = result.exercises;
+        this.exercises = result.exercises;
         this.volumeMetrics = result.volumeMetrics;
         this.intensityMetrics = result.intensityMetrics;
         
@@ -202,13 +204,22 @@ export class ProgramCreateComponent implements OnInit {
 
   // Create set with all possible form controls to avoid "Cannot find control" errors
   addSet(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
-    // Always create a form with all possible fields to avoid "Cannot find control" errors
+    // Get the parent exercise to access its selected metrics
+    const exercise = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
+    const volumeMetric = exercise.get('volumeMetric')?.value;
+    const intensityMetric = exercise.get('intensityMetric')?.value;
+    
     const setForm = this.fb.group({
-      // Add all possible controls regardless of current metric types
-      volumeMin: [null, Validators.required],
-      volumeMax: [null, Validators.required],
-      intensityMin: [null, Validators.required],
-      intensityMax: [null, Validators.required]
+      volume: this.fb.group({
+        minimumVolume: [null, Validators.required],
+        maximumVolume: [null, Validators.required]
+      }),
+      intensity: this.fb.group({
+        minimumIntensity: [null, Validators.required],
+        maximumIntensity: [null, Validators.required]
+      }),
+      volumeMetric: [volumeMetric], // Use the parent exercise's volumeMetric
+      intensityMetric: [intensityMetric] // Use the parent exercise's intensityMetric
     });
     
     this.getSets(weekIndex, workoutIndex, exerciseIndex).push(setForm);
@@ -225,6 +236,12 @@ export class ProgramCreateComponent implements OnInit {
     
     if (selectedMetric) {
       this.selectedVolumeMetrics.set(key, selectedMetric);
+      
+      // Update all existing sets with the new metric
+      const sets = this.getSets(weekIndex, workoutIndex, exerciseIndex);
+      for (let i = 0; i < sets.length; i++) {
+        sets.at(i).get('volumeMetric')?.setValue(selectedMetric);
+      }
     }
   }
   
@@ -235,6 +252,12 @@ export class ProgramCreateComponent implements OnInit {
     
     if (selectedMetric) {
       this.selectedIntensityMetrics.set(key, selectedMetric);
+      
+      // Update all existing sets with the new metric
+      const sets = this.getSets(weekIndex, workoutIndex, exerciseIndex);
+      for (let i = 0; i < sets.length; i++) {
+        sets.at(i).get('intensityMetric')?.setValue(selectedMetric);
+      }
     }
   }
   
@@ -266,15 +289,12 @@ export class ProgramCreateComponent implements OnInit {
       });
       return;
     }
-
+  
     this.loading = true;
-    const formData = new FormData();
-    formData.append('program', JSON.stringify(this.programForm.value));
     
-    if (this.uploadedImage) {
-      formData.append('image', this.uploadedImage);
-    }
-
+    // Use the service to prepare the form data
+    const formData = this.programService.prepareFormData(this.programForm.value, this.uploadedImage);
+    
     this.programService.createProgram(formData).subscribe({
       next: (result: any) => {
         this.loading = false;

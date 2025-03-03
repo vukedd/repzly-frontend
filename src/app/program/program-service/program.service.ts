@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { ProgramOverviewDTO } from "../program-overview-dto"
 import { PageResponse } from '../../common/page/page-response';
 import { Program } from '../program.model';
+import { API_URL } from '../../../globals';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProgramService {
-    private apiUrl = 'http://localhost:8080/api/programs';
+    public apiUrl = `${API_URL}/programs`;
 
     constructor(private http: HttpClient) {}
 
@@ -20,20 +21,59 @@ export class ProgramService {
           
         return this.http.get<PageResponse>(this.apiUrl, { params });
       }
-      
-      getProgram(id: number): Observable<Program> {
+
+    getProgramById(id: number): Observable<Program> {
         return this.http.get<Program>(`${this.apiUrl}/${id}`);
       }
-    
-      createProgram(programData: FormData): Observable<Program> {
-        return this.http.post<Program>(this.apiUrl, programData);
+      
+      createProgram(formData: FormData): Observable<any> {
+        return this.http.post(this.apiUrl, formData);
       }
     
-      updateProgram(id: number, programData: FormData): Observable<Program> {
-        return this.http.put<Program>(`${this.apiUrl}/${id}`, programData);
+      // Helper method to prepare the form data with proper mapping
+      prepareFormData(program: Program, image: File | null): FormData {
+        // Create a deep copy to modify without affecting the original
+        const programCopy = this.mapProgramForBackend(program);
+        
+        const formData = new FormData();
+        formData.append('program', JSON.stringify(programCopy));
+        console.log(formData);
+        
+        if (image) {
+          formData.append('image', image);
+        }
+        
+        return formData;
       }
     
-      deleteProgram(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+      // Map the frontend program model to match backend expectations
+      private mapProgramForBackend(program: Program): any {
+        return {
+          name: program.name,
+          weeks: program.weeks.map(week => ({
+            workouts: week.workouts.map(workout => ({
+              title: workout.title,
+              description: workout.description,
+              number: workout.number,
+              workoutExercises: workout.workoutExercises.map(exercise => ({
+                exercise: exercise.exercise.id,
+                workoutExerciseSets: exercise.workoutExerciseSets.map(set => {
+                  // Debug logs to help identify problems
+                  console.log('Set volume metric:', set.volumeMetric);
+                  console.log('Set intensity metric:', set.intensityMetric);
+                  
+                  return {
+                    volumeMin: set.volume.minimumVolume,
+                    volumeMax: set.volume.maximumVolume,
+                    intensityMin: set.intensity.minimumIntensity,
+                    intensityMax: set.intensity.maximumIntensity,
+                    volumeMetric: set.volumeMetric?.id || null,
+                    intensityMetric: set.intensityMetric?.id || null
+                  };
+                })
+              }))
+            }))
+          }))
+        };
       }
 }

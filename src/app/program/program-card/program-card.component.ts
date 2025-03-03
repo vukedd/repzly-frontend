@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { RatingModule } from 'primeng/rating';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProgramService } from '../program-service/program.service';
 @Component({
   selector: 'app-program-card',
   imports: [CardModule,ButtonModule,RatingModule,CommonModule,FormsModule],
@@ -21,11 +22,15 @@ export class ProgramCardComponent implements OnInit {
   iconClass = 'pi pi-heart';
   followTextClass="Follow";
   followSeverity: 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined = 'secondary';
-  
+  apiUrl:string;
+
   constructor(
     private sanitizer: DomSanitizer,
-    private router: Router
-  ) {}
+    private router: Router,
+    private programService:ProgramService
+  ) {
+    this.apiUrl=programService.apiUrl;
+  }
 
   ngOnInit(): void {
     this.iconClass = !this.isFollowed ? 'pi pi-heart' : 'pi pi-heart-fill';
@@ -33,13 +38,7 @@ export class ProgramCardComponent implements OnInit {
     this.followSeverity=!this.isFollowed?'primary' :'secondary';
   }
   
-  get programImage(): SafeUrl {
-    if (this.program.imageData) {
-      const imageDataString = this.arrayBufferToBase64(this.program.imageData);
-      return this.sanitizer.bypassSecurityTrustUrl('data:image/jpeg;base64,' + imageDataString);
-    }
-    return 'assets/default-program.jpg'; // Fallback image
-  }
+  
   
   navigateToDetails(event?: Event): void {
     if (event) {
@@ -59,22 +58,6 @@ export class ProgramCardComponent implements OnInit {
     // Here you would add API call to like/unlike the program
   }
   
-  private arrayBufferToBase64(buffer: any): string {
-    if (typeof window !== 'undefined' && window.localStorage){
-    if (!buffer) return '';
-    
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    
-    return window.btoa(binary);
-  }
-  return "";
-  }
 
   
 }
