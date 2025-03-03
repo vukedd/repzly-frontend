@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -15,10 +15,11 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { TabsModule } from 'primeng/tabs';
+import { TabsModule, TabList } from 'primeng/tabs'; // Import TabList
 import { InputNumberModule } from 'primeng/inputnumber';
 import { forkJoin } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
+
 
 @Component({
   selector: 'app-program-create',
@@ -40,7 +41,8 @@ import { ToastModule } from 'primeng/toast';
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
-  providers: [MessageService]
+  providers: [MessageService],
+  encapsulation: ViewEncapsulation.None
 })
 export class ProgramCreateComponent implements OnInit {
   programForm: FormGroup;
@@ -48,6 +50,9 @@ export class ProgramCreateComponent implements OnInit {
   currentUser: any;
   loading = false;
   activeWeekTab: string = '0';
+
+  // Add ViewChild for TabList
+  @ViewChild('tablist') tablistComponent!: TabList;
 
   // Data for dropdowns
   exercises: ExerciseOverview[] = [];
@@ -107,6 +112,11 @@ export class ProgramCreateComponent implements OnInit {
     return this.programForm.get('weeks') as FormArray;
   }
 
+  private findSingle(element: HTMLElement, selector: string): HTMLElement | null {
+    if (!element) return null;
+    return element.querySelector(selector);
+  }
+
   addWeek(): void {
     const weekForm = this.fb.group({
       workouts: this.fb.array([])
@@ -115,7 +125,12 @@ export class ProgramCreateComponent implements OnInit {
     
     // Add initial workout to the new week
     this.addWorkout(this.weeks.length - 1);
+    
+    // Set active week tab
     this.activeWeekTab = (this.weeks.length - 1).toString();
+    
+    // Schedule scrolling to the newly added tab
+    setTimeout(() => this.scrollToActiveTab(), 100);
   }
 
   removeWeek(weekIndex: number): void {
@@ -127,8 +142,36 @@ export class ProgramCreateComponent implements OnInit {
       // Adjust active tab if we removed a week before the active one
       this.activeWeekTab = (parseInt(this.activeWeekTab) - 1).toString();
     }
+    
+    // Update tab navigation after removing a tab
+    setTimeout(() => {
+      if (this.tablistComponent) {
+        this.tablistComponent.updateButtonState();
+        this.tablistComponent.updateInkBar();
+        this.scrollToActiveTab();
+      }
+    }, 100);
   }
 
+  // Method to scroll to the active tab
+  scrollToActiveTab(): void {
+    if (this.tablistComponent) {
+      const element = this.findSingle(this.tablistComponent.content.nativeElement, 
+        `[data-pc-name="tab"][data-p-active="true"]`);
+      if (element?.scrollIntoView) {
+        element.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  // Method to handle tab changes
+  onTabChange(event: any): void {
+    this.activeWeekTab = event.index.toString();
+    this.scrollToActiveTab();
+  }
+
+  // Rest of the component remains the same...
+  
   getWorkouts(weekIndex: number): FormArray {
     return this.weeks.at(weekIndex).get('workouts') as FormArray;
   }
@@ -202,7 +245,6 @@ export class ProgramCreateComponent implements OnInit {
       .at(exerciseIndex).get('workoutExerciseSets') as FormArray;
   }
 
-  // Create set with all possible form controls to avoid "Cannot find control" errors
   addSet(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
     // Get the parent exercise to access its selected metrics
     const exercise = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
@@ -211,15 +253,15 @@ export class ProgramCreateComponent implements OnInit {
     
     const setForm = this.fb.group({
       volume: this.fb.group({
-        minimumVolume: [null, Validators.required],
+        minimumVolume: [null],
         maximumVolume: [null, Validators.required]
       }),
       intensity: this.fb.group({
-        minimumIntensity: [null, Validators.required],
+        minimumIntensity: [null],
         maximumIntensity: [null, Validators.required]
       }),
-      volumeMetric: [volumeMetric], // Use the parent exercise's volumeMetric
-      intensityMetric: [intensityMetric] // Use the parent exercise's intensityMetric
+      volumeMetric: [volumeMetric], 
+      intensityMetric: [intensityMetric]
     });
     
     this.getSets(weekIndex, workoutIndex, exerciseIndex).push(setForm);
@@ -229,7 +271,6 @@ export class ProgramCreateComponent implements OnInit {
     this.getSets(weekIndex, workoutIndex, exerciseIndex).removeAt(setIndex);
   }
 
-  // Handle volume metric change
   onVolumeMetricChange(weekIndex: number, workoutIndex: number, exerciseIndex: number, event: any): void {
     const selectedMetric = event.value;
     const key = `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
@@ -245,7 +286,6 @@ export class ProgramCreateComponent implements OnInit {
     }
   }
   
-  // Handle intensity metric change
   onIntensityMetricChange(weekIndex: number, workoutIndex: number, exerciseIndex: number, event: any): void {
     const selectedMetric = event.value;
     const key = `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
@@ -261,7 +301,6 @@ export class ProgramCreateComponent implements OnInit {
     }
   }
   
-  // Helper methods to check if metrics are range type
   isVolumeRange(weekIndex: number, workoutIndex: number, exerciseIndex: number): boolean {
     const key = `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
     const metric = this.selectedVolumeMetrics.get(key);
