@@ -6,15 +6,12 @@
 <a [routerLink]="['']">Products</a>
 <router-outlet></router-outlet> -->
 <div class="layout-wrapper flex">
-
-  <app-sidebar class="hidden xl:block"></app-sidebar>
+  <app-sidebar class="hidden xl:block sidebar-fixed"></app-sidebar>
  
-  <div class="content-area flex flex-column flex-grow-1">
-
+  <div class="content-area flex flex-column flex-grow-1 w-full">
     <app-header></app-header>
-
     <div class="w-full">
-      <div class="main-content">
+      <div class="main-content p-0">
         <router-outlet></router-outlet>
       </div>
     </div>

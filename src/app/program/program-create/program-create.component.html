@@ -1,11 +1,11 @@
 <!-- program-create.component.html -->
-<div class="surface-card p-4 shadow-2 border-round">
-  <div class="text-3xl font-bold mb-4">Create New Fitness Program</div>
+<div class="surface-50 p-0 shadow-2 border-round">
+  <div class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Create New Fitness Program</div>
 
   <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
-    <div class="grid">
+    <div class="grid p-2">
       <!-- Program Basic Info -->
-      <div class="col-12 mb-4">
+      <div class="col-12 mb-3 md:mb-4">
         <div class="p-fluid">
           <div class="field">
             <label for="name" class="font-bold">Program Name</label>
@@ -24,41 +24,41 @@
       </div>
 
       <!-- Weeks Section with Tabs -->
-      <div class="col-12">
+      <div class="col-12 p-0">
         <div class="flex justify-content-end mb-2">
           <button pButton type="button" label="Add Week" icon="pi pi-plus" class="p-button-outlined"
             (click)="addWeek()"></button>
         </div>
 
-        <p-tabs [value]="activeWeekTab" formArrayName="weeks">
-          <p-tablist>
+        <p-tabs [value]="activeWeekTab" formArrayName="weeks" scrollable (onChange)="onTabChange($event)">
+          <p-tablist #tablist >
             @for (week of weeks.controls; track $index) {
             <p-tab [value]="$index.toString()">Week {{ $index + 1 }}</p-tab>
             }
           </p-tablist>
 
-          <p-tabpanels>
+          <p-tabpanels styleClass="p-0" class="p-0">
             @for (week of weeks.controls; track $index) {
-            <p-tabpanel [value]="$index.toString()">
-              <div [formGroupName]="$index" class="p-3">
-                <div class="flex justify-content-between align-items-center mb-3">
-                  <h3 class="m-0">Week {{ $index + 1 }}</h3>
+            <p-tabpanel [value]="$index.toString()" >
+              <div [formGroupName]="$index" >
+                <div class="flex flex-column sm:flex-row justify-content-between align-items-center mb-3">
+                  <h3 class="m-0 mb-2 sm:mb-0">Week {{ $index + 1 }}</h3>
                   <button pButton type="button" icon="pi pi-trash"
                     class="p-button-rounded p-button-danger p-button-text" (click)="removeWeek($index)"
                     [disabled]="weeks.length <= 1"></button>
                 </div>
 
                 <!-- Workouts for this Week -->
-                <div formArrayName="workouts">
-                  <p-accordion>
+                <div formArrayName="workouts" class="w-full">
+                  <p-accordion styleClass="">
                     <p-accordion-panel *ngFor="let workout of getWorkouts($index).controls; let workoutIndex = index"
                       value="{{workoutIndex}}">
                       <p-accordion-header>{{workout.get('title')?.value || 'Workout ' + (workoutIndex +
                         1)}}</p-accordion-header>
-                      <p-accordion-content>
-                        <div [formGroupName]="workoutIndex" class="p-3">
-                          <div class="flex justify-content-between align-items-center mb-3">
-                            <div class="p-fluid grid">
+                      <p-accordion-content styleClass="overflow-auto" class="overflow-auto">
+                        <div [formGroupName]="workoutIndex" class="p-2 md:p-3">
+                          <div class="flex flex-column justify-content-between align-items-center mb-3">
+                            <div class="p-fluid grid w-full">
                               <div class="field col-12 md:col-4">
                                 <label for="title{{$index}}-{{workoutIndex}}" class="font-bold">Title</label>
                                 <input id="title{{$index}}-{{workoutIndex}}" type="text" pInputText
@@ -77,7 +77,7 @@
                               </div>
                             </div>
                             <button pButton type="button" icon="pi pi-trash"
-                              class="p-button-rounded p-button-danger p-button-text ml-2"
+                              class="p-button-rounded p-button-danger p-button-text mt-2 md:mt-0"
                               (click)="removeWorkout($index, workoutIndex)"
                               [disabled]="getWorkouts($index).length <= 1"></button>
                           </div>
@@ -90,9 +90,9 @@
 
                             <div
                               *ngFor="let exercise of getWorkoutExercises($index, workoutIndex).controls; let exerciseIndex = index"
-                              [formGroupName]="exerciseIndex" class="p-3 border-round mb-3">
-                              <div class="flex justify-content-between align-items-center mb-3">
-                                <h4 class="m-0">Exercise {{ exerciseIndex + 1 }}</h4>
+                              [formGroupName]="exerciseIndex" class="p-2 md:p-3 border-round mb-3">
+                              <div class="flex flex-column sm:flex-row justify-content-between align-items-center mb-3">
+                                <h4 class="m-0 mb-2 sm:mb-0">Exercise {{ exerciseIndex + 1 }}</h4>
                                 <button pButton type="button" icon="pi pi-trash"
                                   class="p-button-rounded p-button-danger p-button-text"
                                   (click)="removeWorkoutExercise($index, workoutIndex, exerciseIndex)"
@@ -132,50 +132,120 @@
                                   <span class="p-tag p-tag-success">Sets</span>
                                 </p-divider>
 
-                                <div class="grid">
-                                  <div class="col-12 md:col-6 lg:col-3 font-bold">Set</div>
-                                  <div class="col-12 md:col-6 lg:col-4 font-bold">Volume</div>
-                                  <div class="col-12 md:col-6 lg:col-4 font-bold">Intensity</div>
-                                  <div class="col-12 md:col-6 lg:col-1 font-bold">Actions</div>
+                                <div class="grid hidden md:flex">
+                                  <div class="col-3 font-bold">Set</div>
+                                  <div class="col-4 font-bold">
+                                    {{ selectedVolumeMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}
+                                  </div>
+                                  <div class="col-4 font-bold">
+                                    {{ selectedIntensityMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}
+                                  </div>
+                                  <div class="col-1 font-bold">Actions</div>
                                 </div>
 
                                 <div
                                   *ngFor="let set of getSets($index, workoutIndex, exerciseIndex).controls; let setIndex = index"
-                                  [formGroupName]="setIndex" class="grid align-items-center mb-2">
-                                  <div class="col-12 md:col-6 lg:col-3">
-                                    Set {{ setIndex + 1 }}
-                                  </div>
-                                  <div class="col-12 md:col-6 lg:col-4">
-                                    <!-- Volume - Show range inputs according to metric type -->
-                                    <div class="flex align-items-center" formGroupName="volume">
-                                      <p-inputnumber
-                                        *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)"
-                                        inputId="minimumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="minimumVolume" />
-                                      <span class="mx-2" *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)">-</span>
-                                      <p-inputnumber
-                                        inputId="maximumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="maximumVolume" />
+                                  [formGroupName]="setIndex" class="mb-3 md:mb-2">
+                                  
+                                  <!-- Mobile view: stacked layout -->
+                                  <div class="grid md:hidden">
+                                    <div class="col-12 font-bold mb-2">Set {{ setIndex + 1 }}</div>
+                                    
+                                    <div class="col-12 mb-2">
+                                      <label class="block mb-1">{{ selectedVolumeMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label>
+                                      <div class="flex align-items-center" formGroupName="volume">
+                                        <p-inputnumber
+                                          *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)"
+                                          inputId="minimumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="minimumVolume"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                        <span class="mx-2" *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)">-</span>
+                                        <p-inputnumber
+                                          inputId="maximumVolume{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="maximumVolume"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                      </div>
+                                    </div>
+                                    
+                                    <div class="col-12 mb-2">
+                                      <label class="block mb-1">{{ selectedIntensityMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label>
+                                      <div class="flex align-items-center" formGroupName="intensity">
+                                        <p-inputnumber
+                                          *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)"
+                                          inputId="minimumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="minimumIntensity"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                        <span class="mx-2" *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)">-</span>
+                                        <p-inputnumber
+                                          inputId="maximumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="maximumIntensity"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                      </div>
+                                    </div>
+                                    
+                                    <div class="col-12 text-right">
+                                      <button pButton type="button" icon="pi pi-trash"
+                                        class="p-button-rounded p-button-danger p-button-text"
+                                        (click)="removeSet($index, workoutIndex, exerciseIndex, setIndex)"
+                                        [disabled]="getSets($index, workoutIndex, exerciseIndex).length <= 1"></button>
                                     </div>
                                   </div>
-                                  <div class="col-12 md:col-6 lg:col-4">
-                                    <!-- Intensity - Show range inputs according to metric type -->
-                                    <div class="flex align-items-center" formGroupName="intensity">
-                                      <p-inputnumber
-                                        *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)"
-                                        inputId="minimumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="minimumIntensity" />
-                                      <span class="mx-2" *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)">-</span>
-                                      <p-inputnumber
-                                        inputId="maximumIntensity{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
-                                        formControlName="maximumIntensity" />
+                                  
+                                  <!-- Desktop view: horizontal layout -->
+                                  <div class="hidden md:grid md:align-items-center">
+                                    <div class="col-3">
+                                      Set {{ setIndex + 1 }}
                                     </div>
-                                  </div>
-                                  <div class="col-12 md:col-6 lg:col-1">
-                                    <button pButton type="button" icon="pi pi-trash"
-                                      class="p-button-rounded p-button-danger p-button-text"
-                                      (click)="removeSet($index, workoutIndex, exerciseIndex, setIndex)"
-                                      [disabled]="getSets($index, workoutIndex, exerciseIndex).length <= 1"></button>
+                                    <div class="col-4">
+                                      <div class="flex align-items-center" formGroupName="volume">
+                                        <p-inputnumber
+                                          *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)"
+                                          inputId="minimumVolumeDesktop{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="minimumVolume"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                        <span class="mx-2" *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)">-</span>
+                                        <p-inputnumber
+                                          inputId="maximumVolumeDesktop{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="maximumVolume"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                      </div>
+                                    </div>
+                                    <div class="col-4">
+                                      <div class="flex align-items-center" formGroupName="intensity">
+                                        <p-inputnumber
+                                          *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)"
+                                          inputId="minimumIntensityDesktop{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="minimumIntensity"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                        <span class="mx-2" *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)">-</span>
+                                        <p-inputnumber
+                                          inputId="maximumIntensityDesktop{{$index}}-{{workoutIndex}}-{{exerciseIndex}}-{{setIndex}}"
+                                          formControlName="maximumIntensity"
+                                          [style]="{'width':'6rem'}"
+                                          [inputStyle]="{'width':'100%'}"
+                                          [showButtons]="false" />
+                                      </div>
+                                    </div>
+                                    <div class="col-1">
+                                      <button pButton type="button" icon="pi pi-trash"
+                                        class="p-button-rounded p-button-danger p-button-text"
+                                        (click)="removeSet($index, workoutIndex, exerciseIndex, setIndex)"
+                                        [disabled]="getSets($index, workoutIndex, exerciseIndex).length <= 1"></button>
+                                    </div>
                                   </div>
                                 </div>
 
@@ -209,9 +279,9 @@
       </div>
 
       <!-- Submit Button -->
-      <div class="col-12 flex justify-content-center mt-5">
-        <p-button type="submit" label="Create Program" icon="pi pi-check" class="p-button-lg"
-          [loading]="loading"></p-button>
+      <div class="col-12 flex justify-content-center mt-4 md:mt-5">
+        <p-button type="submit" label="Create Program" icon="pi pi-check" 
+          class="p-button-md md:p-button-lg" [loading]="loading"></p-button>
       </div>
     </div>
   </form>
