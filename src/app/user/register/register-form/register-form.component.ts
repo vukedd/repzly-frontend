@@ -1,20 +1,37 @@
-import { Component} from '@angular/core';
+import { Component, Output, EventEmitter} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { RouterModule} from '@angular/router';
 import { RegisterService } from '../register-service/register.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-register-form',
   standalone: true,
-  imports: [InputTextModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, RouterModule, TooltipModule],
+  imports: [InputTextModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, TooltipModule, ToastModule],
+  providers: [MessageService],
   templateUrl: 'register-form.html',
   styleUrl: './register-form.component.css'
 })
 export class RegisterFormComponent {
+  @Output() modeChanged = new EventEmitter<boolean>();
+  changeToLoginMode(value: boolean) {
+    this.modeChanged.emit(value);
+  }  
+  
+
+  @Output() errorOccurred = new EventEmitter<string>();
+  emitRegisterError(errorMessage: string) {
+    this.errorOccurred.emit(errorMessage);
+  }
+
+  @Output() successfullRegistration = new EventEmitter<string>();
+  emitRegistrationEvent(message: string) {
+    this.successfullRegistration.emit(message);
+  }
 
   registerForm = new FormGroup({
     firstName: new FormControl('', [Validators.required, Validators.pattern("^[A-Za-zÀ-ÖØ-öø-ÿ'-]{2,20}$")]),
@@ -28,7 +45,7 @@ export class RegisterFormComponent {
 
   });
 
-  constructor(private registerService: RegisterService) {}
+  constructor(private registerService: RegisterService, private messageService: MessageService) {}
 
   sendRegisterRequest(): void {
     this.registerService.registerUser({
@@ -37,8 +54,14 @@ export class RegisterFormComponent {
       email: this.registerForm.value.email ?? '',
       username: this.registerForm.value.username ?? '',
       password: this.registerForm.value.password ?? ''
-    }).subscribe(response => {
-      console.log(response);
+    }).subscribe({
+      next: (response) => {
+        this.emitRegistrationEvent(response.message);
+        this.registerForm.reset();
+      },
+      error: (error) => {
+        this.emitRegisterError(error.error.message);
+      }
     });
   }
 }
