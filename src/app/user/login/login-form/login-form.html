@@ -1,5 +1,4 @@
 <div class="flex justify-content-center align-items-center flex-column p-2 ">
-    <h1>Sign in</h1>
     <form class="flex justify-content-center align-items-center flex-column" [formGroup]="loginForm" (submit)="sendLoginRequest()">
         <div class="flex flex-col align-items-center justify-content-center mt-1">
             <p-floatlabel variant="in">
@@ -13,7 +12,7 @@
                 <label for="password">Password:</label>
             </p-floatlabel>
         </div>
-        <small class="my-3">You don't have an account? <a [routerLink]="['/register']">Sign up here</a></small>
-        <p-button severity="contrast" [disabled]="!loginForm.valid" type="submit">Submit</p-button>
+        <small class="my-3">You don't have an account? <a href="#" (click)="changeToRegisterMode(false)">Sign up here</a></small>
+        <p-button severity="contrast" [disabled]="!loginForm.valid" type="submit">Sign in</p-button>
     </form>
 </div>

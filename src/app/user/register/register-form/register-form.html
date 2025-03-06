@@ -1,6 +1,5 @@
 <div class="flex justify-content-center align-items-center flex-column p-2 ">
-    <h1>Sign up</h1>
-    <form class="flex justify-content-center align-items-center flex-column" [formGroup]="registerForm" (submit)="sendRegisterRequest()">
+        <form class="flex justify-content-center align-items-center flex-column" [formGroup]="registerForm" (submit)="sendRegisterRequest()">
         <div class="flex flex-col align-items-center justify-content-center mt-1">
             <p-floatlabel variant="in">
                 <input id="firstName" pInputText formControlName="firstName" pTooltip="First name must contain textual characters without spaces (2-20 characters)"/>
@@ -31,7 +30,7 @@
                 <label for="password">Password:</label>
             </p-floatlabel>
         </div>
-        <small class="my-3">You already have an account? <a [routerLink]="['/login']">Sign in here</a></small>
-        <p-button label="Submit" type="submit" severity="contrast" [disabled]="!registerForm.valid"/>
+        <small class="my-3">You already have an account? <a href="#" (click)="changeToLoginMode(true)">Sign in here</a></small>
+        <p-button label="Sign up" type="submit" severity="contrast" [disabled]="!registerForm.valid"/>
     </form>
 </div>
