@@ -95,10 +95,7 @@ export class ProgramDetailsComponent implements OnInit {
         this.loading = false;
         
         // Load image if available
-        if (this.program.imageData) {
-          const base64String = 'data:image/jpeg;base64,' + this._arrayBufferToBase64(this.program.imageData);
-          this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(base64String);
-        }
+        
         
         // Set active tab to first week
         if (this.program.weeks && this.program.weeks.length > 0) {

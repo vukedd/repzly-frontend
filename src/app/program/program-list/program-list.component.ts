@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ProgramOverviewDTO } from '../program-overview-dto';
 import { ProgramService } from '../program-service/program.service';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -20,9 +20,9 @@ interface PageEvent {
   selector: 'app-program-list',
   standalone: true,
   imports: [
-    ToolbarModule, 
-    ButtonModule, 
-    ProgressSpinnerModule, 
+    ToolbarModule,
+    ButtonModule,
+    ProgressSpinnerModule,
     ProgramCardComponent,
     AddProgramCardComponent,
     CommonModule,
@@ -32,6 +32,7 @@ interface PageEvent {
   styleUrl: './program-list.component.css'
 })
 export class ProgramListComponent implements OnInit {
+  @Input() programsType: string = '';
   programs: ProgramOverviewDTO[] = [];
   loading: boolean = true;
   public first: number = 0;
@@ -39,34 +40,55 @@ export class ProgramListComponent implements OnInit {
   public page: number = 0;
   public totalRecords: number = 0;
   public totalPages: number = 0;
-  
-  constructor(private programService: ProgramService) {}
-  
+
+  constructor(private programService: ProgramService) { }
+
   ngOnInit() {
     this.loadPrograms(this.page, this.rows);
   }
-  
+
   loadPrograms(page: number, size: number) {
     this.loading = true;
-    this.programService.getPrograms(size, page).subscribe({
-      next: (response) => {
-        this.programs = response.content;
-        this.totalRecords = response.page.totalElements;
-        this.totalPages = response.page.totalPages;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading programs:', error);
-        this.loading = false;
+    switch (this.programsType) {
+      case "started":
+      case "Started":{
+        this.programService.getStartedProgramsOverview(size, page).subscribe({
+          next: (response) => {
+            this.programs = response.content;
+            this.totalRecords = response.page.totalElements;
+            this.totalPages = response.page.totalPages;
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error loading programs:', error);
+            this.loading = false;
+          }
+        });
+        break;
       }
-    });
+      default:{
+        this.programService.getAllProgramsOverview(size, page).subscribe({
+          next: (response) => {
+            this.programs = response.content;
+            this.totalRecords = response.page.totalElements;
+            this.totalPages = response.page.totalPages;
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error loading programs:', error);
+            this.loading = false;
+          }
+        });
+        break;
+      }
+    }
   }
-  
+
   onPageChange(event: PageEvent) {
     this.first = event.first;
     this.rows = event.rows;
     this.page = event.page;
-    
+
     // Load data from server with new pagination parameters
     this.loadPrograms(this.page, this.rows);
   }

@@ -1,7 +1,6 @@
 export interface Program {
     id?: number;
     name: string;
-    imageData?: any;
     creator?: any;
     followersNumber?: number;
     reviews?: Review[];
@@ -25,7 +24,9 @@ export interface Program {
   export interface WorkoutExercise {
     id?: number;
     exercise: Exercise;
-    workoutExerciseSets: WorkoutExerciseSet[];
+    minimumRestTime:number;
+    maximumRestTime:number;
+    sets: WorkoutExerciseSet[];
   }
   
   export interface WorkoutExerciseSet {

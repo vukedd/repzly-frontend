@@ -31,7 +31,7 @@
       <p-button
         styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
         [text]="true"
-        [routerLink]="'/home/running-programs'"
+        [routerLink]="'started-programs'"
       >
         <ng-template pTemplate="content">
           <i class="pi pi-play mr-3" style="font-size: 1rem"></i>
@@ -43,7 +43,7 @@
       <p-button
         styleClass="w-full justify-content-left pl-3 border-round h-3rem mb-2 text-color hover:bg-blue-50 hover:text-blue-500"
         [text]="true"
-        [routerLink]="'/home/my-programs'"
+        [routerLink]="'started-programs'"
         *ngIf="this.role == 'TRAINER' || this.role == 'ADMIN'"
       >
         <ng-template pTemplate="content">
