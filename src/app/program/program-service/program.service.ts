@@ -56,6 +56,7 @@ export class ProgramService {
 
   // Map the frontend program model to match backend expectations
   private mapProgramForBackend(program: Program): any {
+    console.log(program);
     return {
       name: program.name,
       weeks: program.weeks.map(week => ({
@@ -67,7 +68,7 @@ export class ProgramService {
             exercise: exercise.exercise.id,
             minimumRestTime: exercise.minimumRestTime,
             maximumRestTime: exercise.maximumRestTime,
-            workoutExerciseSets: exercise.sets.map(set => {
+            sets: exercise.sets.map(set => {
               // Debug logs to help identify problems
               console.log('Set volume metric:', set.volumeMetric);
               console.log('Set intensity metric:', set.intensityMetric);

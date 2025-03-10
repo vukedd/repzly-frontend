@@ -120,11 +120,11 @@
                             <div class="grid">
                               <div class="col-12 sm:col-6">
                                 <label class="font-bold">Volume Metric</label>
-                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.workoutExerciseSets[0]?.volumeMetric?.title || 'N/A'}}</div>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.sets[0]?.volumeMetric?.title || 'N/A'}}</div>
                               </div>
                               <div class="col-12 sm:col-6">
                                 <label class="font-bold">Intensity Metric</label>
-                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.workoutExerciseSets[0]?.intensityMetric?.title || 'N/A'}}</div>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.sets[0]?.intensityMetric?.title || 'N/A'}}</div>
                               </div>
                             </div>
   
@@ -142,7 +142,7 @@
                                 <div class="col-3 font-bold">Rest</div>
                               </div>
   
-                              @for (set of exercise.workoutExerciseSets; track set; let setIndex = $index) {
+                              @for (set of exercise.sets; track set; let setIndex = $index) {
                               <!-- Mobile view: stacked layout -->
                               <div class="grid mb-3 pb-2 border-bottom-1 border-300">
                                 <div class="col-12 font-bold mb-2">Set {{ setIndex + 1 }}</div>

@@ -204,7 +204,7 @@ export class ProgramCreateComponent implements OnInit {
       exercise: [null, Validators.required],
       volumeMetric: [null, Validators.required],
       intensityMetric: [null, Validators.required],
-      workoutExerciseSets: this.fb.array([]),
+      sets: this.fb.array([]),
       minimumRestTime:[0, Validators.required],
       maximumRestTime:[60, Validators.required],
       restTimeMetric:[this.restTimeMetrics[0], Validators.required]
@@ -247,7 +247,7 @@ export class ProgramCreateComponent implements OnInit {
 
   getSets(weekIndex: number, workoutIndex: number, exerciseIndex: number): FormArray {
     return this.getWorkoutExercises(weekIndex, workoutIndex)
-      .at(exerciseIndex).get('workoutExerciseSets') as FormArray;
+      .at(exerciseIndex).get('sets') as FormArray;
   }
 
   addSet(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
