@@ -8,6 +8,7 @@ import { RatingModule } from 'primeng/rating';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgramService } from '../program-service/program.service';
+import { response } from 'express';
 @Component({
   selector: 'app-program-card',
   imports: [CardModule,ButtonModule,RatingModule,CommonModule,FormsModule],
@@ -57,6 +58,21 @@ export class ProgramCardComponent implements OnInit {
     // Here you would add API call to like/unlike the program
   }
   
+  startProgram(event:Event):void{
+    event.stopPropagation(); // Prevent card click when clicking like button
+    this.programService.startProgram(this.program.id).subscribe(
+    {
+      next:(response)=>{
+        console.log(this.program.id);
+      }
+    }
+    );
+  }
 
+  startWorkout(event:Event): void{
+    event.stopPropagation(); // Prevent card click when clicking like button
+    this.router.navigate(['/workout-tracker', this.program.startedProgramId]);
+
+  }
   
 }

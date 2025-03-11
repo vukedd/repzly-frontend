@@ -50,6 +50,8 @@ export class ProgramCreateComponent implements OnInit {
   currentUser: any;
   loading = false;
   activeWeekTab: string = '0';
+  selectedRestTime:Map<string,string>=new Map();
+  restTimeMetrics:string[]=['min','s'];
 
   // Add ViewChild for TabList
   @ViewChild('tablist') tablistComponent!: TabList;
@@ -202,7 +204,10 @@ export class ProgramCreateComponent implements OnInit {
       exercise: [null, Validators.required],
       volumeMetric: [null, Validators.required],
       intensityMetric: [null, Validators.required],
-      workoutExerciseSets: this.fb.array([])
+      sets: this.fb.array([]),
+      minimumRestTime:[0, Validators.required],
+      maximumRestTime:[60, Validators.required],
+      restTimeMetric:[this.restTimeMetrics[0], Validators.required]
     });
     
     this.getWorkoutExercises(weekIndex, workoutIndex).push(exerciseForm);
@@ -242,7 +247,7 @@ export class ProgramCreateComponent implements OnInit {
 
   getSets(weekIndex: number, workoutIndex: number, exerciseIndex: number): FormArray {
     return this.getWorkoutExercises(weekIndex, workoutIndex)
-      .at(exerciseIndex).get('workoutExerciseSets') as FormArray;
+      .at(exerciseIndex).get('sets') as FormArray;
   }
 
   addSet(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
@@ -355,4 +360,30 @@ export class ProgramCreateComponent implements OnInit {
       }
     });
   }
+
+  onRestTimeMetricChange(weekIndex: number, workoutIndex: number, exerciseIndex: number, event: any) {
+    const selectedMetric = event.value;
+    const key = `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
+    const exerciseControl = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
+    
+    if (selectedMetric) {
+      this.selectedRestTime.set(key, selectedMetric);
+      
+      // Get current values
+      const currentMin = exerciseControl.get('minimumRestTime')?.value || 0;
+      const currentMax = exerciseControl.get('maximumRestTime')?.value || 0;
+      
+      // If changing to 'min', multiply by 60 (converting from seconds)
+      if (selectedMetric === 'min') {
+        exerciseControl.get('minimumRestTime')?.setValue(Math.ceil(currentMin / 60));
+        exerciseControl.get('maximumRestTime')?.setValue(Math.ceil(currentMax / 60));
+      }
+      // If changing from 'min' to 's', divide by 60 (converting to seconds)
+      else {
+        exerciseControl.get('minimumRestTime')?.setValue(currentMin * 60);
+        exerciseControl.get('maximumRestTime')?.setValue(currentMax * 60);
+      }
+    }
+  }
+
 }

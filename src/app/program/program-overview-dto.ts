@@ -5,4 +5,5 @@ export interface ProgramOverviewDTO {
     creatorUsername:string;
     followersNumber:number;
     rating:number;
+    startedProgramId:number;
 }

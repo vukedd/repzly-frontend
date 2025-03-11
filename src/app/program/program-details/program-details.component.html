@@ -120,11 +120,11 @@
                             <div class="grid">
                               <div class="col-12 sm:col-6">
                                 <label class="font-bold">Volume Metric</label>
-                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.workoutExerciseSets[0]?.volumeMetric?.title || 'N/A'}}</div>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.sets[0]?.volumeMetric?.title || 'N/A'}}</div>
                               </div>
                               <div class="col-12 sm:col-6">
                                 <label class="font-bold">Intensity Metric</label>
-                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.workoutExerciseSets[0]?.intensityMetric?.title || 'N/A'}}</div>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{exercise.sets[0]?.intensityMetric?.title || 'N/A'}}</div>
                               </div>
                             </div>
   
@@ -135,16 +135,16 @@
                               </p-divider>
   
                               <!-- Column headers - visible on larger screens only -->
-                              <div class="hidden sm:grid">
+                              <div class="grid">
                                 <div class="col-3 font-bold">Set</div>
                                 <div class="col-3 font-bold">Volume</div>
                                 <div class="col-3 font-bold">Intensity</div>
                                 <div class="col-3 font-bold">Rest</div>
                               </div>
   
-                              @for (set of exercise.workoutExerciseSets; track set; let setIndex = $index) {
+                              @for (set of exercise.sets; track set; let setIndex = $index) {
                               <!-- Mobile view: stacked layout -->
-                              <div class="grid sm:hidden mb-3 pb-2 border-bottom-1 border-300">
+                              <div class="grid mb-3 pb-2 border-bottom-1 border-300">
                                 <div class="col-12 font-bold mb-2">Set {{ setIndex + 1 }}</div>
                                 
                                 <div class="col-12 mb-2">
@@ -190,7 +190,7 @@
                                     <ng-container *ngIf="!isVolumeRange(set)">
                                       {{set.volume.maximumVolume}}
                                     </ng-container>
-                                    <span class="ml-2">{{set.volumeMetric?.metricSymbol}}</span>
+                                    <span class="ml-2">{{set.volumeMetric.metricSymbol}}</span>
                                   </div>
                                 </div>
                                 <div class="col-3">
@@ -201,7 +201,7 @@
                                     <ng-container *ngIf="!isIntensityRange(set)">
                                       {{set.intensity.maximumIntensity}}
                                     </ng-container>
-                                    <span class="ml-2">{{set.intensityMetric?.metricSymbol}}</span>
+                                    <span class="ml-2">{{set.intensityMetric.metricSymbol}}</span>
                                   </div>
                                 </div>
                                 <div class="col-3">{{ 60 }}s</div>

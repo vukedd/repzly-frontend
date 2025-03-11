@@ -124,15 +124,32 @@
                                     placeholder="Intensity Metric" [filter]="true"
                                     (onChange)="onIntensityMetricChange($index, workoutIndex, exerciseIndex, $event)"></p-select>
                                 </div>
+                                
+                              </div>
+                              <div class="flex align-items-center">
+                                <p-inputnumber
+                                  inputId="minimumRestTime{{$index}}-{{workoutIndex}}-{{exerciseIndex}}"
+                                  formControlName="minimumRestTime"
+                                  [style]="{'width':'6rem'}"
+                                  [inputStyle]="{'width':'100%'}"
+                                  [showButtons]="false" />
+                                <span class="mx-2">-</span>
+                                <p-inputnumber
+                                  inputId="maximumRestTime{{$index}}-{{workoutIndex}}-{{exerciseIndex}}"
+                                  formControlName="maximumRestTime"
+                                  [style]="{'width':'6rem'}"
+                                  [inputStyle]="{'width':'100%'}"
+                                  [showButtons]="false" />
+                                  <p-select [options]="restTimeMetrics" (onChange)="onRestTimeMetricChange($index, workoutIndex, exerciseIndex, $event)" formControlName="restTimeMetric" placeholder="Select a City" class="ml-2 w-7rem" />
                               </div>
 
                               <!-- Sets for this Exercise -->
-                              <div formArrayName="workoutExerciseSets">
+                              <div formArrayName="sets">
                                 <p-divider align="left">
                                   <span class="p-tag p-tag-success">Sets</span>
                                 </p-divider>
 
-                                <div class="grid hidden md:flex">
+                                <div class="grid md:flex">
                                   <div class="col-3 font-bold">Set</div>
                                   <div class="col-4 font-bold">
                                     {{ selectedVolumeMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}
@@ -148,11 +165,11 @@
                                   [formGroupName]="setIndex" class="mb-3 md:mb-2">
                                   
                                   <!-- Mobile view: stacked layout -->
-                                  <div class="grid md:hidden">
-                                    <div class="col-12 font-bold mb-2">Set {{ setIndex + 1 }}</div>
+                                  <div class="grid">
+                                    <div class="col-12 lg:col-3 font-bold mb-2">Set {{ setIndex + 1 }}</div>
                                     
-                                    <div class="col-12 mb-2">
-                                      <label class="block mb-1">{{ selectedVolumeMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label>
+                                    <div class="col-12 mb-2 lg:col-4">
+                                      <!-- <label class="block mb-1">{{ selectedVolumeMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label> -->
                                       <div class="flex align-items-center" formGroupName="volume">
                                         <p-inputnumber
                                           *ngIf="isVolumeRange($index, workoutIndex, exerciseIndex)"
@@ -171,8 +188,8 @@
                                       </div>
                                     </div>
                                     
-                                    <div class="col-12 mb-2">
-                                      <label class="block mb-1">{{ selectedIntensityMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label>
+                                    <div class="col-12 mb-2 lg:col-4">
+                                      <!-- <label class="block mb-1">{{ selectedIntensityMetrics.get($index + '-' + workoutIndex + '-' + exerciseIndex)?.title }}</label> -->
                                       <div class="flex align-items-center" formGroupName="intensity">
                                         <p-inputnumber
                                           *ngIf="isIntensityRange($index, workoutIndex, exerciseIndex)"
@@ -191,7 +208,7 @@
                                       </div>
                                     </div>
                                     
-                                    <div class="col-12 text-right">
+                                    <div class="col-12 text-right lg:col-1">
                                       <button pButton type="button" icon="pi pi-trash"
                                         class="p-button-rounded p-button-danger p-button-text"
                                         (click)="removeSet($index, workoutIndex, exerciseIndex, setIndex)"

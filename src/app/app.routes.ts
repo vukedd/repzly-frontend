@@ -4,6 +4,8 @@ import { RegisterComponent } from './user/register/register.component';
 import { LoginComponent } from './user/login/login.component';
 import { ProgramCreateComponent } from './program/program-create/program-create.component';
 import { ProgramDetailsComponent } from './program/program-details/program-details.component';
+import { WorkoutTrackerComponent } from './workout/workout-tracker/workout-tracker.component';
+import { StartedProgramsPageComponent } from './layout/started-programs-page/started-programs-page.component';
 
 export const routes: Routes = [
     {
@@ -30,6 +32,16 @@ export const routes: Routes = [
         path: 'programs/:id',
         component: ProgramDetailsComponent,
         title:'Program details'
+    },
+    {
+        path: 'workout-tracker/:id',
+        component: WorkoutTrackerComponent,
+        title:'Workout tracker'
+    },
+    {
+        path: 'started-programs',
+        component: StartedProgramsPageComponent,
+        title:'Started programs'
     }
 ];
 
