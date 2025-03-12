@@ -14,9 +14,10 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ProgramService } from '../../program/program-service/program.service';
-import { NextWorkout } from '../next-workout';
+import { DoneSet, NextWorkout } from '../next-workout';
 import { WorkoutService } from '../workout.service';
 import { WorkoutExercise, WorkoutExerciseSet } from '../../program/program.model';
+import { CreateDoneSetDTO } from '../create-done-set-dto';
 
 
 @Component({
@@ -47,7 +48,7 @@ export class WorkoutTrackerComponent implements OnInit {
   loading = false;
   submitting = false;
   showSummary = false;
-  
+
   // Track current progress
   currentExerciseIndex = 0;
   currentSetIndex = 0;
@@ -59,7 +60,7 @@ export class WorkoutTrackerComponent implements OnInit {
   restTimer: any = null;
   restTimeRemaining = 0;
   showRestTimer = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     public router: Router,
@@ -75,7 +76,7 @@ export class WorkoutTrackerComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const programId = parseInt(params.get('id')??"0");
+      const programId = parseInt(params.get('id') ?? "0");
       if (programId) {
         this.loadNextWorkout(programId);
       } else {
@@ -83,18 +84,18 @@ export class WorkoutTrackerComponent implements OnInit {
       }
     });
   }
-  
+
   get exercises(): FormArray {
     return this.workoutForm.get('exercises') as FormArray;
   }
-  
-  
-  loadNextWorkout(programId:number): void {
+
+
+  loadNextWorkout(programId: number): void {
     this.loading = true;
     this.workoutService.getNextWorkout(programId).subscribe({
       next: (nextWorkout: NextWorkout) => {
         this.currentWorkout = nextWorkout;
-        
+
         if (nextWorkout.action === 'start' || nextWorkout.action === 'continue') {
           this.initializeForm();
           this.calculateTotals();
@@ -105,13 +106,13 @@ export class WorkoutTrackerComponent implements OnInit {
             summary: 'Information',
             detail: nextWorkout.message || 'No workout available'
           });
-          
+
           // Redirect to dashboard after delay if no workout to do
           setTimeout(() => {
             this.router.navigate(['/dashboard']);
           }, 2000);
         }
-        
+
         this.loading = false;
       },
       error: (error) => {
@@ -125,19 +126,19 @@ export class WorkoutTrackerComponent implements OnInit {
       }
     });
   }
-  
+
   initializeForm(): void {
     if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
       return;
     }
-    
+
     const startedWorkout = this.currentWorkout.startedWorkout;
-    
+
     // Clear existing form
     while (this.exercises.length) {
       this.exercises.removeAt(0);
     }
-    
+
     // Create form structure based on the workout data
     startedWorkout.workout.workoutExercises.forEach((exercise: WorkoutExercise) => {
       const exerciseGroup = this.fb.group({
@@ -147,59 +148,59 @@ export class WorkoutTrackerComponent implements OnInit {
         restTime: [{ min: exercise.minimumRestTime, max: exercise.maximumRestTime }],
         sets: this.fb.array([])
       });
-      
+
       const setsArray = exerciseGroup.get('sets') as FormArray;
-      
+
       exercise.sets.forEach((set: WorkoutExerciseSet) => {
         // Find if this set was already completed in the startedWorkout
         const completedSet = startedWorkout.doneSets.find(
           doneSet => doneSet.set.id === set.id && doneSet.workoutExercise.id === exercise.id
         );
-        
+
         const setGroup = this.fb.group({
           id: [set.id],
           volumeMetric: [set.volumeMetric],
           intensityMetric: [set.intensityMetric],
-          volumeRange: [{ 
-            min: set.volume.minimumVolume, 
-            max: set.volume.maximumVolume 
+          volumeRange: [{
+            min: set.volume.minimumVolume,
+            max: set.volume.maximumVolume
           }],
-          intensityRange: [{ 
-            min: set.intensity.minimumIntensity, 
-            max: set.intensity.maximumIntensity 
+          intensityRange: [{
+            min: set.intensity.minimumIntensity,
+            max: set.intensity.maximumIntensity
           }],
           completed: [!!completedSet],
           actualVolume: [completedSet ? completedSet.volume : set.volume.minimumVolume],
           actualIntensity: [completedSet ? completedSet.intensity : set.intensity.minimumIntensity],
           weightLifted: [completedSet ? completedSet.weightLifted : null]
         });
-        
+
         setsArray.push(setGroup);
       });
-      
+
       this.exercises.push(exerciseGroup);
     });
   }
-  
+
   calculateTotals(): void {
     if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
       return;
     }
-    
+
     const startedWorkout = this.currentWorkout.startedWorkout;
     this.totalExercises = startedWorkout.workout.workoutExercises.length;
-    
+
     this.totalSets = startedWorkout.workout.workoutExercises.reduce(
       (total: number, exercise: WorkoutExercise) => total + exercise.sets.length, 0
     );
-    
+
     this.updateProgress();
   }
-  
+
   updateProgress(): void {
     let completedSets = 0;
     const exerciseGroups = this.exercises.controls;
-    
+
     for (const exerciseGroup of exerciseGroups) {
       const setsArray = exerciseGroup.get('sets') as FormArray;
       for (const setControl of setsArray.controls) {
@@ -208,53 +209,85 @@ export class WorkoutTrackerComponent implements OnInit {
         }
       }
     }
-    
+
     this.progress = this.totalSets > 0 ? (completedSets / this.totalSets) * 100 : 0;
   }
-  
+
   getExerciseSets(exerciseIndex: number): FormArray {
     return this.exercises.at(exerciseIndex).get('sets') as FormArray;
   }
-  
+
   completeSet(exerciseIndex: number, setIndex: number): void {
     const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
-    setControl.get('completed')?.setValue(true);
-    
-    this.updateProgress();
-    
-    // Auto-navigate to next set or exercise
-    const currentSetsArray = this.getExerciseSets(exerciseIndex);
-    
-    // If there are more sets in this exercise
-    if (setIndex < currentSetsArray.length - 1) {
-      this.currentSetIndex = setIndex + 1;
-      this.startRestTimer(exerciseIndex);
-    } else {
-      // Move to the next exercise
-      if (exerciseIndex < this.exercises.length - 1) {
-        this.currentExerciseIndex = exerciseIndex + 1;
-        this.currentSetIndex = 0;
-        this.startRestTimer(exerciseIndex);
-      } else {
-        // Workout completed
+    const exerciseControl = this.exercises.at(exerciseIndex);
+
+    // Prepare the DTO for the API call
+    const doneSetDTO: CreateDoneSetDTO = {
+      startedWorkoutId: this.currentWorkout?.startedWorkout?.id || 0,
+      workoutExerciseId: exerciseControl.get('id')?.value,
+      setId: setControl.get('id')?.value,
+      volume: setControl.get('actualVolume')?.value,
+      intensity: setControl.get('actualIntensity')?.value,
+      weightLifted: setControl.get('weightLifted')?.value || 0
+    };
+
+    // Call the API
+    this.workoutService.completeSet(doneSetDTO).subscribe({
+      next: (response: DoneSet) => {
+        // Mark set as completed in the UI
+        setControl.get('completed')?.setValue(true);
+        this.updateProgress();
+
         this.messageService.add({
           severity: 'success',
-          summary: 'Workout Complete',
-          detail: 'All exercises completed! Ready to submit your workout.'
+          summary: 'Set Completed'
         });
+        this.currentWorkout?.startedWorkout?.doneSets.push(response);
+
+
+        // Auto-navigate to next set or exercise logic
+        const currentSetsArray = this.getExerciseSets(exerciseIndex);
+
+        // If there are more sets in this exercise
+        if (setIndex < currentSetsArray.length - 1) {
+          this.currentSetIndex = setIndex + 1;
+          this.startRestTimer(exerciseIndex);
+        } else {
+          // Move to the next exercise
+          if (exerciseIndex < this.exercises.length - 1) {
+            this.currentExerciseIndex = exerciseIndex + 1;
+            this.currentSetIndex = 0;
+            this.startRestTimer(exerciseIndex);
+          } else {
+            // Workout completed
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Workout Complete',
+              detail: 'All exercises completed! Ready to submit your workout.'
+            });
+          }
+        }
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to complete set'
+        });
+        console.error('Error completing set:', error);
       }
-    }
+    });
   }
-  
+
   startRestTimer(exerciseIndex: number): void {
     const exerciseControl = this.exercises.at(exerciseIndex);
     const restTime = exerciseControl.get('restTime')?.value;
-    
+
     if (restTime && restTime.min > 0) {
       // Use the minimum rest time for the timer
       this.restTimeRemaining = restTime.min;
       this.showRestTimer = true;
-      
+
       this.restTimer = setInterval(() => {
         this.restTimeRemaining--;
         if (this.restTimeRemaining <= 0) {
@@ -268,7 +301,7 @@ export class WorkoutTrackerComponent implements OnInit {
       }, 1000);
     }
   }
-  
+
   stopRestTimer(): void {
     if (this.restTimer) {
       clearInterval(this.restTimer);
@@ -276,40 +309,52 @@ export class WorkoutTrackerComponent implements OnInit {
       this.showRestTimer = false;
     }
   }
-  
+
   skipRestTimer(): void {
     this.stopRestTimer();
   }
-  
+
   isVolumeInRange(exerciseIndex: number, setIndex: number): boolean {
     const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
     const actualVolume = setControl.get('actualVolume')?.value;
     const volumeRange = setControl.get('volumeRange')?.value;
-    
+
     if (actualVolume && volumeRange) {
       return actualVolume >= volumeRange.min && actualVolume <= volumeRange.max;
     }
     return true;
   }
-  
+
   isIntensityInRange(exerciseIndex: number, setIndex: number): boolean {
     const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
     const actualIntensity = setControl.get('actualIntensity')?.value;
     const intensityRange = setControl.get('intensityRange')?.value;
-    
+
     if (actualIntensity && intensityRange) {
       return actualIntensity >= intensityRange.min && actualIntensity <= intensityRange.max;
     }
     return true;
   }
-  
+
   openSummary(): void {
     this.showSummary = true;
   }
-  
+
   submitWorkout(): void {
+    // Check if there are incomplete sets
+    const totalSets = this.totalSets;
+    const completedSets = this.countCompletedSets();
+    const hasIncompleteSets = completedSets < totalSets;
+
+    let confirmMessage = 'Are you sure you want to submit this workout?';
+
+    // Customize message if there are incomplete sets
+    if (hasIncompleteSets) {
+      confirmMessage = `You have completed ${completedSets} out of ${totalSets} sets. Are you sure you want to submit this workout with incomplete sets?`;
+    }
+
     this.confirmationService.confirm({
-      message: 'Are you sure you want to submit this workout?',
+      message: confirmMessage,
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -317,68 +362,59 @@ export class WorkoutTrackerComponent implements OnInit {
       }
     });
   }
-  
+
+  // Helper method to count completed sets
+  countCompletedSets(): number {
+    let completedSets = 0;
+    const exerciseGroups = this.exercises.controls;
+
+    for (const exerciseGroup of exerciseGroups) {
+      const setsArray = exerciseGroup.get('sets') as FormArray;
+      for (const setControl of setsArray.controls) {
+        if (setControl.get('completed')?.value) {
+          completedSets++;
+        }
+      }
+    }
+
+    return completedSets;
+  }
+
   saveWorkout(): void {
     if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
       return;
     }
-    
+
     this.submitting = true;
-    
-    // Prepare the data for submission
-    const doneSets: any[] = [];
-    
-    this.exercises.controls.forEach((exerciseControl, exerciseIndex) => {
-      const exerciseId = exerciseControl.get('id')?.value;
-      const setsArray = exerciseControl.get('sets') as FormArray;
-      
-      setsArray.controls.forEach((setControl, setIndex) => {
-        if (setControl.get('completed')?.value) {
-          doneSets.push({
-            workoutExerciseId: exerciseId,
-            setId: setControl.get('id')?.value,
-            volume: setControl.get('actualVolume')?.value,
-            intensity: setControl.get('actualIntensity')?.value,
-            weightLifted: setControl.get('weightLifted')?.value
-          });
-        }
-      });
-    });
-    
     const startedWorkoutId = this.currentWorkout.startedWorkout.id;
-    
-    const historyData = {
-      startedWorkoutId: startedWorkoutId,
-      doneSets: doneSets,
-      finished: this.progress >= 100
-    };
-    
-    // this.workoutService.completeWorkout(historyData).subscribe({
-    //   next: (response: any) => {
-    //     this.submitting = false;
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Success',
-    //       detail: 'Workout saved successfully'
-    //     });
-        
-    //     // Navigate back to workout list or dashboard
-    //     setTimeout(() => {
-    //       this.router.navigate(['/dashboard']);
-    //     }, 2000);
-    //   },
-    //   error: (error: any) => {
-    //     this.submitting = false;
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: 'Failed to save workout history'
-    //     });
-    //     console.error('Error saving workout history:', error);
-    //   }
-    // });
+    const startedProgramId = this.route.snapshot.params['id']; // Get the program ID from the route
+
+    this.workoutService.completeWorkout(startedWorkoutId, startedProgramId).subscribe({
+      next: (response) => {
+        this.submitting = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Workout Submitted',
+          detail: response.message
+        });
+
+        // Navigate back to dashboard after a short delay
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 1500);
+      },
+      error: (error) => {
+        this.submitting = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to submit workout'
+        });
+        console.error('Error submitting workout:', error);
+      }
+    });
   }
-  
+
   cancelWorkout(): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to cancel this workout? All progress will be lost.',
@@ -389,7 +425,7 @@ export class WorkoutTrackerComponent implements OnInit {
       }
     });
   }
-  
+
   isExerciseCompleted(exerciseIndex: number): boolean {
     const exerciseSets = this.getExerciseSets(exerciseIndex);
     for (let i = 0; i < exerciseSets.length; i++) {
@@ -398,5 +434,63 @@ export class WorkoutTrackerComponent implements OnInit {
       }
     }
     return exerciseSets.length > 0;
+  }
+  uncompleteSet(exerciseIndex: number, setIndex: number): void {
+    const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
+    const exerciseControl = this.exercises.at(exerciseIndex);
+
+    // Get the done set ID from the current workout
+    const setId = setControl.get('id')?.value;
+    const workoutExerciseId = exerciseControl.get('id')?.value;
+    const startedWorkoutId = this.currentWorkout?.startedWorkout?.id || 0;
+
+    // Find the done set ID by matching the workout exercise and set IDs
+    const doneSet = this.currentWorkout?.startedWorkout?.doneSets.find(
+      ds => ds.set.id === setId && ds.workoutExercise.id === workoutExerciseId
+    );
+
+    if (!doneSet) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Could not find the completed set'
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to undo this completed set?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.workoutService.uncompleteSet(startedWorkoutId, doneSet.id).subscribe({
+          next: (response) => {
+            // Mark set as not completed in the UI
+            // Remove the done set from the array
+            if (this.currentWorkout?.startedWorkout?.doneSets) {
+              this.currentWorkout.startedWorkout.doneSets =
+                this.currentWorkout.startedWorkout.doneSets.filter(ds => ds.id !== doneSet.id);
+            }
+            setControl.get('completed')?.setValue(false);
+            this.updateProgress();
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Set Undone',
+              detail: response.message
+            });
+
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to undo completed set'
+            });
+            console.error('Error uncompleting set:', error);
+          }
+        });
+      }
+    });
   }
 }

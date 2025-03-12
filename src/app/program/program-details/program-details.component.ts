@@ -94,10 +94,6 @@ export class ProgramDetailsComponent implements OnInit {
         this.program = data;
         this.loading = false;
         
-        // Load image if available
-        
-        
-        // Set active tab to first week
         if (this.program.weeks && this.program.weeks.length > 0) {
           this.activeWeekTab = '0';
         }
@@ -114,13 +110,7 @@ export class ProgramDetailsComponent implements OnInit {
     });
   }
   
-  private _arrayBufferToBase64(buffer: number[]): string {
-    return btoa(
-      new Uint8Array(buffer)
-        .reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
-  }
-
+  
   getTotalWorkouts(): number {
     if (!this.program || !this.program.weeks) {
       return 0;
@@ -151,7 +141,7 @@ export class ProgramDetailsComponent implements OnInit {
         if (!workout.workoutExercises) return workoutTotal;
         
         return workoutTotal + workout.workoutExercises.reduce((exerciseTotal: number, exercise: any) => {
-          return exerciseTotal + (exercise.workoutExerciseSets?.length || 0);
+          return exerciseTotal + (exercise.sets?.length || 0);
         }, 0);
       }, 0);
     }, 0);
@@ -188,7 +178,6 @@ export class ProgramDetailsComponent implements OnInit {
   }
   
   isVolumeRange(set: WorkoutExerciseSet): boolean {
-    console.log(set.volumeMetric);
     return set.volumeMetric?.range || false;
   }
   
