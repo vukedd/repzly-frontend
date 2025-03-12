@@ -1,0 +1,351 @@
+<div class="surface-card p-0 shadow-2 border-round">
+    <div *ngIf="loading" class="flex justify-content-center">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  
+    <div *ngIf="!loading && programHistory">
+      <!-- Program History Header - Unchanged -->
+      <div class="flex flex-column md:flex-row align-items-center md:align-items-start mb-4 md:mb-5">
+        <div class="flex justify-content-center md:justify-content-start mb-3 md:mb-0 w-full md:w-4">
+          <img [src]="programHistory.programId ? apiUrl+ '/'+ programHistory.programId + '/image' : 'dinja.jpg'" 
+            alt="Program Image" class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round shadow-2 object-fit-cover">
+        </div>
+        <div class="w-full md:w-8 md:pl-5">
+          <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3">
+            <h1 class="text-2xl md:text-3xl font-bold m-0 text-center sm:text-left">{{programHistory.title}}</h1>
+            <div class="flex flex-wrap justify-content-center sm:justify-content-end gap-2">
+              <button pButton icon="pi pi-file" label="View Program" class="p-button-outlined" 
+                      (click)="navigateToProgram()"></button>
+              <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined" 
+                      (click)="exportHistoryData()"></button>
+            </div>
+          </div>
+          <div class="mt-3 flex justify-content-center sm:justify-content-start align-items-center">
+            <p-tag [value]="getCompletionPercentage() + '% Completed'" 
+                  [severity]="getCompletionPercentage() === 100 ? 'success' : 'info'"></p-tag>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Program History Overview - Unchanged -->
+      <div class="p-1">
+        <p-panel header="Progress Overview" [toggleable]="true" styleClass="mb-3">
+          <div class="grid">
+            <div class="col-6 sm:col-3">
+              <div class="text-base md:text-lg font-medium">Duration</div>
+              <div class="text-lg md:text-xl font-bold">{{programHistory.weeks?.length || 0}} Weeks</div>
+            </div>
+            <div class="col-6 sm:col-3">
+              <div class="text-base md:text-lg font-medium">Completed Sets</div>
+              <div class="text-lg md:text-xl font-bold">
+                {{getTotalCompletedSets()}} / {{getTotalPlannedSets()}}
+              </div>
+            </div>
+            <div class="col-6 sm:col-3">
+              <div class="text-base md:text-lg font-medium">Total Weight Lifted</div>
+              <div class="text-lg md:text-xl font-bold">{{getTotalWeightLifted()}} kg</div>
+            </div>
+            <div class="col-6 sm:col-3">
+              <div class="text-base md:text-lg font-medium">Total Workouts</div>
+              <div class="text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+            </div>
+          </div>
+        </p-panel>
+      </div>
+      
+      <!-- Weeks Section with Tabs - MODIFIED to show all weeks -->
+      <div class="col-12 p-0">
+        <div class="flex justify-content-end mb-2">
+          <button pButton type="button" label="Print History" icon="pi pi-print" class="p-button-outlined"
+            (click)="printHistory()"></button>
+        </div>
+  
+        <p-tabs [value]="activeWeekTab" scrollable>
+          <p-tablist>
+            <!-- Show both started and not started weeks -->
+            @for (week of getAllWeeks(); track $index) {
+            <p-tab [value]="$index.toString()">
+              Week {{ $index + 1 }}
+              <p-tag 
+                [value]="getWeekStatus(week)" 
+                
+                class="ml-2">
+              </p-tag>
+            </p-tab>
+            }
+          </p-tablist>
+  
+          <p-tabpanels class="p-0">
+            @for (week of getAllWeeks(); track $index) {
+            <p-tabpanel [value]="$index.toString()">
+              <div class="p-2 md:p-3">
+                <div class="flex justify-content-between align-items-center mb-3">
+                  <h3 class="m-0 text-xl md:text-2xl">Week {{ $index + 1 }}</h3>
+                </div>
+                
+                <!-- Week Status Information -->
+                <div class="grid mb-3">
+                  <div class="col-12 md:col-4">
+                    <div class="surface-100 p-3 border-round">
+                      <h4 class="mt-0 mb-2">Status</h4>
+                      <p-tag [value]="getWeekStatus(week)" ></p-tag>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-4">
+                    <div class="surface-100 p-3 border-round">
+                      <h4 class="mt-0 mb-2">Start Date</h4>
+                      <span>{{formatDate(week.startDate)}}</span>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-4">
+                    <div class="surface-100 p-3 border-round">
+                      <h4 class="mt-0 mb-2">Completion Date</h4>
+                      <span>{{formatDate(week.doneDate)}}</span>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- SHOWING ALL WORKOUTS: Both started and not started -->
+                <div class="mb-4">
+                  <h4 class="text-lg font-semibold mt-0 mb-3">Workouts</h4>
+                  <p-accordion>
+                    <!-- First display started workouts -->
+                    @for (workout of getStartedWorkoutsForWeek(week); track workout; let workoutIndex = $index) {
+                    <p-accordion-panel value="started-{{workoutIndex}}">
+                      <p-accordion-header>
+                        <div class="flex align-items-center">
+                          <p-tag severity="info" value="Started" class="mr-2"></p-tag>
+                          {{workout.title || 'Workout ' + (workoutIndex + 1)}}
+                        </div>
+                      </p-accordion-header>
+                      <p-accordion-content styleClass="overflow-auto">
+                        <div class="p-2 md:p-3">
+                          <div class="flex flex-column align-items-start mb-3">
+                            <div class="p-fluid grid w-full">
+                              <div class="field col-12 sm:col-6 md:col-4">
+                                <label class="font-bold">Title</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{workout.title}}</div>
+                              </div>
+                              <div class="field col-12 sm:col-6 md:col-4">
+                                <label class="font-bold">Number/Day</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{workout.number || 'Day ' + (workoutIndex + 1)}}</div>
+                              </div>
+                              <div class="field col-12 md:col-4">
+                                <label class="font-bold">Status</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">
+                                  {{workout.doneDate ? 'Completed' : 'In Progress'}}
+                                </div>
+                              </div>
+                              <div class="field col-12">
+                                <label class="font-bold">Description</label>
+                                <div class="p-inputtext p-component p-filled p-disabled min-h-4rem">{{workout.description || 'No description available.'}}</div>
+                              </div>
+                            </div>
+                          </div>
+  
+                          <!-- Exercises for this Started Workout -->
+                          <div>
+                            <p-divider align="left">
+                              <span class="p-tag p-tag-info">Exercises</span>
+                            </p-divider>
+  
+                            @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
+                            <div class="p-2 md:p-3 border-round mb-3 surface-100">
+                              <div class="flex justify-content-between align-items-center mb-3">
+                                <div class="flex align-items-center">
+                                  <h4 class="m-0 text-base md:text-lg">Exercise {{ exerciseIndex + 1 }}: {{exercise.name}}</h4>
+                                  <p-tag 
+                                    [value]="exercise.doneSets?.length === exercise.sets?.length ? 'Completed' : 'In Progress'" 
+                                    [severity]="exercise.doneSets?.length === exercise.sets?.length ? 'success' : 'info'"
+                                    class="ml-2">
+                                  </p-tag>
+                                </div>
+                                <button pButton type="button" icon="pi pi-chevron-down"
+                                  class="p-button-rounded p-button-text"
+                                  (click)="toggleExerciseDetails(workout.id, exercise.id)"></button>
+                              </div>
+  
+                              <div class="grid">
+                                <div class="col-12">
+                                  <label class="font-bold">Completion Status</label>
+                                  <div class="p-inputtext p-component p-filled p-disabled">
+                                    {{exercise.doneSets?.length || 0}} / {{exercise.sets?.length || 0}} Sets Completed
+                                  </div>
+                                </div>
+                              </div>
+  
+                              <!-- Showing ALL Sets: Both Completed and Planned -->
+                              <div *ngIf="isExerciseExpanded(workout.id, exercise.id)">
+                                <!-- Completed Sets Section -->
+                                <p-divider align="left">
+                                  <span class="p-tag p-tag-success">Completed Sets</span>
+                                </p-divider>
+  
+                                <!-- Completed Sets Table Header -->
+                                <div *ngIf="exercise.doneSets && exercise.doneSets.length > 0" class="grid align-items-center mb-2 font-bold bg-gray-100 p-2">
+                                  <div class="col-2">Set</div>
+                                  <div class="col-2">Volume</div>
+                                  <div class="col-2">Intensity</div>
+                                  <div class="col-3">Weight Lifted</div>
+                                  <div class="col-3">Date</div>
+                                </div>
+                                
+                                @for (doneSet of exercise.doneSets; track doneSet; let setIndex = $index) {
+                                <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
+                                  <div class="col-2">Set {{ setIndex + 1 }}</div>
+                                  <div class="col-2">{{doneSet.volume}} {{doneSet.setDetails?.volumeMetric?.metricSymbol}}</div>
+                                  <div class="col-2">{{doneSet.intensity}} {{doneSet.setDetails?.intensityMetric?.metricSymbol}}</div>
+                                  <div class="col-3">{{doneSet.weightLifted || 'N/A'}} kg</div>
+                                  <div class="col-3">{{formatDate(doneSet.date)}}</div>
+                                </div>
+                                }
+                                
+                                <!-- Show message if no completed sets -->
+                                <div *ngIf="!exercise.doneSets || exercise.doneSets.length === 0" class="p-3 text-center">
+                                  <p class="text-600">No sets completed for this exercise yet.</p>
+                                </div>
+  
+                                <!-- Remaining Planned Sets Section -->
+                                <p-divider align="left">
+                                  <span class="p-tag p-tag-warning">Remaining Planned Sets</span>
+                                </p-divider>
+  
+                                <!-- Get remaining sets that haven't been completed -->
+                                <div *ngIf="getRemainingPlannedSets(exercise).length > 0" class="grid align-items-center mb-2 font-bold bg-gray-100 p-2">
+                                  <div class="col-3">Set</div>
+                                  <div class="col-3">Target Volume</div>
+                                  <div class="col-3">Target Intensity</div>
+                                  <div class="col-3">Status</div>
+                                </div>
+  
+                                @for (plannedSet of getRemainingPlannedSets(exercise); track plannedSet; let setIndex = $index) {
+                                <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
+                                  <div class="col-3">Set {{ setIndex + (exercise.doneSets?.length || 0) + 1 }}</div>
+                                  <div class="col-3">{{plannedSet.volume}} {{plannedSet.volumeMetric?.metricSymbol}}</div>
+                                  <div class="col-3">{{plannedSet.intensity}} {{plannedSet.intensityMetric?.metricSymbol}}</div>
+                                  <div class="col-3">
+                                    <p-tag value="Not Started" severity="warn"></p-tag>
+                                  </div>
+                                </div>
+                                }
+  
+                                <!-- Show message if all sets are completed -->
+                                <div *ngIf="getRemainingPlannedSets(exercise).length === 0" class="p-3 text-center">
+                                  <p class="text-600">All planned sets have been completed!</p>
+                                </div>
+                              </div>
+                            </div>
+                            }
+                          </div>
+                        </div>
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                    }
+  
+                    <!-- Then display not started workouts -->
+                    @for (workout of getNotStartedWorkoutsForWeek(week); track workout; let workoutIndex = $index) {
+                    <p-accordion-panel value="not-started-{{workoutIndex}}">
+                      <p-accordion-header>
+                        <div class="flex align-items-center">
+                          <p-tag severity="warn" value="Not Started" class="mr-2"></p-tag>
+                          {{workout.title || 'Workout ' + (workoutIndex + getStartedWorkoutsForWeek(week).length + 1)}}
+                        </div>
+                      </p-accordion-header>
+                      <p-accordion-content styleClass="overflow-auto">
+                        <div class="p-2 md:p-3">
+                          <div class="flex flex-column align-items-start mb-3">
+                            <div class="p-fluid grid w-full">
+                              <div class="field col-12 sm:col-6 md:col-4">
+                                <label class="font-bold">Title</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{workout.title}}</div>
+                              </div>
+                              <div class="field col-12 sm:col-6 md:col-4">
+                                <label class="font-bold">Number/Day</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">{{workout.number || 'Day ' + (workoutIndex + 1)}}</div>
+                              </div>
+                              <div class="field col-12 md:col-4">
+                                <label class="font-bold">Status</label>
+                                <div class="p-inputtext p-component p-filled p-disabled">Not Started</div>
+                              </div>
+                              <div class="field col-12">
+                                <label class="font-bold">Description</label>
+                                <div class="p-inputtext p-component p-filled p-disabled min-h-4rem">{{workout.description || 'No description available.'}}</div>
+                              </div>
+                            </div>
+                          </div>
+  
+                          <!-- Exercises for this Not Started Workout -->
+                          <div>
+                            <p-divider align="left">
+                              <span class="p-tag p-tag-warning">Planned Exercises</span>
+                            </p-divider>
+  
+                            @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
+                            <div class="p-2 md:p-3 border-round mb-3 surface-100">
+                              <div class="flex justify-content-between align-items-center mb-3">
+                                <div class="flex align-items-center">
+                                  <h4 class="m-0 text-base md:text-lg">Exercise {{ exerciseIndex + 1 }}: {{exercise.exerciseName}}</h4>
+                                  <p-tag value="Not Started" severity="warn" class="ml-2"></p-tag>
+                                </div>
+                                <button pButton type="button" icon="pi pi-chevron-down"
+                                  class="p-button-rounded p-button-text"
+                                  (click)="toggleExerciseDetails(workout.id, exercise.id)"></button>
+                              </div>
+  
+                              <!-- Planned Sets for Not Started Exercise -->
+                              <div *ngIf="isExerciseExpanded(workout.id, exercise.id)">
+                                <p-divider align="left">
+                                  <span class="p-tag p-tag-warning">Planned Sets</span>
+                                </p-divider>
+  
+                                <!-- Planned Sets Table Header -->
+                                <div class="grid align-items-center mb-2 font-bold bg-gray-100 p-2">
+                                  <div class="col-3">Set</div>
+                                  <div class="col-3">Target Volume</div>
+                                  <div class="col-3">Target Intensity</div>
+                                  <div class="col-3">Status</div>
+                                </div>
+                                
+                                @for (plannedSet of exercise.sets; track plannedSet; let setIndex = $index) {
+                                <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
+                                  <div class="col-3">Set {{ setIndex + 1 }}</div>
+                                  <div class="col-3">{{plannedSet.volume}} {{plannedSet.volumeMetric?.metricSymbol}}</div>
+                                  <div class="col-3">{{plannedSet.intensity}} {{plannedSet.intensityMetric?.metricSymbol}}</div>
+                                  <div class="col-3">
+                                    <p-tag value="Not Started" severity="warn"></p-tag>
+                                  </div>
+                                </div>
+                                }
+                              </div>
+                            </div>
+                            }
+                          </div>
+                        </div>
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                    }
+                  </p-accordion>
+  
+                  <!-- No workouts message -->
+                  <div *ngIf="!hasAnyWorkoutsForWeek(week)" class="p-3 text-center">
+                    <p class="text-600">No workouts defined for this week yet.</p>
+                  </div>
+                </div>
+              </div>
+            </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      </div>
+    </div>
+  
+    <!-- No Program History Found -->
+    <div *ngIf="!loading && !programHistory" class="text-center p-4 md:p-5">
+      <i class="pi pi-exclamation-triangle text-4xl md:text-5xl text-yellow-500 mb-3"></i>
+      <h2 class="text-xl md:text-2xl">Program History Not Found</h2>
+      <p>The requested program history could not be found or you don't have permission to view it.</p>
+      <button pButton label="Back to Programs" icon="pi pi-arrow-left" class="p-button-outlined mt-3" routerLink="/programs"></button>
+    </div>
+  </div>
+  
+  <p-toast></p-toast>

@@ -19,5 +19,5 @@ export const appConfig: ApplicationConfig = {
             }
         }
     }),
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withInterceptorsFromDi()),{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }
 ]};

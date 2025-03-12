@@ -100,5 +100,9 @@ export class ProgramService {
     return this.http.post(`${this.apiUrl}/start-program/${programId}`, {});
   }
 
+  getProgramHistory(startedProgramId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
+  }
+
 
 }

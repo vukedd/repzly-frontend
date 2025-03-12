@@ -1,255 +1,264 @@
 <div class="surface-ground px-2 py-2 md:px-4 md:py-5">
-    <!-- Loading state -->
-    <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
-      <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
-    </div>
-  
-    <ng-container *ngIf="!loading && currentWorkout">
-      <!-- Header -->
-      <div class="mb-4">
-        <p-card styleClass="shadow-2">
-          <ng-template pTemplate="header">
-            <div class="flex flex-column md:flex-row justify-content-between align-items-center p-3">
-              <h2 class="m-0 text-xl font-bold">Workout Tracker</h2>
-              <div class="flex gap-2 mt-3 md:mt-0">
-                <button pButton icon="pi pi-list" label="Summary" (click)="openSummary()" class="p-button-outlined"></button>
-                <button pButton icon="pi pi-times" label="Cancel" (click)="cancelWorkout()" class="p-button-outlined p-button-danger"></button>
-                <button pButton icon="pi pi-check" label="Finish" (click)="submitWorkout()" [disabled]="progress < 100" class="p-button-success"></button>
-              </div>
+  <!-- Loading state -->
+  <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
+    <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
+  </div>
+
+  <ng-container *ngIf="!loading && currentWorkout">
+    <!-- Header -->
+    <div class="mb-4">
+      <p-card styleClass="shadow-2">
+        <ng-template pTemplate="header">
+          <div class="flex flex-column md:flex-row justify-content-between align-items-center p-3">
+            <h2 class="m-0 text-xl font-bold">Workout Tracker</h2>
+            <div class="flex gap-2 mt-3 md:mt-0">
+              <button pButton icon="pi pi-list" label="Summary" (click)="openSummary()"
+                class="p-button-outlined"></button>
+              <button pButton icon="pi pi-times" label="Cancel" (click)="cancelWorkout()"
+                class="p-button-outlined p-button-danger"></button>
+              <button pButton icon="pi pi-check" label="Finish" (click)="submitWorkout()" 
+                class="p-button-success"></button>
             </div>
-          </ng-template>
-  
-          <!-- Progress bar -->
-          <div class="mb-3">
-            <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
-            <div class="text-sm text-center mt-2">{{progress.toFixed(0)}}% Complete</div>
           </div>
-  
-          <!-- Rest Timer Dialog -->
-          <p-dialog 
-            header="Rest Time" 
-            [(visible)]="showRestTimer" 
-            [modal]="true" 
-            [closable]="false"
-            [draggable]="false"
-            [resizable]="false"
-            [style]="{width: '300px'}">
-            <div class="flex flex-column align-items-center p-4">
-              <div class="text-4xl font-bold mb-3">{{restTimeRemaining}}</div>
-              <div class="text-lg mb-4">seconds remaining</div>
-              <button pButton label="Skip Rest" (click)="skipRestTimer()" class="p-button-sm p-button-outlined"></button>
-            </div>
-          </p-dialog>
-        </p-card>
-      </div>
-  
-      <!-- Workout Form -->
-      <form [formGroup]="workoutForm">
-        <div formArrayName="exercises">
-          <p-accordion [activeIndex]="currentExerciseIndex">
-            <p-accordionTab *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" 
-                            [selected]="exerciseIndex === currentExerciseIndex"
-                            [formGroupName]="exerciseIndex">
-              <ng-template pTemplate="header">
-                <div class="flex align-items-center">
-                  <span class="font-bold">{{exerciseControl.get('exerciseTitle')?.value}}</span>
-                  <span *ngIf="isExerciseCompleted(exerciseIndex)" 
-      class="pi pi-check-circle text-green-500 ml-2"></span>
-                </div>
-              </ng-template>
-              
-              <div class="p-2">
-                <p class="text-lg mb-3">{{exerciseControl.get('exerciseDescription')?.value}}</p>
-                <p class="text-sm text-color-secondary mb-4">
-                  Rest time: {{exerciseControl.get('restTime')?.value?.min}} - {{exerciseControl.get('restTime')?.value?.max}} seconds
-                </p>
-                
-                <p-divider align="left">
-                  <span class="p-tag">Sets</span>
-                </p-divider>
-                
-                <div formArrayName="sets">
-                  <div *ngFor="let setControl of getExerciseSets(exerciseIndex).controls; let setIndex = index"
-                       [formGroupName]="setIndex"
-                       class="p-3 mb-3 border-round surface-card"
-                       [class.border-primary]="exerciseIndex === currentExerciseIndex && setIndex === currentSetIndex && !setControl.get('completed')?.value"
-                       [class.opacity-60]="setControl.get('completed')?.value">
-                    
-                    <!-- Set Header -->
-                    <div class="flex justify-content-between align-items-center mb-3">
-                      <h4 class="m-0">Set {{setIndex + 1}}</h4>
-                      <span *ngIf="setControl.get('completed')?.value" class="p-tag p-tag-success">Completed</span>
-                    </div>
-                    
-                    <!-- Target ranges -->
-                    <div class="grid mb-3">
-                      <div class="col-12 md:col-6">
-                        <div class="text-sm text-color-secondary mb-1">Target {{setControl.get('volumeMetric')?.value?.title}}</div>
-                        <div class="font-medium">
-                          {{setControl.get('volumeRange')?.value?.min}} - {{setControl.get('volumeRange')?.value?.max}} 
-                          {{setControl.get('volumeMetric')?.value?.metricSymbol}}
-                        </div>
-                      </div>
-                      <div class="col-12 md:col-6">
-                        <div class="text-sm text-color-secondary mb-1">Target {{setControl.get('intensityMetric')?.value?.title}}</div>
-                        <div class="font-medium">
-                          {{setControl.get('intensityRange')?.value?.min}} - {{setControl.get('intensityRange')?.value?.max}} 
-                          {{setControl.get('intensityMetric')?.value?.metricSymbol}}
-                        </div>
+        </ng-template>
+
+        <!-- Progress bar -->
+        <div class="mb-3">
+          <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
+          <div class="text-sm text-center mt-2">{{progress.toFixed(0)}}% Complete</div>
+        </div>
+
+        <!-- Rest Timer Dialog -->
+        <p-dialog header="Rest Time" [(visible)]="showRestTimer" [modal]="true" [closable]="false" [draggable]="false"
+          [resizable]="false" [style]="{width: '300px'}">
+          <div class="flex flex-column align-items-center p-4">
+            <div class="text-4xl font-bold mb-3">{{restTimeRemaining}}</div>
+            <div class="text-lg mb-4">seconds remaining</div>
+            <button pButton label="Skip Rest" (click)="skipRestTimer()" class="p-button-sm p-button-outlined"></button>
+          </div>
+        </p-dialog>
+      </p-card>
+    </div>
+
+    <!-- Workout Form -->
+    <form [formGroup]="workoutForm">
+      <div formArrayName="exercises">
+        <p-accordion [activeIndex]="currentExerciseIndex">
+          <p-accordionTab *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index"
+            [selected]="exerciseIndex === currentExerciseIndex" [formGroupName]="exerciseIndex">
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center">
+                <span class="font-bold">{{exerciseControl.get('exerciseTitle')?.value}}</span>
+                <span *ngIf="isExerciseCompleted(exerciseIndex)" class="pi pi-check-circle text-green-500 ml-2"></span>
+              </div>
+            </ng-template>
+
+            <div class="p-2">
+              <p class="text-lg mb-3">{{exerciseControl.get('exerciseDescription')?.value}}</p>
+              <p class="text-sm text-color-secondary mb-4">
+                Rest time: {{exerciseControl.get('restTime')?.value?.min}} -
+                {{exerciseControl.get('restTime')?.value?.max}} seconds
+              </p>
+
+              <p-divider align="left">
+                <span class="p-tag">Sets</span>
+              </p-divider>
+
+              <div formArrayName="sets">
+                <div *ngFor="let setControl of getExerciseSets(exerciseIndex).controls; let setIndex = index"
+                  [formGroupName]="setIndex" class="p-3 mb-3 border-round surface-card"
+                  [class.border-primary]="exerciseIndex === currentExerciseIndex && setIndex === currentSetIndex && !setControl.get('completed')?.value"
+                  [class.opacity-60]="setControl.get('completed')?.value">
+
+                  <!-- Set Header -->
+                  <div class="flex justify-content-between align-items-center mb-3">
+                    <h4 class="m-0">Set {{setIndex + 1}}</h4>
+                    <span *ngIf="setControl.get('completed')?.value" class="p-tag p-tag-success">Completed</span>
+                  </div>
+
+                  <!-- Target ranges -->
+                  <div class="grid mb-3">
+                    <div class="col-12 md:col-6">
+                      <div class="text-sm text-color-secondary mb-1">Target
+                        {{setControl.get('volumeMetric')?.value?.title}}</div>
+                      <div class="font-medium">
+                        {{setControl.get('volumeRange')?.value?.min}} - {{setControl.get('volumeRange')?.value?.max}}
+                        {{setControl.get('volumeMetric')?.value?.metricSymbol}}
                       </div>
                     </div>
-                    
-                    <!-- Input fields -->
-                    <div *ngIf="!setControl.get('completed')?.value" class="grid">
-                      <div class="col-12 md:col-6 mb-3">
-                        <label class="block mb-2">Actual {{setControl.get('volumeMetric')?.value?.title}}</label>
-                        <div class="flex align-items-center">
-                          <p-inputNumber 
-                            formControlName="actualVolume"
-                            [min]="0"
-                            [showButtons]="true"
-                            buttonLayout="horizontal"
-                            [style]="{'width': '100%'}"
-                            [inputStyle]="{'width': '100%'}"
-                            [class.ng-invalid]="!isVolumeInRange(exerciseIndex, setIndex)">
-                          </p-inputNumber>
-                          <span class="ml-2">{{setControl.get('volumeMetric')?.value?.metricSymbol}}</span>
-                        </div>
-                        <small class="p-error" *ngIf="!isVolumeInRange(exerciseIndex, setIndex)">
-                          Value should be between {{setControl.get('volumeRange')?.value?.min}} and {{setControl.get('volumeRange')?.value?.max}}
-                        </small>
-                      </div>
-                      
-                      <div class="col-12 md:col-6 mb-3">
-                        <label class="block mb-2">Actual {{setControl.get('intensityMetric')?.value?.title}}</label>
-                        <div class="flex align-items-center">
-                          <p-inputNumber 
-                            formControlName="actualIntensity"
-                            [min]="0"
-                            [showButtons]="true"
-                            buttonLayout="horizontal"
-                            [style]="{'width': '100%'}"
-                            [inputStyle]="{'width': '100%'}"
-                            [class.ng-invalid]="!isIntensityInRange(exerciseIndex, setIndex)">
-                          </p-inputNumber>
-                          <span class="ml-2">{{setControl.get('intensityMetric')?.value?.metricSymbol}}</span>
-                        </div>
-                        <small class="p-error" *ngIf="!isIntensityInRange(exerciseIndex, setIndex)">
-                          Value should be between {{setControl.get('intensityRange')?.value?.min}} and {{setControl.get('intensityRange')?.value?.max}}
-                        </small>
-                      </div>
-                      
-                      <div class="col-12 flex justify-content-end">
-                        <button pButton 
-                          label="Complete Set" 
-                          icon="pi pi-check" 
-                          (click)="completeSet(exerciseIndex, setIndex)" 
-                          [disabled]="!isVolumeInRange(exerciseIndex, setIndex) || !isIntensityInRange(exerciseIndex, setIndex)"
-                          class="p-button-success">
-                        </button>
+                    <div class="col-12 md:col-6">
+                      <div class="text-sm text-color-secondary mb-1">Target
+                        {{setControl.get('intensityMetric')?.value?.title}}</div>
+                      <div class="font-medium">
+                        {{setControl.get('intensityRange')?.value?.min}} -
+                        {{setControl.get('intensityRange')?.value?.max}}
+                        {{setControl.get('intensityMetric')?.value?.metricSymbol}}
                       </div>
                     </div>
-                    
-                    <!-- Completed set data -->
-                    <div *ngIf="setControl.get('completed')?.value" class="grid">
-                      <div class="col-12 md:col-6 mb-2">
-                        <div class="text-sm text-color-secondary">Completed {{setControl.get('volumeMetric')?.value?.title}}</div>
-                        <div class="text-lg font-medium">
-                          {{setControl.get('actualVolume')?.value}} {{setControl.get('volumeMetric')?.value?.metricSymbol}}
-                        </div>
+                  </div>
+
+                  <!-- Input fields -->
+                  <div *ngIf="!setControl.get('completed')?.value" class="grid">
+                    <div class="col-12 md:col-6 mb-3">
+                      <label class="block mb-2">Actual {{setControl.get('volumeMetric')?.value?.title}}</label>
+                      <div class="flex align-items-center">
+                        <p-inputNumber formControlName="actualVolume" [min]="0" [showButtons]="true"
+                          buttonLayout="horizontal" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"
+                          [class.ng-invalid]="!isVolumeInRange(exerciseIndex, setIndex)">
+                        </p-inputNumber>
+                        <span class="ml-2">{{setControl.get('volumeMetric')?.value?.metricSymbol}}</span>
                       </div>
-                      <div class="col-12 md:col-6 mb-2">
-                        <div class="text-sm text-color-secondary">Completed {{setControl.get('intensityMetric')?.value?.title}}</div>
-                        <div class="text-lg font-medium">
-                          {{setControl.get('actualIntensity')?.value}} {{setControl.get('intensityMetric')?.value?.metricSymbol}}
-                        </div>
+                      <small class="p-error" *ngIf="!isVolumeInRange(exerciseIndex, setIndex)">
+                        Value should be between {{setControl.get('volumeRange')?.value?.min}} and
+                        {{setControl.get('volumeRange')?.value?.max}}
+                      </small>
+                    </div>
+
+                    <div class="col-12 md:col-6 mb-3">
+                      <label class="block mb-2">Actual {{setControl.get('intensityMetric')?.value?.title}}</label>
+                      <div class="flex align-items-center">
+                        <p-inputNumber formControlName="actualIntensity" [min]="0" [showButtons]="true"
+                          buttonLayout="horizontal" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"
+                          [class.ng-invalid]="!isIntensityInRange(exerciseIndex, setIndex)">
+                        </p-inputNumber>
+                        <span class="ml-2">{{setControl.get('intensityMetric')?.value?.metricSymbol}}</span>
                       </div>
+                      <small class="p-error" *ngIf="!isIntensityInRange(exerciseIndex, setIndex)">
+                        Value should be between {{setControl.get('intensityRange')?.value?.min}} and
+                        {{setControl.get('intensityRange')?.value?.max}}
+                      </small>
+                    </div>
+                    <!-- Add this after the actual intensity input field -->
+                    <div class="col-12 md:col-6 mb-3">
+                      <label class="block mb-2">Weight Lifted</label>
+                      <div class="flex align-items-center">
+                        <p-inputNumber formControlName="weightLifted" [min]="0" [showButtons]="true"
+                          buttonLayout="horizontal" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}">
+                        </p-inputNumber>
+                        <span class="ml-2">kg</span>
+                      </div>
+                    </div>
+
+                    <div class="col-12 flex justify-content-end">
+                      <button pButton label="Complete Set" icon="pi pi-check"
+                        (click)="completeSet(exerciseIndex, setIndex)"
+                        [disabled]="!isVolumeInRange(exerciseIndex, setIndex) || !isIntensityInRange(exerciseIndex, setIndex)"
+                        class="p-button-success">
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Completed set data -->
+                  <!-- Completed set data -->
+                  <div *ngIf="setControl.get('completed')?.value" class="grid">
+                    <div class="col-12 md:col-6 mb-2">
+                      <div class="text-sm text-color-secondary">Completed
+                        {{setControl.get('volumeMetric')?.value?.title}}</div>
+                      <div class="text-lg font-medium">
+                        {{setControl.get('actualVolume')?.value}}
+                        {{setControl.get('volumeMetric')?.value?.metricSymbol}}
+                      </div>
+                    </div>
+                    <div class="col-12 md:col-6 mb-2">
+                      <div class="text-sm text-color-secondary">Completed
+                        {{setControl.get('intensityMetric')?.value?.title}}</div>
+                      <div class="text-lg font-medium">
+                        {{setControl.get('actualIntensity')?.value}}
+                        {{setControl.get('intensityMetric')?.value?.metricSymbol}}
+                      </div>
+                    </div>
+                    <div class="col-12 md:col-6 mb-2">
+                      <div class="text-sm text-color-secondary">Weight Lifted</div>
+                      <div class="text-lg font-medium">
+                        {{setControl.get('weightLifted')?.value || 0}} kg
+                      </div>
+                    </div>
+                    <!-- Add Undo button -->
+                    <div class="col-12 flex justify-content-end mt-2">
+                      <button pButton label="Undo Set" icon="pi pi-undo"
+                        (click)="uncompleteSet(exerciseIndex, setIndex)" class="p-button-outlined p-button-warning">
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </p-accordionTab>
-          </p-accordion>
-        </div>
-      </form>
-      
-      <!-- Workout Summary Dialog -->
-      <p-dialog 
-        header="Workout Summary" 
-        [(visible)]="showSummary" 
-        [style]="{width: '90vw', maxWidth: '700px'}"
-        [modal]="true">
-        <div class="p-2">
-          <p-divider align="left">
-            <span class="p-tag p-tag-info">Progress</span>
-          </p-divider>
-          
-          <div class="mb-4">
-            <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
-            <div class="text-sm text-right mt-1">{{progress.toFixed(0)}}% Complete</div>
-          </div>
-          
-          <p-divider align="left">
-            <span class="p-tag p-tag-info">Exercises</span>
-          </p-divider>
-          
-          <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" class="mb-4">
-            <div class="flex justify-content-between align-items-center mb-2">
-              <h4 class="m-0">{{exerciseControl.get('exerciseTitle')?.value}}</h4>
-              
-              <div *ngIf="isExerciseCompleted(exerciseIndex); else incomplete" 
-     class="p-tag p-tag-success">
-                Complete
-              </div>
-              <ng-template #incomplete>
-                <div class="p-tag p-tag-warning">
-                  In Progress
-                </div>
-              </ng-template>
             </div>
-            
-            <div class="surface-card p-3 border-round">
-              <div class="grid">
-                <div class="col-8 font-bold">Set</div>
-                <div class="col-4 font-bold text-right">Status</div>
+          </p-accordionTab>
+        </p-accordion>
+      </div>
+    </form>
+
+    <!-- Workout Summary Dialog -->
+    <p-dialog header="Workout Summary" [(visible)]="showSummary" [style]="{width: '90vw', maxWidth: '700px'}"
+      [modal]="true">
+      <div class="p-2">
+        <p-divider align="left">
+          <span class="p-tag p-tag-info">Progress</span>
+        </p-divider>
+
+        <div class="mb-4">
+          <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
+          <div class="text-sm text-right mt-1">{{progress.toFixed(0)}}% Complete</div>
+        </div>
+
+        <p-divider align="left">
+          <span class="p-tag p-tag-info">Exercises</span>
+        </p-divider>
+
+        <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" class="mb-4">
+          <div class="flex justify-content-between align-items-center mb-2">
+            <h4 class="m-0">{{exerciseControl.get('exerciseTitle')?.value}}</h4>
+
+            <div *ngIf="isExerciseCompleted(exerciseIndex); else incomplete" class="p-tag p-tag-success">
+              Complete
+            </div>
+            <ng-template #incomplete>
+              <div class="p-tag p-tag-warning">
+                In Progress
               </div>
-              
-              <p-divider></p-divider>
-              
-              <div *ngFor="let setControl of getExerciseSets(exerciseIndex).controls; let setIndex = index" class="grid">
-                <div class="col-8">Set {{setIndex + 1}}</div>
-                <div class="col-4 text-right">
-                  <span *ngIf="setControl.get('completed')?.value" class="text-green-500">
-                    <i class="pi pi-check mr-1"></i>Done
-                  </span>
-                  <span *ngIf="!setControl.get('completed')?.value" class="text-orange-500">
-                    <i class="pi pi-times mr-1"></i>Pending
-                  </span>
-                </div>
+            </ng-template>
+          </div>
+
+          <div class="surface-card p-3 border-round">
+            <div class="grid">
+              <div class="col-8 font-bold">Set</div>
+              <div class="col-4 font-bold text-right">Status</div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <div *ngFor="let setControl of getExerciseSets(exerciseIndex).controls; let setIndex = index" class="grid">
+              <div class="col-8">Set {{setIndex + 1}}</div>
+              <div class="col-4 text-right">
+                <span *ngIf="setControl.get('completed')?.value" class="text-green-500">
+                  <i class="pi pi-check mr-1"></i>Done
+                </span>
+                <span *ngIf="!setControl.get('completed')?.value" class="text-orange-500">
+                  <i class="pi pi-times mr-1"></i>Pending
+                </span>
               </div>
             </div>
           </div>
-          
-          <div class="flex justify-content-end mt-4">
-            <button pButton 
-              label="Submit Workout" 
-              icon="pi pi-check" 
-              (click)="submitWorkout()" 
-              [disabled]="progress < 100"
-              class="p-button-success">
-            </button>
-          </div>
         </div>
-      </p-dialog>
-    </ng-container>
-    
-    <!-- Error state (no workout found) -->
-    <div *ngIf="!loading && !currentWorkout" class="flex flex-column align-items-center justify-content-center min-h-screen">
-      <div class="text-xl font-bold mb-3">Workout Not Found</div>
-      <p>The requested workout could not be loaded.</p>
-      <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="router.navigate(['/dashboard'])" class="mt-3"></button>
-    </div>
+
+        <div class="flex justify-content-end mt-4">
+          <button pButton label="Submit Workout" icon="pi pi-check" (click)="submitWorkout()"
+            [disabled]="progress < 100" class="p-button-success">
+          </button>
+        </div>
+      </div>
+    </p-dialog>
+  </ng-container>
+
+  <!-- Error state (no workout found) -->
+  <div *ngIf="!loading && !currentWorkout"
+    class="flex flex-column align-items-center justify-content-center min-h-screen">
+    <div class="text-xl font-bold mb-3">Workout Not Found</div>
+    <p>The requested workout could not be loaded.</p>
+    <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="router.navigate(['/dashboard'])"
+      class="mt-3"></button>
   </div>
-  
-  <p-confirmDialog></p-confirmDialog>
-  <p-toast></p-toast>
+</div>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
