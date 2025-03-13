@@ -46,6 +46,11 @@
         <p-accordion [activeIndex]="currentExerciseIndex">
           <p-accordionTab *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index"
             [selected]="exerciseIndex === currentExerciseIndex" [formGroupName]="exerciseIndex">
+            <p-button 
+      label="View History" 
+      icon="pi pi-chart-line" 
+      (click)="showHistoryDialog(exerciseControl.get('exerciseId'))">
+    </p-button>
             <ng-template pTemplate="header">
               <div class="flex align-items-center">
                 <span class="font-bold">{{exerciseControl.get('exerciseTitle')?.value}}</span>

@@ -75,4 +75,8 @@ export class ProgramCardComponent implements OnInit {
 
   }
   
+  getCurrentRoute(): string {
+    return this.router.url;
+  }
+
 }

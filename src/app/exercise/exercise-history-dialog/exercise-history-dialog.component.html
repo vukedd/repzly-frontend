@@ -1,0 +1,78 @@
+<!-- exercise-history-dialog.component.html -->
+<div class="p-3">
+    <div class="flex align-items-center justify-content-between mb-3">
+      <h2 class="m-0 text-xl font-medium">
+        {{ exerciseHistory?.exerciseTitle || 'Exercise' }} History
+      </h2>
+      <button pButton icon="pi pi-times" class="p-button-rounded p-button-text" (click)="close()"></button>
+    </div>
+  
+    <p-divider></p-divider>
+  
+    <!-- Loading state -->
+    <div *ngIf="loading" class="flex justify-content-center py-5">
+      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+    </div>
+  
+    <!-- Empty state -->
+    <div *ngIf="!loading && (!exerciseHistory || !exerciseHistory.workoutExercises.length)" class="flex flex-column align-items-center py-5">
+      <i class="pi pi-info-circle text-4xl text-primary mb-3"></i>
+      <p class="text-lg text-center">No history found for this exercise.</p>
+      <p class="text-color-secondary text-center">Complete workouts with this exercise to track your progress.</p>
+    </div>
+  
+    <!-- Content when data is available -->
+    <div *ngIf="!loading && exerciseHistory && exerciseHistory.workoutExercises.length" class="exercise-history-content">
+      
+      <!-- Progress Chart -->
+      <div class="mb-4">
+        <h3 class="text-lg font-medium">Progress Chart</h3>
+        <div class="card">
+          <p-chart type="line" [data]="chartData" [options]="chartOptions" height="250px"></p-chart>
+        </div>
+      </div>
+  
+      <!-- History organized by Workout Exercise ID -->
+      <div>
+        <h3 class="text-lg font-medium mb-3">Workout History</h3>
+        
+        <!-- Outer loop: Workout Exercises -->
+        <div *ngFor="let workoutExerciseGroup of processWorkoutExercises(); let i = index" class="mb-4">
+          <p-card styleClass="mb-3">
+            
+            
+            <!-- Inner loop: Date Groups -->
+            <div *ngFor="let dateGroup of workoutExerciseGroup.dateGroups; let j = index" class="mb-3">
+              <div class="flex align-items-center">
+                <div class="p-2 border-round bg-primary-100 mr-3">
+                  <i class="pi pi-calendar text-primary"></i>
+                </div>
+                <h5 class="m-0 font-medium">{{ dateGroup.date }}</h5>
+              </div>
+              
+              <div class="ml-4 pl-3 mt-2 border-left-2 border-primary-200">
+                <p-table [value]="dateGroup.sets" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Set</th>
+                      <th>Volume ({{ dateGroup.sets[0]?.setDetails?.volumeMetric?.title || 'Reps' }})</th>
+                      <th>Intensity ({{ dateGroup.sets[0]?.setDetails?.intensityMetric?.title || 'Weight' }})</th>
+                      <th>Weight Lifted</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-set let-rowIndex="rowIndex">
+                    <tr>
+                      <td>{{ rowIndex + 1 }}</td>
+                      <td>{{ set.volume }} {{ getMetricSymbol(set, 'volume') }}</td>
+                      <td>{{ set.intensity }} {{ getMetricSymbol(set, 'intensity') }}</td>
+                      <td>{{ set.weightLifted || 'N/A' }}</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+  </div>

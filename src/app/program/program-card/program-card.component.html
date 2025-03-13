@@ -32,14 +32,15 @@
       <ng-template pTemplate="footer">
         <div class="flex justify-content-between">
           <p-button
+          *ngIf="getCurrentRoute()!='/started-programs'"
             [icon]="iconClass"
             [rounded]="true"
             (click)="toggleLike($event)"
             [label]="followTextClass"
             [severity]="followSeverity">
           </p-button>
-          <p-button label="start program" (click)="startProgram($event)"/>
-          <p-button label="start next workout" (click)="startWorkout($event)"/>
+          <p-button label="start program" (click)="startProgram($event)" *ngIf="getCurrentRoute()!='/started-programs'"/>
+          <p-button label="start next workout" (click)="startWorkout($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
 
         </div>
       </ng-template>
