@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Exercise, ExerciseOverview } from '../program.model';
-import { API_URL } from '../../../globals';
+import { Exercise, ExerciseOverview } from '../program/program.model';
+import { API_URL } from '../../globals';
+import { ExerciseHistoryDTO } from './exercise-history-dialog/exercise-history-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -22,5 +23,8 @@ export class ExerciseService {
 
   createExercise(exercise: Exercise): Observable<Exercise> {
     return this.http.post<Exercise>(this.apiUrl, exercise);
+  }
+  getExerciseHistory(exerciseId: number): Observable<ExerciseHistoryDTO> {
+    return this.http.get<ExerciseHistoryDTO>(`${this.apiUrl}/history/${exerciseId}`);
   }
 }

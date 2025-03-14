@@ -111,21 +111,6 @@ export class ProgramHistoryComponent implements OnInit {
   processWeeksData(): void {
     this.allWeeks = [];
     
-    // Add not-started weeks
-    if (this.programHistory?.weeks?.length) {
-      this.programHistory.weeks.forEach((notStartedWeek: any, index: number) => {
-        // Assign week number if not present
-        const weekNumber = notStartedWeek.weekNumber || index + 1;
-        
-        this.allWeeks.push({
-          ...notStartedWeek,
-          weekNumber: weekNumber,
-          isStarted: false,
-          allWorkouts: notStartedWeek.workouts || []
-        });
-      });
-    }
-    
     // Add started weeks
     if (this.programHistory?.startedWeeks?.length) {
       this.programHistory.startedWeeks.forEach((startedWeek: any, index: number) => {
@@ -142,6 +127,22 @@ export class ProgramHistoryComponent implements OnInit {
         });
       });
     }
+    // Add not-started weeks
+    if (this.programHistory?.weeks?.length) {
+      this.programHistory.weeks.forEach((notStartedWeek: any, index: number) => {
+        // Assign week number if not present
+        const weekNumber = notStartedWeek.weekNumber || index + 1;
+        
+        this.allWeeks.push({
+          ...notStartedWeek,
+          weekNumber: weekNumber,
+          isStarted: false,
+          allWorkouts: notStartedWeek.workouts || []
+        });
+      });
+    }
+    
+    
     
     // Sort weeks by week number
     this.allWeeks.sort((a, b) => a.weekNumber - b.weekNumber);
@@ -150,50 +151,26 @@ export class ProgramHistoryComponent implements OnInit {
   // Combine started and not-started workouts
   combineWorkouts(notStartedWorkouts: any[], startedWorkouts: any[]): any[] {
     const combinedWorkouts: any[] = [];
-    const startedWorkoutMap = new Map();
-    
-    // Map started workouts by their workoutId
-    startedWorkouts.forEach(startedWorkout => {
-      startedWorkoutMap.set(startedWorkout.workoutId, startedWorkout);
-    });
-    
-    // Process not-started workouts
+
     notStartedWorkouts.forEach(notStartedWorkout => {
-      if (startedWorkoutMap.has(notStartedWorkout.id)) {
-        // This workout exists in both started and not-started data
-        const startedWorkout = startedWorkoutMap.get(notStartedWorkout.id);
-        startedWorkoutMap.delete(notStartedWorkout.id); // Remove from map to track processed workouts
-        
-        combinedWorkouts.push({
-          ...notStartedWorkout,
-          ...startedWorkout,
-          id: notStartedWorkout.id,
-          isStarted: true,
-          // Process exercises
-          workoutExercises: this.combineExercises(
-            notStartedWorkout.workoutExercises || [], 
-            startedWorkout.workoutExercises || []
-          )
-        });
-      } else {
-        // This is purely a not-started workout
-        combinedWorkouts.push({
-          ...notStartedWorkout,
-          isStarted: false,
-          workoutExercises: notStartedWorkout.workoutExercises || []
-        });
-      }
+      combinedWorkouts.push({
+        ...notStartedWorkout,
+        id: notStartedWorkout.workoutId,
+        isStarted: true,
+        workoutExercises: this.combineExercises(
+          notStartedWorkout.workoutExercises
+        )
+      });
     });
     
     // Add any remaining started workouts
-    startedWorkoutMap.forEach(startedWorkout => {
+    startedWorkouts.forEach(startedWorkout => {
       combinedWorkouts.push({
         ...startedWorkout,
         id: startedWorkout.workoutId,
         isStarted: true,
         workoutExercises: this.combineExercises(
-          startedWorkout.workoutExercises || [], 
-          startedWorkout.workoutExercises || []
+          startedWorkout.workoutExercises
         )
       });
     });
@@ -202,53 +179,18 @@ export class ProgramHistoryComponent implements OnInit {
   }
   
   // Combine started and not-started exercises
-  combineExercises(notStartedExercises: any[], startedExercises: any[]): any[] {
+  combineExercises(exercises: any[]): any[] {
     const combinedExercises: any[] = [];
-    const startedExerciseMap = new Map();
-    
-    // Map started exercises by their exerciseId
-    startedExercises.forEach(startedExercise => {
-      startedExerciseMap.set(startedExercise.exerciseId, startedExercise);
-    });
-    
-    // Process not-started exercises
-    notStartedExercises.forEach(notStartedExercise => {
-      if (startedExerciseMap.has(notStartedExercise.exerciseId)) {
-        // This exercise exists in both started and not-started data
-        const startedExercise = startedExerciseMap.get(notStartedExercise.exerciseId);
-        startedExerciseMap.delete(notStartedExercise.exerciseId);
-        
-        combinedExercises.push({
-          ...notStartedExercise,
-          ...startedExercise,
-          isStarted: true,
-          allSets: this.combineSets(
-            notStartedExercise.sets || [], 
-            startedExercise.doneSets || []
-          )
-        });
-      } else {
-        // This is purely a not-started exercise
-        combinedExercises.push({
-          ...notStartedExercise,
-          isStarted: false,
-          allSets: notStartedExercise.sets || []
-        });
-      }
-    });
-    
-    // Add any remaining started exercises
-    startedExerciseMap.forEach(startedExercise => {
+    exercises.forEach(exercise => {
       combinedExercises.push({
-        ...startedExercise,
+        ...exercise,
         isStarted: true,
         allSets: this.combineSets(
-          startedExercise.sets || [], 
-          startedExercise.doneSets || []
+          exercise.sets || [], 
+          exercise.doneSets || []
         )
       });
     });
-    console.log(combinedExercises);
     return combinedExercises;
   }
   
@@ -267,7 +209,7 @@ export class ProgramHistoryComponent implements OnInit {
     }
     
     // Add remaining planned sets
-    for (let i = completedSets.length; i < plannedSets.length; i++) {
+    for (let i = 0; i < plannedSets.length; i++) {
       allSets.push({
         ...plannedSets[i],
         isCompleted: false

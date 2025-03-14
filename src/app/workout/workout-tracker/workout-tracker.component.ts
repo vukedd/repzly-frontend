@@ -18,6 +18,9 @@ import { DoneSet, NextWorkout } from '../next-workout';
 import { WorkoutService } from '../workout.service';
 import { WorkoutExercise, WorkoutExerciseSet } from '../../program/program.model';
 import { CreateDoneSetDTO } from '../create-done-set-dto';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ExerciseHistoryDialogComponent } from '../../exercise/exercise-history-dialog/exercise-history-dialog.component';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 
 @Component({
@@ -37,7 +40,7 @@ import { CreateDoneSetDTO } from '../create-done-set-dto';
     DialogModule,
     ConfirmDialogModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
   styleUrls: ['./workout-tracker.component.css']
 })
@@ -60,6 +63,7 @@ export class WorkoutTrackerComponent implements OnInit {
   restTimer: any = null;
   restTimeRemaining = 0;
   showRestTimer = false;
+  private ref: DynamicDialogRef | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -67,7 +71,8 @@ export class WorkoutTrackerComponent implements OnInit {
     private fb: FormBuilder,
     private workoutService: WorkoutService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private dialogService: DialogService
   ) {
     this.workoutForm = this.fb.group({
       exercises: this.fb.array([])
@@ -143,6 +148,7 @@ export class WorkoutTrackerComponent implements OnInit {
     startedWorkout.workout.workoutExercises.forEach((exercise: WorkoutExercise) => {
       const exerciseGroup = this.fb.group({
         id: [exercise.id],
+        exerciseId: [exercise.exercise.id],
         exerciseTitle: [exercise.exercise.title],
         exerciseDescription: [exercise.exercise.description],
         restTime: [{ min: exercise.minimumRestTime, max: exercise.maximumRestTime }],
@@ -492,5 +498,27 @@ export class WorkoutTrackerComponent implements OnInit {
         });
       }
     });
+  }
+  showHistoryDialog(exerciseId: any): void {
+    // Check if the device is mobile using window width
+    const isMobile = window.innerWidth < 768; // Common breakpoint for mobile
+    
+    this.ref = this.dialogService.open(ExerciseHistoryDialogComponent, {
+      header: 'Exercise History',
+      width: isMobile ? '100%' : '80%',
+      height: isMobile ? '100vh' : '100vh',
+      maximizable: true,
+      closeOnEscape: true,
+      dismissableMask: true,
+      modal:true,
+      data: {
+        exerciseId: exerciseId.value
+      },
+    });
+  }
+  ngOnDestroy() {
+    if (this.ref) {
+      this.ref.close();
+    }
   }
 }

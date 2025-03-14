@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IntensityMetric, VolumeMetric } from '../program.model';
-import { API_URL } from '../../../globals';
+import { IntensityMetric, VolumeMetric } from '../program/program.model';
+import { API_URL } from '../../globals';
 
 @Injectable({
   providedIn: 'root'
