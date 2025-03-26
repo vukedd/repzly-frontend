@@ -30,6 +30,15 @@ export class ProgramService {
     return this.http.get<PageResponse>(`${this.apiUrl}/started`, { params });
   }
 
+  searchProgramOverviews(size: number, page: number, searchFilter: string): Observable<PageResponse> {
+    let params = new HttpParams()
+    .set("size", size.toString())
+    .set("page", page.toString())
+    .set("title", searchFilter);
+
+    return this.http.get<PageResponse>(`${this.apiUrl}/search`, { params });
+  }
+
   getProgramById(id: number): Observable<Program> {
     return this.http.get<Program>(`${this.apiUrl}/${id}`);
   }

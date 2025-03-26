@@ -16,8 +16,7 @@ import { DialogModule } from 'primeng/dialog';
 import { RegisterFormComponent } from "../../user/register/register-form/register-form.component";
 import { LoginFormComponent } from "../../user/login/login-form/login-form.component";
 import { ToastModule } from 'primeng/toast';
-import { consumerPollProducersForChange } from '@angular/core/primitives/signals';
-import { UserProfile } from '../../user/login/dtos/user-profile';
+import { SearchService } from './search.service';
 
 @Component({
   selector: 'app-header',
@@ -76,7 +75,7 @@ export class HeaderComponent implements OnInit{
     }
   }
 
-  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService) {
+  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService, private searchService: SearchService) {
     this.themeService.darkMode$.subscribe(
         isDark => this.isDarkMode = isDark
     );
@@ -117,12 +116,13 @@ export class HeaderComponent implements OnInit{
       )
     }
   }
+
   toggleTheme() {
     this.themeService.toggleDarkMode();
   }
-  onSearchChange() {
-    //this.searchService.updateSearch(this.searchText);
+
+  searchPrograms(searchInput: string) {
+      this.searchService.updateSearchTerm(searchInput.trim());
   }
-  
  
 }
