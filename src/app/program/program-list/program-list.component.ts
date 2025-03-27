@@ -9,6 +9,8 @@ import { AddProgramCardComponent } from "../add-program-card/add-program-card.co
 import { CommonModule } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { JwtService } from '../../auth/jwt/jwt.service';
+import { Subscription } from 'rxjs';
+import { SearchService } from '../../layout/header/search.service';
 
 interface PageEvent {
   first: number;
@@ -41,12 +43,19 @@ export class ProgramListComponent implements OnInit {
   public page: number = 0;
   public totalRecords: number = 0;
   public totalPages: number = 0;
+  private searchInput: string = "";
+  private searchSubscription: Subscription | undefined;
 
-  constructor(private programService: ProgramService, private jwtService: JwtService) { }
+  constructor(private programService: ProgramService, private jwtService: JwtService, private searchService: SearchService) { }
 
   ngOnInit() {
     if (this.isLoggedIn()) {
       this.loadPrograms(this.page, this.rows);
+      this.searchSubscription = this.searchService.currentSearchTerm.subscribe(
+        (searchTerm) => {
+          this.searchPrograms(this.rows, 0, searchTerm);
+        }
+      );
     }
   }
 
@@ -57,7 +66,6 @@ export class ProgramListComponent implements OnInit {
   loadPrograms(page: number, size: number) {
     this.loading = true;
     switch (this.programsType) {
-      case "started":
       case "Started":{
         this.programService.getStartedProgramsOverview(size, page).subscribe({
           next: (response) => {
@@ -68,6 +76,24 @@ export class ProgramListComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error loading programs:', error);
+            this.loading = false;
+          }
+        });
+        break;
+      }
+      case "search":{
+        this.programService.searchProgramOverviews(size, page, this.searchInput).subscribe({
+          next: (response) => {
+            console.log(response);
+            this.programs = response.content;
+            this.totalRecords = response.page.totalElements;
+            this.totalPages = response.page.totalPages;
+            this.loading = false;
+            this.programsType = 'search';
+            this.searchInput = this.searchInput;
+          },
+          error: (error) => {
+            console.error("An error occurred while searching programs", error);
             this.loading = false;
           }
         });
@@ -91,12 +117,36 @@ export class ProgramListComponent implements OnInit {
     }
   }
 
+  searchPrograms(size: number, page: number, searchFilter: string) {
+    this.loading = true;
+    this.programService.searchProgramOverviews(size, page, searchFilter).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.programs = response.content;
+        this.totalRecords = response.page.totalElements;
+        this.totalPages = response.page.totalPages;
+        this.loading = false;
+        this.programsType = 'search';
+        this.searchInput = searchFilter;
+      },
+      error: (error) => {
+        console.error("An error occurred while searching programs", error);
+        this.loading = false;
+      }
+    });
+  }
+
   onPageChange(event: PageEvent) {
     this.first = event.first;
     this.rows = event.rows;
     this.page = event.page;
 
-    // Load data from server with new pagination parameters
     this.loadPrograms(this.page, this.rows);
+  }
+
+  ngOnDestroy() {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
 }
