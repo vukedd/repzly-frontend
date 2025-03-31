@@ -42,7 +42,7 @@ export class BodyHighlighterComponent implements OnChanges {
   get currentViewBox(): string {
     // Verified viewBox values based on your previous confirmation
     if (this.side === 'back') {
-      return '770 50 650 1350'; // BACK viewBox
+      return '20 50 300 450'; // BACK viewBox
     } else {
       return '50 50 650 1350';  // FRONT viewBox
     }

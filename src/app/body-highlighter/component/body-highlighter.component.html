@@ -2,7 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      [attr.viewBox]="currentViewBox"
      preserveAspectRatio="xMidYMin meet" 
-     class="body-svg">
+     class="body-svg"
+     >
 
   <ng-container *ngFor="let part of currentBodyDefinition; trackBy: trackBySlug">
     <path *ngFor="let pathData of part.pathArray"

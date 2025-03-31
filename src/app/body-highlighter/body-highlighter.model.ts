@@ -26,14 +26,16 @@ export interface BodyPartHighlight {
     'forearm-right-front', 'hands-left-front', 'hands-right-front', 'ankles-left-front',
     'ankles-right-front', 'feet-left-front', 'feet-right-front', 'head-front',
     // ... potentially add back view slugs later
-    'neck-left-back', 'neck-right-back', 'trapezius-left-back', 'trapezius-right-back',
-    'deltoids-left-back', 'deltoids-right-back', 'upper-back-left', 'upper-back-right',
-    'triceps-left-back', 'triceps-right-back', 'lower-back-right', 'lower-back-left',
-    'hip-left', 'hip-right', 'forearm-right-back', 'forearm-left-back', 'gluteal-left',
-    'gluteal-right', 'adductors-left-back', 'adductors-right-back', 'hamstring-left',
-    'hamstring-right', 'calves-left-back', 'calves-right-back', 'ankles-left-back',
-    'ankles-right-back', 'feet-left-back', 'feet-right-back', 'hands-left-back',
-    'hands-right-back', 'head-back'
+    'head-back', 'neck-left-back', 'neck-right-back', 'trapezius-left-back',
+  'trapezius-right-back', 'deltoids-left-back', 'deltoids-right-back',
+  'upper-back-left', 'upper-back-right', 'triceps-left-back', 'triceps-right-back',
+  'lower-back-left', 'lower-back-right', 'forearm-left-back', 'forearm-right-back',
+  'hip-left', 'hip-right', 'gluteal-left', 'gluteal-right',
+  'hamstring-left', 'hamstring-right', 'adductors-left-back', 'adductors-right-back',
+  'calves-left-back', 'calves-right-back', 'ankles-left-back', 'ankles-right-back',
+  'feet-left-back', 'feet-right-back', 'hands-left-back', 'hands-right-back','lats','upper-back','deltoids-back','triceps-back','lower-back','forearm-back','glutes','hamstrings',
+  'adductors-back','calves-back'
+
   ] as const;
   
   export type BodyPartSlug = typeof BodyPartSlugs[number];

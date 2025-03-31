@@ -13,7 +13,7 @@
   width: 100%;
   /* Remove or significantly increase max-width */
   /* max-width: 300px;  <-- REMOVE OR CHANGE THIS LINE */
-  max-width: 200px; /* Example: Increase it, adjust as needed */
+  max-width: 300px; /* Example: Increase it, adjust as needed */
   /* OR simply remove the max-width rule entirely if you want it to fill its parent */
   margin: 0 auto;
 }
