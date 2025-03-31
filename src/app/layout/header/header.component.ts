@@ -34,9 +34,10 @@ export class HeaderComponent implements OnInit{
   items: MenuItem[] | undefined;
   visible: boolean = false;
   isLoginMode: boolean = true;
+  isSearchPossible = false;
 
   showDialog() {
-      this.visible = true;
+    this.visible = true;
   }
 
   closeDialog() {
@@ -115,6 +116,17 @@ export class HeaderComponent implements OnInit{
         }
       )
     }
+
+    this.searchService.currentProgramsType.subscribe(
+      (programsType) => {
+        if (programsType != 'started') {
+          this.isSearchPossible = true;
+        } else {
+          this.isSearchPossible = false;
+          this.searchService.updateSearchTerm('');
+        }
+      }
+    );
   }
 
   toggleTheme() {
@@ -122,7 +134,9 @@ export class HeaderComponent implements OnInit{
   }
 
   searchPrograms(searchInput: string) {
-      this.searchService.updateSearchTerm(searchInput.trim());
+    if (this.isSearchPossible) {
+      this.searchService.updateSearchTerm(searchInput);
+    }
   }
  
 }

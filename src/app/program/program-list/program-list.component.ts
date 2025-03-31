@@ -39,7 +39,7 @@ export class ProgramListComponent implements OnInit {
   programs: ProgramOverviewDTO[] = [];
   loading: boolean = true;
   public first: number = 0;
-  public rows: number = 3;
+  public rows: number = 10;
   public page: number = 0;
   public totalRecords: number = 0;
   public totalPages: number = 0;
@@ -50,10 +50,14 @@ export class ProgramListComponent implements OnInit {
 
   ngOnInit() {
     if (this.isLoggedIn()) {
-      this.loadPrograms(this.page, this.rows);
+      this.searchService.updateProgramsType(this.programsType);
       this.searchSubscription = this.searchService.currentSearchTerm.subscribe(
         (searchTerm) => {
-          this.searchPrograms(this.rows, 0, searchTerm);
+          if (this.programsType == "started") {
+            this.loadPrograms(0, 10);
+          } else {
+            this.searchPrograms(this.rows, 0, searchTerm);
+          }
         }
       );
     }
@@ -66,7 +70,7 @@ export class ProgramListComponent implements OnInit {
   loadPrograms(page: number, size: number) {
     this.loading = true;
     switch (this.programsType) {
-      case "Started":{
+      case "started":{
         this.programService.getStartedProgramsOverview(size, page).subscribe({
           next: (response) => {
             this.programs = response.content;
@@ -121,7 +125,6 @@ export class ProgramListComponent implements OnInit {
     this.loading = true;
     this.programService.searchProgramOverviews(size, page, searchFilter).subscribe({
       next: (response) => {
-        console.log(response);
         this.programs = response.content;
         this.totalRecords = response.page.totalElements;
         this.totalPages = response.page.totalPages;

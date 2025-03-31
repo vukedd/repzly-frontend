@@ -2,7 +2,7 @@
 <p-toolbar styleClass="flex surface-50 justify-content-between fixed top-0 right-0 border-noround border-none headercomponent p-2">
   <div class="p-toolbar-group-start flex align-items-center">
     <p-button icon="pi pi-align-justify" styleClass="mr-2 xl:hidden p-button-text p-button-rounded" severity="secondary" (onClick)="sidemenuVisible = true" />
-    <p-inputgroup styleClass="w-full md:w-20rem lg:w-25rem">
+    <p-inputgroup styleClass="w-full md:w-20rem lg:w-25rem" *ngIf="this.isSearchPossible">
       <input pInputText placeholder="Search" id="searchBar" #searchInput/>
       <p-inputgroup-addon>
           <p-button icon="pi pi-search" severity="secondary" variant="text" (onClick)="searchPrograms(searchInput.value)"/>
