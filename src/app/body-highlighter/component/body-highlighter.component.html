@@ -1,0 +1,21 @@
+<!-- src/app/body-highlighter/body-highlighter.component.html -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     [attr.viewBox]="currentViewBox"
+     preserveAspectRatio="xMidYMin meet" 
+     class="body-svg">
+
+  <ng-container *ngFor="let part of currentBodyDefinition; trackBy: trackBySlug">
+    <path *ngFor="let pathData of part.pathArray"
+          class="body-part-path"
+          [attr.d]="pathData"
+          [ngStyle]="getPartStyle(part.slug)"
+          (click)="onPartClick(part.slug)"
+          (mouseover)="onPartMouseOver(part.slug)"
+          (mouseout)="onPartMouseOut()"
+          pTooltip="{{part.slug}}"    
+          tooltipPosition="top">       
+      <title>{{ part.slug }}</title>
+    </path>
+  </ng-container>
+
+</svg>

@@ -1,0 +1,25 @@
+/* In body-highlighter.component.css */
+.body-part-path {
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  .body-part-path:hover {
+    opacity: 0.75;
+  }
+  /* src/app/body-highlighter/body-highlighter.component.css */
+:host {
+  display: block;
+  width: 100%;
+  /* Remove or significantly increase max-width */
+  /* max-width: 300px;  <-- REMOVE OR CHANGE THIS LINE */
+  max-width: 200px; /* Example: Increase it, adjust as needed */
+  /* OR simply remove the max-width rule entirely if you want it to fill its parent */
+  margin: 0 auto;
+}
+
+.body-svg {
+  width: 100%;
+  height: auto; /* Keep this */
+  display: block; /* Helps prevent extra bottom space */
+}
