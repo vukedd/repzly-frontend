@@ -17,14 +17,8 @@ export interface BodyPartHighlight {
   // You might still want an enum or const array for known slugs if helpful
   export const BodyPartSlugs = [
     // Add all slugs from your definition data here...
-    'chest-right', 'chest-left', 'obliques-left', 'obliques-right', 'abs-upper',
-    'abs-lower', 'biceps-left', 'biceps-right', 'triceps-right-front', 'triceps-left-front',
-    'neck-right-front', 'neck-left-front', 'trapezius-left-front', 'trapezius-right-front',
-    'deltoids-left-front', 'deltoids-right-front', 'adductors-left-front', 'adductors-right-front',
-    'quadriceps-left', 'quadriceps-right', 'knees-left', 'knees-right', 'tibialis-left',
-    'tibialis-right', 'calves-left-front', 'calves-right-front', 'forearm-left-front',
-    'forearm-right-front', 'hands-left-front', 'hands-right-front', 'ankles-left-front',
-    'ankles-right-front', 'feet-left-front', 'feet-right-front', 'head-front',
+    'neck-front','front-deltoid','side-deltoid','triceps-front','tibialis','calves-front','chest','biceps','trapezius-front','forearms-front','abs','quads','adductors-front','abductors-front',
+    'knees',
     // ... potentially add back view slugs later
     'head-back', 'neck-left-back', 'neck-right-back', 'trapezius-left-back',
   'trapezius-right-back', 'deltoids-left-back', 'deltoids-right-back',

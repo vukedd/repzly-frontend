@@ -44,7 +44,7 @@ export class BodyHighlighterComponent implements OnChanges {
     if (this.side === 'back') {
       return '20 50 300 450'; // BACK viewBox
     } else {
-      return '50 50 650 1350';  // FRONT viewBox
+      return '20 50 300 450';  // FRONT viewBox
     }
   }
 
