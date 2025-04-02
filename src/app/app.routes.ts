@@ -7,12 +7,13 @@ import { ProgramDetailsComponent } from './program/program-details/program-detai
 import { WorkoutTrackerComponent } from './workout/workout-tracker/workout-tracker.component';
 import { StartedProgramsPageComponent } from './layout/started-programs-page/started-programs-page.component';
 import { ProgramHistoryComponent } from './program/program-history/program-history.component';
+import { HomeProgramsPageComponent } from './layout/home-programs-page/home-programs-page.component';
 
 export const routes: Routes = [
     {
         path: '',
-        component: ProgramListComponent,
-        title: 'Program list'
+        component: HomeProgramsPageComponent,
+        title: 'Home'
     },
     {
         path: 'register',
