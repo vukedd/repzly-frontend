@@ -8,18 +8,18 @@
     opacity: 0.75;
   }
   /* src/app/body-highlighter/body-highlighter.component.css */
+/* src/app/body-highlighter/body-highlighter.component.css */
 :host {
   display: block;
-  width: 100%;
-  /* Remove or significantly increase max-width */
-  /* max-width: 300px;  <-- REMOVE OR CHANGE THIS LINE */
-  max-width: 300px; /* Example: Increase it, adjust as needed */
-  /* OR simply remove the max-width rule entirely if you want it to fill its parent */
-  margin: 0 auto;
+  width: 100%; /* Component should fill its container */
+  /* max-width: 300px; */ /* <-- REMOVE THIS LINE */
+  margin: 0 auto; /* Keep if you want horizontal centering *within* its container if container is wider than SVG aspect ratio allows */
 }
 
 .body-svg {
   width: 100%;
-  height: auto; /* Keep this */
-  display: block; /* Helps prevent extra bottom space */
+  height: auto;
+  display: block;
 }
+
+/* ... rest of the styles ... */

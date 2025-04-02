@@ -7,7 +7,7 @@ import { API_URL } from '../../globals';
   providedIn: 'root'
 })
 export class VolumeService {
-  private apiUrl = API_URL+ '/volume'; // Make sure apiUrl is defined in your environment files
+  private apiUrl = API_URL + '/volume'; // Make sure apiUrl is defined in your environment files
 
   constructor(private http: HttpClient) { }
 
@@ -19,17 +19,23 @@ export class VolumeService {
    */
   getMuscleUsage(startDate?: Date | null, endDate?: Date | null): Observable<Record<string, number>> {
     let params = new HttpParams();
-
-    // Format dates as YYYY-MM-DD for the backend @DateTimeFormat
+    
     if (startDate) {
-        // Basic ISO string slicing. Use DatePipe for more complex formatting if needed.
         params = params.set('startDate', startDate.toISOString().split('T')[0]);
     }
+    
     if (endDate) {
-        params = params.set('endDate', endDate.toISOString().split('T')[0]);
+        // Add one day to endDate to ensure the full selected day is included
+        const adjustedEndDate = new Date(endDate);
+        adjustedEndDate.setDate(adjustedEndDate.getDate() + 2);
+        params = params.set('endDate', adjustedEndDate.toISOString().split('T')[0]);
+    } else {
+        // If no end date provided, use tomorrow's date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        params = params.set('endDate', tomorrow.toISOString().split('T')[0]);
     }
-
-    // The HttpClient handles authentication headers automatically if you have an interceptor set up.
+    
     return this.http.get<Record<string, number>>(`${this.apiUrl}/per-muscle`, { params });
-  }
+}
 }

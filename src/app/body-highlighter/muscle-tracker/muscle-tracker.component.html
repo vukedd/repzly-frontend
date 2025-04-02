@@ -1,16 +1,11 @@
 <div class="p-4">
   <h2>Muscle Usage Tracker</h2>
-
   <!-- Date Selection and Fetch Button -->
   <div class="grid p-fluid mb-4">
     <div class="col-12 md:col-4">
       <div class="p-field">
         <label for="startDate">Start Date</label>
-        <p-calendar
-          inputId="startDate"
-          [(ngModel)]="startDate"
-          [showIcon]="true"
-          dateFormat="yy-mm-dd"
+        <p-calendar inputId="startDate" [(ngModel)]="startDate" [showIcon]="true" dateFormat="yy-mm-dd"
           [maxDate]="maxDate">
         </p-calendar>
       </div>
@@ -18,63 +13,32 @@
     <div class="col-12 md:col-4">
       <div class="p-field">
         <label for="endDate">End Date</label>
-        <p-calendar
-          inputId="endDate"
-          [(ngModel)]="endDate"
-          [showIcon]="true"
-          dateFormat="yy-mm-dd"
-          [maxDate]="maxDate">
+        <p-calendar inputId="endDate" [(ngModel)]="endDate" [showIcon]="true" dateFormat="yy-mm-dd" [maxDate]="maxDate">
         </p-calendar>
       </div>
     </div>
     <div class="col-12 md:col-4 flex align-items-end">
-      <p-button
-        label="Fetch Usage"
-        icon="pi pi-search"
-        (click)="fetchMuscleUsage()"
-        [loading]="isLoading"
+      <p-button label="Fetch Usage" icon="pi pi-search" (click)="fetchMuscleUsage()" [loading]="isLoading"
         styleClass="p-button-raised">
       </p-button>
     </div>
   </div>
 
-  <!-- Loading Indicator -->
-  <div *ngIf="isLoading" class="flex justify-content-center my-4">
-    <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8"></p-progressSpinner>
-  </div>
-
-  <!-- Error Message -->
-  <div *ngIf="errorMessage && !isLoading" class="my-4">
-     <p-message severity="error" [text]="errorMessage"></p-message>
-     <!-- Alternative using basic div:
-     <div class="p-message p-message-error">
-        <span class="p-message-icon pi pi-times-circle"></span>
-        <span class="p-message-text">{{ errorMessage }}</span>
-     </div>
-     -->
-  </div>
-
+  <!-- Fixed Height Container for Loading/Error/Info Messages -->
+  
 
   <!-- Body Highlighters -->
-  <div *ngIf="!isLoading && !errorMessage" class="flex flex-wrap justify-content-center">
-    <div class="m-2">
-      <app-body-highlighter
-        [side]="'front'"
-        [data]="highlightData"
-        [colors]="customColors">
+  <div class="flex flex-wrap justify-content-center">
+    <!-- Give these divs a fixed width or flex-basis -->
+    <div class="m-2" style="width: 250px;"> <!-- Example: Fixed pixel width -->
+      <!-- Or use PrimeFlex: <div class="m-2 w-15rem"> -->
+      <app-body-highlighter [side]="'front'" [data]="highlightData" [colors]="customColors">
       </app-body-highlighter>
     </div>
-    <div class="m-2">
-      <app-body-highlighter
-        [side]="'back'"
-        [data]="highlightData"
-        [colors]="customColors">
+    <div class="m-2" style="width: 250px;"> <!-- Example: Fixed pixel width -->
+      <!-- Or use PrimeFlex: <div class="m-2 w-15rem"> -->
+      <app-body-highlighter [side]="'back'" [data]="highlightData" [colors]="customColors">
       </app-body-highlighter>
     </div>
   </div>
-    <!-- Display if no data was found after a successful fetch -->
-    <div *ngIf="!isLoading && !errorMessage && highlightData.length === 0 && !startDate && !endDate" class="text-center my-4 text-color-secondary">
-        Select a date range and click "Fetch Usage" to see muscle activity.
-    </div>
-
 </div>
