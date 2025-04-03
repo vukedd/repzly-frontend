@@ -9,7 +9,7 @@ import { ProgramCreateComponent } from "./program/program-create/program-create.
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, SidebarComponent, AvatarModule, InputGroupModule, ProgramCreateComponent],
+  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, SidebarComponent, AvatarModule, InputGroupModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -70,8 +70,7 @@ export class ProgramDetailsComponent implements OnInit {
     private router: Router,
     private programService: ProgramService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private sanitizer: DomSanitizer
+    private confirmationService: ConfirmationService
   ) {
     this.apiUrl = programService.apiUrl;
   }

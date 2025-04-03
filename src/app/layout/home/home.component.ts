@@ -6,7 +6,7 @@ import { MuscleTrackerComponent } from "../../body-highlighter/muscle-tracker/mu
 
 @Component({
   selector: 'app-home',
-  imports: [BodyHighlighterComponent, ProgramListComponent, MuscleTrackerComponent],
+  imports: [ProgramListComponent, MuscleTrackerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

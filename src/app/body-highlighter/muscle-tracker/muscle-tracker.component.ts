@@ -22,9 +22,7 @@ import { MessageModule } from 'primeng/message';
     DatePickerModule,
     ButtonModule,
     ProgressSpinnerModule,
-    MessageModule,
-    TitleCasePipe
-  ],
+    MessageModule  ],
   templateUrl: './muscle-tracker.component.html',
   styleUrls: ['./muscle-tracker.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -121,10 +119,8 @@ export class MuscleTrackerComponent implements OnInit {
       )
       .subscribe({
         next: (data) => {
-          console.log("Raw data received:", data);
           const processedData = this.processMuscleData(data);
           this.highlightData = [...processedData]; // Force new reference
-          console.log("Processed highlight data (new ref):", this.highlightData);
 
           if (this.highlightData.length === 0 && Object.keys(data).length > 0) {
             this.errorMessage = "Received data, but could not map muscle names to visualizer slugs. Check console and mapping.";
