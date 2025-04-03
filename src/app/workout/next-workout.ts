@@ -1,7 +1,7 @@
 import { Workout, WorkoutExercise, WorkoutExerciseSet } from "../program/program.model";
 
 export interface NextWorkout {
-    startedWorkout: StartedWorkout;
+    nextWorkoutDetails: StartedWorkout;
     action: string | null; // "start", "continue", or null
     message: string | null; // For messages like "Program completed"
 }

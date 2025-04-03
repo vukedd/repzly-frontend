@@ -1,7 +1,7 @@
 <div class="h-full">
     <p-card styleClass="h-full border-round-lg cursor-pointer" (click)="navigateToDetails()">
       <ng-template pTemplate="header">
-        <img [src]="program.id ? apiUrl+ '/'+ program.id + '/image' : 'dinja.jpg'"
+        <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'dinja.jpg'"
              alt="{{program.name}}"
              class="w-full h-12rem border-round-top-lg"/>
       </ng-template>

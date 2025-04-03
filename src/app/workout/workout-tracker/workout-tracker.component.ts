@@ -133,11 +133,11 @@ export class WorkoutTrackerComponent implements OnInit {
   }
 
   initializeForm(): void {
-    if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
+    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
       return;
     }
 
-    const startedWorkout = this.currentWorkout.startedWorkout;
+    const nextWorkoutDetails = this.currentWorkout.nextWorkoutDetails;
 
     // Clear existing form
     while (this.exercises.length) {
@@ -145,7 +145,7 @@ export class WorkoutTrackerComponent implements OnInit {
     }
 
     // Create form structure based on the workout data
-    startedWorkout.workout.workoutExercises.forEach((exercise: WorkoutExercise) => {
+    nextWorkoutDetails.workout.workoutExercises.forEach((exercise: WorkoutExercise) => {
       const exerciseGroup = this.fb.group({
         id: [exercise.id],
         exerciseId: [exercise.exercise.id],
@@ -158,8 +158,8 @@ export class WorkoutTrackerComponent implements OnInit {
       const setsArray = exerciseGroup.get('sets') as FormArray;
 
       exercise.sets.forEach((set: WorkoutExerciseSet) => {
-        // Find if this set was already completed in the startedWorkout
-        const completedSet = startedWorkout.doneSets.find(
+        // Find if this set was already completed in the nextWorkoutDetails
+        const completedSet = nextWorkoutDetails.doneSets.find(
           doneSet => doneSet.set.id === set.id && doneSet.workoutExercise.id === exercise.id
         );
 
@@ -189,14 +189,14 @@ export class WorkoutTrackerComponent implements OnInit {
   }
 
   calculateTotals(): void {
-    if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
+    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
       return;
     }
 
-    const startedWorkout = this.currentWorkout.startedWorkout;
-    this.totalExercises = startedWorkout.workout.workoutExercises.length;
+    const nextWorkoutDetails = this.currentWorkout.nextWorkoutDetails;
+    this.totalExercises = nextWorkoutDetails.workout.workoutExercises.length;
 
-    this.totalSets = startedWorkout.workout.workoutExercises.reduce(
+    this.totalSets = nextWorkoutDetails.workout.workoutExercises.reduce(
       (total: number, exercise: WorkoutExercise) => total + exercise.sets.length, 0
     );
 
@@ -229,7 +229,7 @@ export class WorkoutTrackerComponent implements OnInit {
 
     // Prepare the DTO for the API call
     const doneSetDTO: CreateDoneSetDTO = {
-      startedWorkoutId: this.currentWorkout?.startedWorkout?.id || 0,
+      startedWorkoutId: this.currentWorkout?.nextWorkoutDetails?.id || 0,
       workoutExerciseId: exerciseControl.get('id')?.value,
       setId: setControl.get('id')?.value,
       volume: setControl.get('actualVolume')?.value,
@@ -248,7 +248,7 @@ export class WorkoutTrackerComponent implements OnInit {
           severity: 'success',
           summary: 'Set Completed'
         });
-        this.currentWorkout?.startedWorkout?.doneSets.push(response);
+        this.currentWorkout?.nextWorkoutDetails?.doneSets.push(response);
 
 
         // Auto-navigate to next set or exercise logic
@@ -387,15 +387,15 @@ export class WorkoutTrackerComponent implements OnInit {
   }
 
   saveWorkout(): void {
-    if (!this.currentWorkout || !this.currentWorkout.startedWorkout) {
+    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
       return;
     }
 
     this.submitting = true;
-    const startedWorkoutId = this.currentWorkout.startedWorkout.id;
+    const nextWorkoutDetailsId = this.currentWorkout.nextWorkoutDetails.id;
     const startedProgramId = this.route.snapshot.params['id']; // Get the program ID from the route
 
-    this.workoutService.completeWorkout(startedWorkoutId, startedProgramId).subscribe({
+    this.workoutService.completeWorkout(nextWorkoutDetailsId, startedProgramId).subscribe({
       next: (response) => {
         this.submitting = false;
         this.messageService.add({
@@ -448,10 +448,10 @@ export class WorkoutTrackerComponent implements OnInit {
     // Get the done set ID from the current workout
     const setId = setControl.get('id')?.value;
     const workoutExerciseId = exerciseControl.get('id')?.value;
-    const startedWorkoutId = this.currentWorkout?.startedWorkout?.id || 0;
+    const nextWorkoutDetailsId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
 
     // Find the done set ID by matching the workout exercise and set IDs
-    const doneSet = this.currentWorkout?.startedWorkout?.doneSets.find(
+    const doneSet = this.currentWorkout?.nextWorkoutDetails?.doneSets.find(
       ds => ds.set.id === setId && ds.workoutExercise.id === workoutExerciseId
     );
 
@@ -469,13 +469,13 @@ export class WorkoutTrackerComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.workoutService.uncompleteSet(startedWorkoutId, doneSet.id).subscribe({
+        this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSet.id).subscribe({
           next: (response) => {
             // Mark set as not completed in the UI
             // Remove the done set from the array
-            if (this.currentWorkout?.startedWorkout?.doneSets) {
-              this.currentWorkout.startedWorkout.doneSets =
-                this.currentWorkout.startedWorkout.doneSets.filter(ds => ds.id !== doneSet.id);
+            if (this.currentWorkout?.nextWorkoutDetails?.doneSets) {
+              this.currentWorkout.nextWorkoutDetails.doneSets =
+                this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSet.id);
             }
             setControl.get('completed')?.setValue(false);
             this.updateProgress();
