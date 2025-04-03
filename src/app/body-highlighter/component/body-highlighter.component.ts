@@ -21,6 +21,7 @@ export class BodyHighlighterComponent implements OnChanges {
   @Input() data: BodyPartHighlight[] = [];
   @Input() side: 'front' | 'back' = 'front';
   @Input() colors: string[] = ['#ADD8E6', '#87CEEB', '#00BFFF', '#1E90FF', '#0000FF']; // Example: 5 colors
+  @Input() rangeBoundaries: number[] = [5, 10, 15, 20];
   /**
    * Defines the size of each intensity range for color mapping.
    * Example: If rangeSize is 5 and colors has 5 entries:
@@ -30,7 +31,6 @@ export class BodyHighlighterComponent implements OnChanges {
    * - Intensity 16-20 -> colors[3]
    * - Intensity 21+  -> colors[4] (clamped to the last color)
    */
-  @Input() intensityRangeSize: number = 5; // Default range size
   @Input() defaultFillColor: string = '#CCCCCC';
   @Input() strokeColor: string = '#333333';
   @Input() strokeWidth: number = 0.5;
@@ -58,12 +58,7 @@ export class BodyHighlighterComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     // Recalculate styles if data, colors, default color, OR range size changes
-    if (changes['data'] || changes['colors'] || changes['defaultFillColor'] || changes['intensityRangeSize']) {
-      // Basic validation for range size
-      if (this.intensityRangeSize <= 0) {
-        console.warn('BodyHighlighterComponent: intensityRangeSize must be greater than 0. Using default of 1.');
-        this.intensityRangeSize = 1; // Prevent division by zero or infinite loops
-      }
+    if (changes['data'] || changes['colors'] || changes['defaultFillColor']) {
       this.calculateHighlightStyles();
     }
   }
@@ -71,28 +66,39 @@ export class BodyHighlighterComponent implements OnChanges {
   private calculateHighlightStyles(): void {
     const styles: { [key: string]: { fill: string } } = {};
     if (!this.data || this.data.length === 0 || this.colors.length === 0) {
-      this.highlightStyles = {}; // Reset styles if no data or colors
+      this.highlightStyles = {};
       return;
     }
-
+  
+    // Ensure rangeBoundaries is properly set
+    if (!this.rangeBoundaries || this.rangeBoundaries.length === 0) {
+      this.rangeBoundaries = [5]; // Default if not set
+    }
+  
+    // Ensure boundaries are properly sorted
+    const sortedBoundaries = [...this.rangeBoundaries].sort((a, b) => a - b);
+  
     this.data.forEach(part => {
-      // Ensure intensity is at least 1 for calculation purposes
-      const intensityValue = Math.max(1, part.intensity);
-
-      // Calculate the index based on the range size.
-      // (intensityValue - 1) makes it 0-based for the first range (e.g., 1-5 -> 0-4).
-      // Dividing by rangeSize gives the range group (e.g., 0-4 / 5 = 0.x, 5-9 / 5 = 1.x).
-      // Math.floor gets the integer index (0, 1, 2...).
-      const calculatedIndex = Math.floor((intensityValue - 1) / this.intensityRangeSize);
-
-      // Clamp the index to ensure it's within the bounds of the colors array.
-      // It cannot be less than 0, and not more than the last index of the colors array.
-      const colorIndex = Math.max(0, Math.min(calculatedIndex, this.colors.length - 1));
-
+      // Get the actual intensity value
+      const intensityValue = part.intensity;
+      
+      // Find which range the intensity falls into
+      let colorIndex = 0;
+      for (let i = 0; i < sortedBoundaries.length; i++) {
+        if (intensityValue > sortedBoundaries[i]) {
+          colorIndex = i + 1;
+        } else {
+          break;
+        }
+      }
+      
+      // Clamp to the available colors
+      colorIndex = Math.min(colorIndex, this.colors.length - 1);
+      
       // Assign the calculated color to the body part slug
       styles[part.slug as string] = { fill: this.colors[colorIndex] };
     });
-
+  
     this.highlightStyles = styles;
   }
 

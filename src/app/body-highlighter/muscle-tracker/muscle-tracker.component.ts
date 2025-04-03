@@ -1,141 +1,180 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common'; // Import CommonModule
-import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, TitleCasePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BodyHighlighterComponent } from "../component/body-highlighter.component";
 import { BodyPartHighlight } from '../body-highlighter.model';
-import { VolumeService } from '../volume.service'; // Adjust path as needed
+import { VolumeService } from '../volume.service';
 import { finalize } from 'rxjs/operators';
 
 // PrimeNG Modules
-import { CalendarModule } from 'primeng/calendar';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner'; // For loading indicator
-import { MessageModule } from 'primeng/message'; // For error display
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-muscle-tracker',
-  standalone: true, // Mark as standalone
+  standalone: true,
   imports: [
-    CommonModule, // Add CommonModule
-    FormsModule,  // Add FormsModule
+    CommonModule,
+    FormsModule,
     BodyHighlighterComponent,
-    CalendarModule,
+    DatePickerModule,
     ButtonModule,
     ProgressSpinnerModule,
     MessageModule,
-    TitleCasePipe // For potential display formatting
+    TitleCasePipe
   ],
   templateUrl: './muscle-tracker.component.html',
-  styleUrls: ['./muscle-tracker.component.css'] // Corrected property name
+  styleUrls: ['./muscle-tracker.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MuscleTrackerComponent implements OnInit {
-  highlightData: BodyPartHighlight[] = []; // Initialize empty
-  customColors = ['#FFFACD', '#FFEB3B', '#FFC107', '#FFA000', '#FF6F00']; // 5 intensity levels
+  highlightData: BodyPartHighlight[] = [];
+  customColors = ['#FFFACD', '#FFEB3B', '#FFC107', '#FFA000', '#FF6F00'];
 
-  startDate: Date | null = null;
-  endDate: Date | null = null;
-  maxDate = new Date(); // Prevent selecting future dates
+  // Initialize with default dates
+  startDate: Date | null = this.getDefaultStartDate(); // Call helper function
+  endDate: Date | null = new Date(); // Today
+  maxDate = new Date();
 
   isLoading = false;
   errorMessage: string | null = null;
 
-  // --- Mapping from backend Muscle Name to Frontend Slug ---
-  // This is crucial and needs to exactly match your backend names and frontend slugs
-  private muscleNameToSlugMap: Record<string, string> = {
-    'Neck': 'neck-front', // Assuming neck-front covers it
-    'Front Deltoid': 'front-deltoid',
-    'Side Deltoid': 'side-deltoid',
-    'Triceps': 'triceps-back', // Or 'triceps-front', decide which slug is primary or handle duplication
-    'Tibialis': 'tibialis',
-    'Calves': 'calves-back', // Or 'calves-front'
+  // In muscle-tracker.component.ts
+
+  // Change the type signature to allow string or array of strings
+  private muscleNameToSlugMap: Record<string, string | string[]> = {
+    // Muscles typically only on FRONT view
     'Chest': 'chest',
     'Biceps': 'biceps',
-    'Trapezius': 'trapezius-front', // Or map to upper-back/traps slug from back view
-    'Forearms': 'forearm-back', // Or 'forearms-front'
     'Abs': 'abs',
-    'Obliques': 'obliques',
     'Quads': 'quads',
-    'Adductors': 'adductors-front', // Or 'adductors-back'
-    'Abductors': 'abductors-front',
-    // 'Knees': 'knees', // Usually not tracked as a muscle target
+    'Tibialis': 'tibialis', // Primarily front view
+
+    // Muscles typically only on BACK view
     'Lats': 'lats',
-    'Upper Back': 'upper-back',
-    'Rear Deltoids': 'deltoids-back', // Explicitly map the rear version if needed
+    'Upper Back': 'upper-back', // Could overlap with Traps depending on definitions
     'Lower Back': 'lower-back',
     'Glutes': 'glutes',
-    'Hamstrings': 'hamstrings'
-    // Add any other specific mappings if your backend uses slightly different names
+    'Hamstrings': 'hamstrings',
+    'Rear Deltoids': 'deltoids-back', // Assuming this maps to the posterior deltoid slug
+
+    // Muscles visible on BOTH sides (map to an ARRAY of slugs)
+    'Neck': ['neck-front'], // Often simplified to front, add 'neck-back' if you have it
+    'Front Deltoid': 'front-deltoid', // Explicitly front
+    'Side Deltoid': 'side-deltoid', // Often visible from both, but usually highlighted on front view
+    'Triceps': ['triceps-front', 'triceps-back'], // Visible front and back
+    'Calves': ['calves-front', 'calves-back'], // Visible front and back
+    'Trapezius': ['trapezius-front', 'upper-back'], // Traps are complex, map to relevant front/back slugs
+    'Forearms': ['forearms-front', 'forearm-back'], // Visible front and back
+    'Obliques': 'obliques', // Primarily side/front view
+    'Adductors': ['adductors-front', 'adductors-back'], // Visible front and back
+    'Abductors': ['abductors-front'], // Primarily front/side view
+
+    // Add any other specific mappings based on your BodyPartDefinition data
   };
   // ---------------------------------------------------------
 
-  constructor(private volumeService: VolumeService) {}
+  constructor(
+    private volumeService: VolumeService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-    // Optionally fetch data for a default range on load
-    // this.fetchMuscleUsage();
+    // Fetch data for the default range when the component initializes
+    this.fetchMuscleUsage();
+  }
+
+  // Helper function to get the date 7 days ago
+  private getDefaultStartDate(): Date {
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(today.getDate() - 7);
+    // Optional: Set time to start of the day if your backend query requires it
+    // oneWeekAgo.setHours(0, 0, 0, 0);
+    return oneWeekAgo;
   }
 
   fetchMuscleUsage(): void {
+    // Basic check: Ensure dates are selected before fetching
+    if (!this.startDate || !this.endDate) {
+      this.errorMessage = "Please select both a start and end date.";
+      // Clear previous data if desired
+      // this.highlightData = [];
+      // this.cdr.markForCheck(); // Update UI if clearing data/showing error
+      return; // Stop execution if dates are missing
+    }
+
     this.isLoading = true;
     this.errorMessage = null;
-    this.highlightData = []; // Clear previous highlights
+    // Don't reset highlightData here if you want to show previous data during loading
+    // this.highlightData = [];
+    this.cdr.markForCheck();
 
     this.volumeService.getMuscleUsage(this.startDate, this.endDate)
       .pipe(
-        finalize(() => this.isLoading = false) // Ensure loading stops on complete/error
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
       )
       .subscribe({
         next: (data) => {
           console.log("Raw data received:", data);
-          this.highlightData = this.processMuscleData(data);
-          console.log("Processed highlight data:", this.highlightData);
+          const processedData = this.processMuscleData(data);
+          this.highlightData = [...processedData]; // Force new reference
+          console.log("Processed highlight data (new ref):", this.highlightData);
+
           if (this.highlightData.length === 0 && Object.keys(data).length > 0) {
-              this.errorMessage = "Received data, but could not map muscle names to visualizer slugs. Check console and mapping.";
-          } else if (this.highlightData.length === 0) {
-              this.errorMessage = "No muscle usage data found for the selected period.";
+            this.errorMessage = "Received data, but could not map muscle names to visualizer slugs. Check console and mapping.";
+          } else if (this.highlightData.length === 0 && (this.startDate || this.endDate)) {
+            // Check if dates *were* selected for this message
+            this.errorMessage = "No muscle usage data found for the selected period.";
+          } else {
+            this.errorMessage = null; // Clear error if data found
           }
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error("Error fetching muscle usage:", err);
           this.errorMessage = "Failed to fetch muscle usage data. Please try again later.";
-          // More specific error handling based on err.status or err.error possible
+          this.cdr.markForCheck();
         }
       });
   }
 
+  // In muscle-tracker.component.ts
+
   private processMuscleData(rawData: Record<string, number>): BodyPartHighlight[] {
     const processed: BodyPartHighlight[] = [];
     const values = Object.values(rawData);
-
-    if (values.length === 0) {
-      return []; // No data to process
-    }
-
-    // --- Normalization/Scaling Logic ---
-    // Find the maximum usage value to scale intensity (0 to 4 for 5 colors)
+  
+    if (values.length === 0) return [];
+  
     const maxValue = Math.max(...values);
-
-    if (maxValue <= 0) {
-        console.warn("Max usage value is zero or negative, cannot scale intensity.");
-        // Optionally return raw values or a default intensity if desired
-        // For now, we return empty as scaling doesn't make sense.
-        return [];
-    }
-    // ----------------------------------
-
+    if (maxValue <= 0) return [];
+  
     for (const [muscleName, value] of Object.entries(rawData)) {
-      const slug = this.muscleNameToSlugMap[muscleName];
-      if (slug) {
-        // Scale the value to an intensity level (0-4 for 5 colors)
-        // Using Math.ceil to ensure even small values get intensity 1 (index 0 is color 1)
-        // Adjust scale factor if you have more/less colors
-        const intensity = Math.min(this.customColors.length -1, Math.ceil((value / maxValue) * (this.customColors.length -1)));
-
-        processed.push({ slug: slug, intensity: intensity + 1 }); // Intensity 1-5
+      const slugOrSlugs = this.muscleNameToSlugMap[muscleName];
+  
+      if (slugOrSlugs) {
+        // Pass the raw value as the intensity, not normalized
+        // Let the highlighter handle the range-based color mapping
+        
+        // Handle array of slugs or single slug
+        if (Array.isArray(slugOrSlugs)) {
+          slugOrSlugs.forEach(slug => {
+            processed.push({ slug: slug, intensity: value });
+          });
+        } else {
+          processed.push({ slug: slugOrSlugs, intensity: value });
+        }
       } else {
         console.warn(`No slug mapping found for muscle name: "${muscleName}"`);
       }
     }
+  
     return processed;
   }
 }
