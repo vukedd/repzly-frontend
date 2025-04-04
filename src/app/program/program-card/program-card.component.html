@@ -39,8 +39,10 @@
             [label]="followTextClass"
             [severity]="followSeverity">
           </p-button>
-          <p-button label="start program" (click)="startProgram($event)" *ngIf="getCurrentRoute()!='/started-programs'"/>
-          <p-button label="start next workout" (click)="startWorkout($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
+          <p-button label="Start program" (click)="startProgram($event)" *ngIf="getCurrentRoute()!='/started-programs'"/>
+          <p-button label="Start next workout" (click)="startWorkout($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
+          <p-button label="See History" (click)="seeHistory($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
+
 
         </div>
       </ng-template>

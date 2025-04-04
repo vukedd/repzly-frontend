@@ -48,17 +48,11 @@ export interface Program {
     id: number;
     title: string;
     description?: string;
-    workedMuscles?: Muscle[];
   }
 
   export interface ExerciseOverview {
     id: number;
     title: string;
-  }
-  
-  export interface Muscle {
-    id: number;
-    name: string;
   }
   
   export interface VolumeMetric {

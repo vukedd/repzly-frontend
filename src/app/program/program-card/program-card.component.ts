@@ -74,6 +74,12 @@ export class ProgramCardComponent implements OnInit {
     this.router.navigate(['/workout-tracker', this.program.startedProgramId]);
 
   }
+
+  seeHistory(event:Event): void{
+    event.stopPropagation(); // Prevent card click when clicking like button
+    this.router.navigate(['/programs-history', this.program.startedProgramId]);
+
+  }
   
   getCurrentRoute(): string {
     return this.router.url;
