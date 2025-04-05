@@ -18,6 +18,7 @@ import { PanelModule } from 'primeng/panel';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { BadgeModule } from 'primeng/badge';
+import { JwtService } from '../../auth/jwt/jwt.service';
 // New interface for muscle sets data
 interface MuscleSetItem {
   muscleName: string;
@@ -102,7 +103,8 @@ export class MuscleTrackerComponent implements OnInit {
 
   constructor(
     private volumeService: VolumeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private jwtService: JwtService
   ) {
     // Initialize the inverse mapping
     this.initSlugToMuscleNameMap();
@@ -123,7 +125,13 @@ export class MuscleTrackerComponent implements OnInit {
 
   ngOnInit(): void {
     // Fetch data for the default range when the component initializes
+    if (this.isLoggedIn()) {
     this.fetchMuscleUsage();
+    }
+  }
+
+  public isLoggedIn(): boolean {
+    return this.jwtService.isLoggedIn()
   }
 
   // Helper function to get the date 7 days ago
