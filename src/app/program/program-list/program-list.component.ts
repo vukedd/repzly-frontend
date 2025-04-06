@@ -11,6 +11,8 @@ import { PaginatorModule } from 'primeng/paginator';
 import { JwtService } from '../../auth/jwt/jwt.service';
 import { Subscription } from 'rxjs';
 import { SearchService } from '../../layout/header/search.service';
+import { ChartModule } from 'primeng/chart';
+
 
 interface PageEvent {
   first: number;
@@ -29,7 +31,8 @@ interface PageEvent {
     ProgramCardComponent,
     AddProgramCardComponent,
     CommonModule,
-    PaginatorModule
+    PaginatorModule,
+    ChartModule
   ],
   templateUrl: './program-list.component.html',
   styleUrl: './program-list.component.css'

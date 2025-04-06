@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ProgramOverviewDTO } from "../program-overview-dto"
 import { PageResponse } from '../../common/page/page-response';
 import { Program } from '../program.model';
 import { API_URL } from '../../../globals';
@@ -113,5 +112,7 @@ export class ProgramService {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
   }
 
-
+  getProgramWeeklyVolume(startDate: string, endDate: string) {
+    return this.http.get<any>(`${this.apiUrl}/weekly-volume?startDate=` + startDate + `&endDate=` + endDate);
+  }
 }
