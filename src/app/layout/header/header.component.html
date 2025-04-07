@@ -13,9 +13,7 @@
     <p-button icon="pi pi-lightbulb" styleClass="p-button-rounded p-button-text" (click)="toggleTheme()" />
     <p-menubar *ngIf="items != undefined" [model]="items" styleClass="border-none bg-transparent hidden sm:flex" />
     <p-button label="Log in" *ngIf="items == undefined" (click)="showDialog()"/>
-    <p-drawer [(visible)]="sidemenuVisible" position="left" styleClass="w-18rem">
-      <app-sidebar></app-sidebar>
-    </p-drawer>
+   
     <p-dialog maskStyleClass="backdrop-blur-sm" [(visible)]="visible" [modal]="true" class="p-5">
         <ng-template #header>
           <div class="inline-flex items-center justify-center gap-2" *ngIf="isLoginMode">
