@@ -20,7 +20,6 @@ export class WorkoutService {
     return this.http.get<NextWorkout>(`${this.apiUrl}/next/${programId}`);
   }
 
-  // Add these methods to your WorkoutService class
   completeSet(doneSetDTO: CreateDoneSetDTO): Observable<DoneSet> {
     return this.http.post<DoneSet>(`${this.apiUrl}/completeSet`, doneSetDTO);
   }
