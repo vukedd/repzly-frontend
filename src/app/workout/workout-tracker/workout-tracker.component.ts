@@ -43,28 +43,28 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   // Core workout data
   currentWorkout: NextWorkout | null = null;
   workoutForm: FormGroup;
-  
+
   // UI state
   loading = true;
   submitting = false;
   showSummary = false;
-  
+
   // Progress tracking
   totalExercises = 0;
   totalSets = 0;
   progress = 0;
-  
+
   // Timer state
   restTimer: ReturnType<typeof setInterval> | null = null;
   restTimeRemaining = 0;
   showRestTimer = false;
-  
+
   // Workout duration tracking
   workoutStartTime: number | null = null;
   workoutDurationInterval: ReturnType<typeof setInterval> | null = null;
   workoutDurationSeconds = 0;
   workoutDurationDisplay = '00:00';
-  
+
   // Dialog reference
   private ref: DynamicDialogRef | undefined;
 
@@ -104,7 +104,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Form Access Methods ---
-  
+
   get exercises(): FormArray {
     return this.workoutForm?.get('exercises') as FormArray ?? this.fb.array([]);
   }
@@ -129,14 +129,14 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Workout Data Loading and Initialization ---
-  
+
   loadNextWorkout(programId: number): void {
     this.loading = true;
     this.workoutService.getNextWorkout(programId).subscribe({
       next: (nextWorkout: NextWorkout) => {
         this.currentWorkout = nextWorkout;
         console.log(nextWorkout);
-        
+
         if (nextWorkout.action === 'start' || nextWorkout.action === 'continue') {
           this.initializeForm();
           this.calculateTotals();
@@ -245,7 +245,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Progress Tracking ---
-  
+
   calculateTotals(): void {
     if (!this.currentWorkout?.nextWorkoutDetails) return;
 
@@ -286,7 +286,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Set Completion Methods ---
-  
+
   completeSet(exerciseIndex: number, setIndex: number): void {
     const exerciseControl = this.getExerciseControl(exerciseIndex);
     const setsArray = this.getExerciseSets(exerciseIndex);
@@ -519,7 +519,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Workout Completion ---
-  
+
   openSummary(): void {
     this.updateProgress();
     this.showSummary = true;
@@ -593,7 +593,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Rest Timer Methods ---
-  
+
   startRestTimer(exerciseIndex: number): void {
     this.stopRestTimer(); // Clear existing timer
 
@@ -627,13 +627,35 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Workout Timer Methods ---
-  
+
+  // --- Workout Timer Methods ---
+
   startWorkoutTimer(): void {
     this.stopWorkoutTimer(); // Clear any existing timer first
-    this.workoutStartTime = Date.now();
-    this.workoutDurationSeconds = 0;
+
+    // Use the workout's start date if available, otherwise use current time
+    if (this.currentWorkout?.nextWorkoutDetails?.startDate) {
+      // Convert string date to timestamp if needed
+      const startDateStr = this.currentWorkout.nextWorkoutDetails.startDate;
+      const startDate = typeof startDateStr === 'string'
+        ? new Date(startDateStr)
+        : startDateStr;
+
+      this.workoutStartTime = startDate.getTime();
+
+      // Calculate initial duration based on elapsed time since workout started
+      const now = Date.now();
+      this.workoutDurationSeconds = Math.floor((now - this.workoutStartTime) / 1000);
+    } else {
+      // Fallback to current time if no start date available
+      this.workoutStartTime = Date.now();
+      this.workoutDurationSeconds = 0;
+    }
+
+    // Initial display update
     this.updateWorkoutDurationDisplay();
 
+    // Start interval for ongoing updates
     this.workoutDurationInterval = setInterval(() => {
       if (this.workoutStartTime) {
         const now = Date.now();
@@ -659,17 +681,16 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
+    const hoursStr = hours.toString().padStart(2, '0');
     const minutesStr = minutes.toString().padStart(2, '0');
     const secondsStr = seconds.toString().padStart(2, '0');
 
-    // Display hours only if workout exceeds 1 hour
-    this.workoutDurationDisplay = (hours > 0)
-      ? `${hours.toString()}:${minutesStr}:${secondsStr}`
-      : `${minutesStr}:${secondsStr}`;
+    // Always include hours format for consistency with longer workouts
+    this.workoutDurationDisplay = `${hoursStr}:${minutesStr}:${secondsStr}`;
   }
 
   // --- UI Helper Methods ---
-  
+
   getPlaceholderText(
     range: { min: number | null, max: number | null } | null,
     metric: { id?: number, title?: string, metricSymbol?: string, range?: boolean } | null,
@@ -718,7 +739,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   }
 
   // --- Dialog Methods ---
-  
+
   showHistoryDialog(exerciseIdControl: AbstractControl | null): void {
     const exerciseId = exerciseIdControl?.value;
 
