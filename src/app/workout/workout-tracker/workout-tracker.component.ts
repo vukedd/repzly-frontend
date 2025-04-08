@@ -1,27 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
-import { AccordionModule } from 'primeng/accordion';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ProgramService } from '../../program/program-service/program.service';
 import { DoneSet, NextWorkout } from '../next-workout';
 import { WorkoutService } from '../workout.service';
 import { WorkoutExercise, WorkoutExerciseSet } from '../../program/program.model';
 import { CreateDoneSetDTO } from '../create-done-set-dto';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ExerciseHistoryDialogComponent } from '../../exercise/exercise-history-dialog/exercise-history-dialog.component';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-
 
 @Component({
   selector: 'app-workout-tracker',
@@ -31,10 +27,9 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,
-    InputNumberModule,
+    InputTextModule,
     CardModule,
     DividerModule,
-    AccordionModule,
     ProgressBarModule,
     ToastModule,
     DialogModule,
@@ -44,25 +39,33 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
   templateUrl: './workout-tracker.component.html',
   styleUrls: ['./workout-tracker.component.css']
 })
-export class WorkoutTrackerComponent implements OnInit {
-  workoutId: number | null = null;
+export class WorkoutTrackerComponent implements OnInit, OnDestroy {
+  // Core workout data
   currentWorkout: NextWorkout | null = null;
   workoutForm: FormGroup;
-  loading = false;
+  
+  // UI state
+  loading = true;
   submitting = false;
   showSummary = false;
-
-  // Track current progress
-  currentExerciseIndex = 0;
-  currentSetIndex = 0;
+  
+  // Progress tracking
   totalExercises = 0;
   totalSets = 0;
   progress = 0;
-
-  // Timer
-  restTimer: any = null;
+  
+  // Timer state
+  restTimer: ReturnType<typeof setInterval> | null = null;
   restTimeRemaining = 0;
   showRestTimer = false;
+  
+  // Workout duration tracking
+  workoutStartTime: number | null = null;
+  workoutDurationInterval: ReturnType<typeof setInterval> | null = null;
+  workoutDurationSeconds = 0;
+  workoutDurationDisplay = '00:00';
+  
+  // Dialog reference
   private ref: DynamicDialogRef | undefined;
 
   constructor(
@@ -90,29 +93,61 @@ export class WorkoutTrackerComponent implements OnInit {
     });
   }
 
-  get exercises(): FormArray {
-    return this.workoutForm.get('exercises') as FormArray;
+  ngOnDestroy(): void {
+    if (this.ref) {
+      this.ref.close();
+      this.ref = undefined;
+    }
+    this.stopRestTimer();
+    this.stopWorkoutTimer();
+    console.log('WorkoutTrackerComponent destroyed, timers stopped.');
   }
 
+  // --- Form Access Methods ---
+  
+  get exercises(): FormArray {
+    return this.workoutForm?.get('exercises') as FormArray ?? this.fb.array([]);
+  }
 
+  getExerciseControl(exerciseIndex: number): FormGroup | null {
+    if (exerciseIndex < 0 || exerciseIndex >= this.exercises.length) {
+      console.error(`Invalid exercise index requested: ${exerciseIndex}`);
+      return null;
+    }
+    return this.exercises.at(exerciseIndex) as FormGroup;
+  }
+
+  getExerciseSets(exerciseIndex: number): FormArray | null {
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    return exerciseControl ? exerciseControl.get('sets') as FormArray : null;
+  }
+
+  getExerciseSetsAt(exerciseControl: AbstractControl | null, index: number): AbstractControl | null {
+    if (!exerciseControl) return null;
+    const setsArray = exerciseControl.get('sets') as FormArray;
+    return (setsArray && index >= 0 && index < setsArray.length) ? setsArray.at(index) : null;
+  }
+
+  // --- Workout Data Loading and Initialization ---
+  
   loadNextWorkout(programId: number): void {
     this.loading = true;
     this.workoutService.getNextWorkout(programId).subscribe({
       next: (nextWorkout: NextWorkout) => {
         this.currentWorkout = nextWorkout;
-
+        console.log(nextWorkout);
+        
         if (nextWorkout.action === 'start' || nextWorkout.action === 'continue') {
           this.initializeForm();
           this.calculateTotals();
+          this.startWorkoutTimer();
         } else {
-          // Handle program completed or other states
           this.messageService.add({
             severity: 'info',
             summary: 'Information',
             detail: nextWorkout.message || 'No workout available'
           });
 
-          // Redirect to dashboard after delay if no workout to do
           setTimeout(() => {
             this.router.navigate(['/dashboard']);
           }, 2000);
@@ -122,20 +157,13 @@ export class WorkoutTrackerComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load next workout'
-        });
         console.error('Error loading next workout:', error);
       }
     });
   }
 
   initializeForm(): void {
-    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
-      return;
-    }
+    if (!this.currentWorkout?.nextWorkoutDetails) return;
 
     const nextWorkoutDetails = this.currentWorkout.nextWorkoutDetails;
 
@@ -157,41 +185,69 @@ export class WorkoutTrackerComponent implements OnInit {
 
       const setsArray = exerciseGroup.get('sets') as FormArray;
 
+      // Add all the regular sets from the workout definition
       exercise.sets.forEach((set: WorkoutExerciseSet) => {
-        // Find if this set was already completed in the nextWorkoutDetails
-        const completedSet = nextWorkoutDetails.doneSets.find(
+        // Find completed sets for this exercise and set
+        const completedSets = nextWorkoutDetails.doneSets.filter(
           doneSet => doneSet.set.id === set.id && doneSet.workoutExercise.id === exercise.id
         );
 
-        const setGroup = this.fb.group({
-          id: [set.id],
-          volumeMetric: [set.volumeMetric],
-          intensityMetric: [set.intensityMetric],
-          volumeRange: [{
-            min: set.volume.minimumVolume,
-            max: set.volume.maximumVolume
-          }],
-          intensityRange: [{
-            min: set.intensity.minimumIntensity,
-            max: set.intensity.maximumIntensity
-          }],
-          completed: [!!completedSet],
-          actualVolume: [completedSet ? completedSet.volume : set.volume.minimumVolume],
-          actualIntensity: [completedSet ? completedSet.intensity : set.intensity.minimumIntensity],
-          weightLifted: [completedSet ? completedSet.weightLifted : null]
-        });
-
-        setsArray.push(setGroup);
+        // If no completed sets, add just one regular set control
+        if (completedSets.length === 0) {
+          setsArray.push(this.createSetFormGroup(set, null, false));
+        }
+        // Otherwise, add a control for each completed set
+        else {
+          completedSets.forEach((doneSet, index) => {
+            const isAdditional = index > 0; // First one is original, others are additional
+            setsArray.push(this.createSetFormGroup(set, doneSet, isAdditional));
+          });
+        }
       });
 
       this.exercises.push(exerciseGroup);
     });
+
+    this.calculateTotals();
   }
 
+  private createSetFormGroup(set: WorkoutExerciseSet, doneSet: DoneSet | null, isAdditional: boolean): FormGroup {
+    const isCompleted = !!doneSet;
+
+    return this.fb.group({
+      id: [set.id],
+      volumeMetric: [set.volumeMetric],
+      intensityMetric: [set.intensityMetric],
+      volumeRange: [{
+        min: set.volume.minimumVolume,
+        max: set.volume.maximumVolume
+      }],
+      intensityRange: [{
+        min: set.intensity.minimumIntensity,
+        max: set.intensity.maximumIntensity
+      }],
+      completed: [isCompleted],
+      actualVolume: [{
+        value: doneSet ? doneSet.volume : null,
+        disabled: isCompleted
+      }],
+      actualIntensity: [{
+        value: doneSet ? doneSet.intensity : null,
+        disabled: isCompleted
+      }],
+      weightLifted: [{
+        value: doneSet ? doneSet.weightLifted : null,
+        disabled: isCompleted
+      }],
+      doneSetId: [doneSet ? doneSet.id : null],
+      isAdditionalSet: [isAdditional]
+    });
+  }
+
+  // --- Progress Tracking ---
+  
   calculateTotals(): void {
-    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
-      return;
-    }
+    if (!this.currentWorkout?.nextWorkoutDetails) return;
 
     const nextWorkoutDetails = this.currentWorkout.nextWorkoutDetails;
     this.totalExercises = nextWorkoutDetails.workout.workoutExercises.length;
@@ -204,321 +260,482 @@ export class WorkoutTrackerComponent implements OnInit {
   }
 
   updateProgress(): void {
-    let completedSets = 0;
-    const exerciseGroups = this.exercises.controls;
+    const completedSetsCount = this.countCompletedSets();
+    this.progress = this.totalSets > 0 ? Math.round((completedSetsCount / this.totalSets) * 100) : 0;
+  }
 
-    for (const exerciseGroup of exerciseGroups) {
-      const setsArray = exerciseGroup.get('sets') as FormArray;
-      for (const setControl of setsArray.controls) {
-        if (setControl.get('completed')?.value) {
-          completedSets++;
+  countCompletedSets(): number {
+    let completedCount = 0;
+    this.exercises.controls.forEach(exerciseControl => {
+      const setsArray = exerciseControl.get('sets') as FormArray;
+      setsArray.controls.forEach(setControl => {
+        if (setControl.get('completed')?.value === true) {
+          completedCount++;
         }
-      }
+      });
+    });
+    return completedCount;
+  }
+
+  isExerciseCompleted(exerciseIndex: number): boolean {
+    const exerciseSets = this.getExerciseSets(exerciseIndex);
+    if (!exerciseSets || exerciseSets.length === 0) {
+      return false;
+    }
+    return exerciseSets.controls.every(setControl => setControl.get('completed')?.value === true);
+  }
+
+  // --- Set Completion Methods ---
+  
+  completeSet(exerciseIndex: number, setIndex: number): void {
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    const setsArray = this.getExerciseSets(exerciseIndex);
+    const setControl = setsArray?.at(setIndex);
+
+    if (!exerciseControl || !setControl || !setsArray) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Internal Error',
+        detail: 'Could not find set details.'
+      });
+      console.error(`Could not find exercise or set control for indices: ${exerciseIndex}, ${setIndex}`);
+      return;
     }
 
-    this.progress = this.totalSets > 0 ? (completedSets / this.totalSets) * 100 : 0;
-  }
+    let weight = setControl.get('weightLifted')?.value;
+    let volume = setControl.get('actualVolume')?.value;
+    let intensity = setControl.get('actualIntensity')?.value;
 
-  getExerciseSets(exerciseIndex: number): FormArray {
-    return this.exercises.at(exerciseIndex).get('sets') as FormArray;
-  }
+    // Update form values if empty
+    if (volume === null || volume === undefined || volume === '') {
+      const volumeMax = setControl.get('volumeRange')?.value.max;
+      setControl.get('actualVolume')?.setValue(volumeMax);
+      volume = volumeMax;
+    }
 
-  completeSet(exerciseIndex: number, setIndex: number): void {
-    const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
-    const exerciseControl = this.exercises.at(exerciseIndex);
+    if (intensity === null || intensity === undefined || intensity === '') {
+      const intensityMax = setControl.get('intensityRange')?.value.max;
+      setControl.get('actualIntensity')?.setValue(intensityMax);
+      intensity = intensityMax;
+    }
 
-    // Prepare the DTO for the API call
+    if (weight === null || weight === undefined || weight === '') {
+      setControl.get('weightLifted')?.setValue(0);
+      weight = 0;
+    }
+
+    // Create the DTO
     const doneSetDTO: CreateDoneSetDTO = {
       startedWorkoutId: this.currentWorkout?.nextWorkoutDetails?.id || 0,
       workoutExerciseId: exerciseControl.get('id')?.value,
       setId: setControl.get('id')?.value,
-      volume: setControl.get('actualVolume')?.value,
-      intensity: setControl.get('actualIntensity')?.value,
-      weightLifted: setControl.get('weightLifted')?.value || 0
+      volume: Number(volume),
+      intensity: Number(intensity),
+      weightLifted: Number(weight)
     };
 
-    // Call the API
+    if (!doneSetDTO.startedWorkoutId || !doneSetDTO.workoutExerciseId || !doneSetDTO.setId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Internal Error',
+        detail: 'Missing required IDs to save set.'
+      });
+      console.error('Missing IDs for completeSet DTO:', doneSetDTO);
+      return;
+    }
+
     this.workoutService.completeSet(doneSetDTO).subscribe({
       next: (response: DoneSet) => {
-        // Mark set as completed in the UI
-        setControl.get('completed')?.setValue(true);
-        this.updateProgress();
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Set Completed'
+        setControl.patchValue({
+          completed: true,
+          doneSetId: response.id
         });
-        this.currentWorkout?.nextWorkoutDetails?.doneSets.push(response);
 
+        setControl.get('weightLifted')?.disable();
+        setControl.get('actualVolume')?.disable();
+        setControl.get('actualIntensity')?.disable();
 
-        // Auto-navigate to next set or exercise logic
-        const currentSetsArray = this.getExerciseSets(exerciseIndex);
+        this.updateProgress();
+        this.messageService.add({ severity: 'success', summary: 'Set Completed', life: 1500 });
 
-        // If there are more sets in this exercise
-        if (setIndex < currentSetsArray.length - 1) {
-          this.currentSetIndex = setIndex + 1;
+        if (this.currentWorkout?.nextWorkoutDetails) {
+          this.currentWorkout.nextWorkoutDetails.doneSets = [
+            ...(this.currentWorkout.nextWorkoutDetails.doneSets ?? []),
+            response
+          ];
+        }
+
+        const isLastSetOfExercise = setIndex === setsArray.length - 1;
+        const isLastExercise = exerciseIndex === this.exercises.length - 1;
+        if (!isLastSetOfExercise || !isLastExercise) {
           this.startRestTimer(exerciseIndex);
         } else {
-          // Move to the next exercise
-          if (exerciseIndex < this.exercises.length - 1) {
-            this.currentExerciseIndex = exerciseIndex + 1;
-            this.currentSetIndex = 0;
-            this.startRestTimer(exerciseIndex);
-          } else {
-            // Workout completed
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Workout Complete',
-              detail: 'All exercises completed! Ready to submit your workout.'
-            });
-          }
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Workout Complete!',
+            detail: 'All sets finished. Review summary and click Finish.',
+            life: 4000
+          });
         }
       },
       error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to complete set'
-        });
+        const detail = error?.error?.message || 'Failed to save completed set.';
+        this.messageService.add({ severity: 'error', summary: 'Save Error', detail: detail });
         console.error('Error completing set:', error);
       }
     });
   }
 
-  startRestTimer(exerciseIndex: number): void {
-    const exerciseControl = this.exercises.at(exerciseIndex);
-    const restTime = exerciseControl.get('restTime')?.value;
+  uncompleteSet(exerciseIndex: number, setIndex: number): void {
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    const setsArray = this.getExerciseSets(exerciseIndex);
+    const setControl = setsArray?.at(setIndex);
 
-    if (restTime && restTime.min > 0) {
-      // Use the minimum rest time for the timer
-      this.restTimeRemaining = restTime.min;
-      this.showRestTimer = true;
-
-      this.restTimer = setInterval(() => {
-        this.restTimeRemaining--;
-        if (this.restTimeRemaining <= 0) {
-          this.stopRestTimer();
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Rest Complete',
-            detail: 'Time to start your next set!'
-          });
-        }
-      }, 1000);
-    }
-  }
-
-  stopRestTimer(): void {
-    if (this.restTimer) {
-      clearInterval(this.restTimer);
-      this.restTimer = null;
-      this.showRestTimer = false;
-    }
-  }
-
-  skipRestTimer(): void {
-    this.stopRestTimer();
-  }
-
-  isVolumeInRange(exerciseIndex: number, setIndex: number): boolean {
-    const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
-    const actualVolume = setControl.get('actualVolume')?.value;
-    const volumeRange = setControl.get('volumeRange')?.value;
-
-    if (actualVolume && volumeRange) {
-      return actualVolume >= volumeRange.min && actualVolume <= volumeRange.max;
-    }
-    return true;
-  }
-
-  isIntensityInRange(exerciseIndex: number, setIndex: number): boolean {
-    const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
-    const actualIntensity = setControl.get('actualIntensity')?.value;
-    const intensityRange = setControl.get('intensityRange')?.value;
-
-    if (actualIntensity && intensityRange) {
-      return actualIntensity >= intensityRange.min && actualIntensity <= intensityRange.max;
-    }
-    return true;
-  }
-
-  openSummary(): void {
-    this.showSummary = true;
-  }
-
-  submitWorkout(): void {
-    // Check if there are incomplete sets
-    const totalSets = this.totalSets;
-    const completedSets = this.countCompletedSets();
-    const hasIncompleteSets = completedSets < totalSets;
-
-    let confirmMessage = 'Are you sure you want to submit this workout?';
-
-    // Customize message if there are incomplete sets
-    if (hasIncompleteSets) {
-      confirmMessage = `You have completed ${completedSets} out of ${totalSets} sets. Are you sure you want to submit this workout with incomplete sets?`;
-    }
-
-    this.confirmationService.confirm({
-      message: confirmMessage,
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.saveWorkout();
-      }
-    });
-  }
-
-  // Helper method to count completed sets
-  countCompletedSets(): number {
-    let completedSets = 0;
-    const exerciseGroups = this.exercises.controls;
-
-    for (const exerciseGroup of exerciseGroups) {
-      const setsArray = exerciseGroup.get('sets') as FormArray;
-      for (const setControl of setsArray.controls) {
-        if (setControl.get('completed')?.value) {
-          completedSets++;
-        }
-      }
-    }
-
-    return completedSets;
-  }
-
-  saveWorkout(): void {
-    if (!this.currentWorkout || !this.currentWorkout.nextWorkoutDetails) {
+    if (!exerciseControl || !setControl || !setsArray) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Internal Error',
+        detail: 'Could not find set to undo.'
+      });
+      console.error(`Could not find control for uncomplete: ${exerciseIndex}, ${setIndex}`);
       return;
     }
 
-    this.submitting = true;
-    const nextWorkoutDetailsId = this.currentWorkout.nextWorkoutDetails.id;
-    const startedProgramId = this.route.snapshot.params['id']; // Get the program ID from the route
+    const doneSetId = setControl.get('doneSetId')?.value;
+    const nextWorkoutDetailsId = this.currentWorkout?.nextWorkoutDetails?.id;
 
-    this.workoutService.completeWorkout(nextWorkoutDetailsId, startedProgramId).subscribe({
-      next: (response) => {
-        this.submitting = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Workout Submitted',
-          detail: response.message
-        });
-
-        // Navigate back to dashboard after a short delay
-        setTimeout(() => {
-          this.router.navigate(['/dashboard']);
-        }, 1500);
-      },
-      error: (error) => {
-        this.submitting = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to submit workout'
-        });
-        console.error('Error submitting workout:', error);
-      }
-    });
-  }
-
-  cancelWorkout(): void {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to cancel this workout? All progress will be lost.',
-      header: 'Cancel Workout',
-      icon: 'pi pi-times',
-      accept: () => {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-  }
-
-  isExerciseCompleted(exerciseIndex: number): boolean {
-    const exerciseSets = this.getExerciseSets(exerciseIndex);
-    for (let i = 0; i < exerciseSets.length; i++) {
-      if (!exerciseSets.at(i).get('completed')?.value) {
-        return false;
-      }
-    }
-    return exerciseSets.length > 0;
-  }
-  uncompleteSet(exerciseIndex: number, setIndex: number): void {
-    const setControl = this.getExerciseSets(exerciseIndex).at(setIndex);
-    const exerciseControl = this.exercises.at(exerciseIndex);
-
-    // Get the done set ID from the current workout
-    const setId = setControl.get('id')?.value;
-    const workoutExerciseId = exerciseControl.get('id')?.value;
-    const nextWorkoutDetailsId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
-
-    // Find the done set ID by matching the workout exercise and set IDs
-    const doneSet = this.currentWorkout?.nextWorkoutDetails?.doneSets.find(
-      ds => ds.set.id === setId && ds.workoutExercise.id === workoutExerciseId
-    );
-
-    if (!doneSet) {
+    if (!doneSetId || !nextWorkoutDetailsId) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Could not find the completed set'
+        summary: 'Undo Error',
+        detail: 'Completed set record not found.'
+      });
+      console.error('Could not find doneSet ID for uncompleteSet:', {
+        nextWorkoutDetailsId,
+        doneSetId,
+        setIndex
       });
       return;
     }
 
     this.confirmationService.confirm({
-      message: 'Are you sure you want to undo this completed set?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
+      message: 'Undo this completed set?',
+      header: 'Undo Set Confirmation',
+      icon: 'pi pi-undo',
+      acceptLabel: 'Yes, Undo',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-warning',
+      rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-        this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSet.id).subscribe({
+        this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSetId).subscribe({
           next: (response) => {
-            // Mark set as not completed in the UI
-            // Remove the done set from the array
             if (this.currentWorkout?.nextWorkoutDetails?.doneSets) {
               this.currentWorkout.nextWorkoutDetails.doneSets =
-                this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSet.id);
+                this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSetId);
             }
-            setControl.get('completed')?.setValue(false);
+
+            setControl.patchValue({
+              completed: false,
+              doneSetId: null
+            });
+
+            setControl.get('weightLifted')?.enable();
+            setControl.get('actualVolume')?.enable();
+            setControl.get('actualIntensity')?.enable();
+
             this.updateProgress();
 
             this.messageService.add({
               severity: 'success',
               summary: 'Set Undone',
-              detail: response.message
+              detail: response?.message || 'Set completion reverted.',
+              life: 2000
             });
-
           },
           error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to undo completed set'
-            });
+            const detail = error?.error?.message || 'Failed to undo set.';
+            this.messageService.add({ severity: 'error', summary: 'Undo Failed', detail: detail });
             console.error('Error uncompleting set:', error);
           }
         });
       }
     });
   }
-  showHistoryDialog(exerciseId: any): void {
-    // Check if the device is mobile using window width
-    const isMobile = window.innerWidth < 768; // Common breakpoint for mobile
-    
-    this.ref = this.dialogService.open(ExerciseHistoryDialogComponent, {
-      header: 'Exercise History',
-      width: isMobile ? '100%' : '80%',
-      height: isMobile ? '100vh' : '100vh',
-      maximizable: true,
-      closeOnEscape: true,
-      dismissableMask: true,
-      modal:true,
-      data: {
-        exerciseId: exerciseId.value
-      },
+
+  addSet(exerciseIndex: number): void {
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    const setsArray = this.getExerciseSets(exerciseIndex);
+
+    if (!exerciseControl || !setsArray) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Could not add new set.'
+      });
+      return;
+    }
+
+    // Get the last set to clone its structure
+    const lastSetIndex = setsArray.length - 1;
+    if (lastSetIndex < 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No template set found to clone.'
+      });
+      return;
+    }
+
+    const lastSet = setsArray.at(lastSetIndex) as FormGroup;
+
+    // Create new set based on the last set - reusing the same set ID
+    const newSetGroup = this.fb.group({
+      id: [lastSet.get('id')?.value],
+      volumeMetric: [lastSet.get('volumeMetric')?.value],
+      intensityMetric: [lastSet.get('intensityMetric')?.value],
+      volumeRange: [lastSet.get('volumeRange')?.value],
+      intensityRange: [lastSet.get('intensityRange')?.value],
+      completed: [false],
+      actualVolume: [null],
+      actualIntensity: [null],
+      weightLifted: [null],
+      isAdditionalSet: [true],
+      doneSetId: [null]
+    });
+
+    // Add the new set to the FormArray
+    setsArray.push(newSetGroup);
+
+    // Update totals
+    this.totalSets++;
+    this.updateProgress();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'New Set Added',
+      detail: 'Added set to exercise',
+      life: 2000
     });
   }
-  ngOnDestroy() {
-    if (this.ref) {
-      this.ref.close();
+
+  // --- Workout Completion ---
+  
+  openSummary(): void {
+    this.updateProgress();
+    this.showSummary = true;
+  }
+
+  submitWorkout(): void {
+    this.updateProgress();
+
+    const completedSetsCount = this.countCompletedSets();
+    if (completedSetsCount === 0) {
+      this.messageService.add({ severity: 'warn', summary: 'Cannot Finish', detail: 'Complete at least one set first.', life: 3000 });
+      return;
     }
+
+    const totalSetsCount = this.totalSets;
+    const hasIncompleteSets = completedSetsCount < totalSetsCount;
+    const confirmMessage = hasIncompleteSets
+      ? `Finish workout with ${completedSetsCount} of ${totalSetsCount} sets completed?`
+      : 'All sets completed. Finish workout?';
+
+    this.confirmationService.confirm({
+      message: confirmMessage,
+      header: 'Finish Workout Confirmation',
+      icon: hasIncompleteSets ? 'pi pi-exclamation-triangle' : 'pi pi-check-circle',
+      acceptLabel: 'Yes, Finish',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-primary',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => this.saveWorkout()
+    });
+  }
+
+  saveWorkout(): void {
+    if (!this.currentWorkout?.nextWorkoutDetails?.id) {
+      this.messageService.add({ severity: 'error', summary: 'Save Error', detail: 'Workout details missing.' });
+      console.error('Missing nextWorkoutDetails or ID for saveWorkout');
+      return;
+    }
+
+    this.submitting = true;
+    const nextWorkoutDetailsId = this.currentWorkout.nextWorkoutDetails.id;
+    const programIdParam = this.route.snapshot.params['id'];
+    const startedProgramId = programIdParam ? parseInt(programIdParam, 10) : 0;
+
+    if (isNaN(startedProgramId) || startedProgramId <= 0) {
+      this.messageService.add({ severity: 'error', summary: 'Save Error', detail: 'Invalid Program ID.' });
+      console.error('Invalid Program ID for saveWorkout:', programIdParam);
+      this.submitting = false;
+      return;
+    }
+
+    this.workoutService.completeWorkout(nextWorkoutDetailsId, startedProgramId).subscribe({
+      next: (response) => {
+        this.submitting = false;
+        this.stopWorkoutTimer();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Workout Finished!',
+          detail: response?.message || 'Workout saved successfully.',
+          life: 3000
+        });
+        setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+      },
+      error: (error) => {
+        this.submitting = false;
+        const detail = error?.error?.message || 'Failed to save workout.';
+        this.messageService.add({ severity: 'error', summary: 'Save Failed', detail: detail });
+        console.error('Error submitting workout:', error);
+      }
+    });
+  }
+
+  // --- Rest Timer Methods ---
+  
+  startRestTimer(exerciseIndex: number): void {
+    this.stopRestTimer(); // Clear existing timer
+
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    const restTime = exerciseControl?.get('restTime')?.value;
+    const restDuration = (restTime?.max > 0) ? restTime.max : 60; // Default 60s
+
+    this.restTimeRemaining = restDuration;
+    this.showRestTimer = true;
+
+    this.restTimer = setInterval(() => {
+      this.restTimeRemaining--;
+      if (this.restTimeRemaining <= 0) {
+        this.stopRestTimer();
+        this.messageService.add({ severity: 'info', summary: 'Rest Over', life: 1500 });
+      }
+    }, 1000);
+  }
+
+  stopRestTimer(): void {
+    if (this.restTimer) {
+      clearInterval(this.restTimer);
+      this.restTimer = null;
+    }
+    this.showRestTimer = false;
+    this.restTimeRemaining = 0;
+  }
+
+  skipRestTimer(): void {
+    this.stopRestTimer();
+  }
+
+  // --- Workout Timer Methods ---
+  
+  startWorkoutTimer(): void {
+    this.stopWorkoutTimer(); // Clear any existing timer first
+    this.workoutStartTime = Date.now();
+    this.workoutDurationSeconds = 0;
+    this.updateWorkoutDurationDisplay();
+
+    this.workoutDurationInterval = setInterval(() => {
+      if (this.workoutStartTime) {
+        const now = Date.now();
+        this.workoutDurationSeconds = Math.floor((now - this.workoutStartTime) / 1000);
+        this.updateWorkoutDurationDisplay();
+      } else {
+        console.warn('Workout timer interval running without start time.');
+        this.stopWorkoutTimer();
+      }
+    }, 1000);
+  }
+
+  stopWorkoutTimer(): void {
+    if (this.workoutDurationInterval) {
+      clearInterval(this.workoutDurationInterval);
+      this.workoutDurationInterval = null;
+    }
+  }
+
+  updateWorkoutDurationDisplay(): void {
+    const totalSeconds = this.workoutDurationSeconds;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const minutesStr = minutes.toString().padStart(2, '0');
+    const secondsStr = seconds.toString().padStart(2, '0');
+
+    // Display hours only if workout exceeds 1 hour
+    this.workoutDurationDisplay = (hours > 0)
+      ? `${hours.toString()}:${minutesStr}:${secondsStr}`
+      : `${minutesStr}:${secondsStr}`;
+  }
+
+  // --- UI Helper Methods ---
+  
+  getPlaceholderText(
+    range: { min: number | null, max: number | null } | null,
+    metric: { id?: number, title?: string, metricSymbol?: string, range?: boolean } | null,
+    defaultText: string
+  ): string {
+    // Use metric title first if available
+    let placeholder = metric?.title || defaultText;
+
+    // Early return if range is null or undefined
+    if (!range) return placeholder;
+
+    const hasMin = range.min !== null && range.min !== undefined;
+    const hasMax = range.max !== null && range.max !== undefined;
+
+    // Determine if it's a range - use metric.range property directly
+    const isRange = metric?.range === true;
+
+    if (isRange && hasMin && hasMax) {
+      placeholder = `${range.min} - ${range.max}`;
+    } else if (hasMax) {
+      placeholder = `${range.max}`;
+    } else if (hasMin) {
+      placeholder = `min ${range.min}`;
+    }
+
+    // Add the metric symbol to make it clearer
+    if (placeholder !== (metric?.title || defaultText) && metric?.metricSymbol) {
+      placeholder += ` ${metric.metricSymbol}`;
+    }
+
+    return placeholder;
+  }
+
+  getIntensityPlaceholder(setControl: AbstractControl | null): string {
+    if (!setControl) return 'Intensity';
+    const range = setControl.get('intensityRange')?.value;
+    const metric = setControl.get('intensityMetric')?.value;
+    return this.getPlaceholderText(range, metric, 'Intensity');
+  }
+
+  getVolumePlaceholder(setControl: AbstractControl | null): string {
+    if (!setControl) return 'Volume';
+    const range = setControl.get('volumeRange')?.value;
+    const metric = setControl.get('volumeMetric')?.value;
+    return this.getPlaceholderText(range, metric, 'Volume');
+  }
+
+  // --- Dialog Methods ---
+  
+  showHistoryDialog(exerciseIdControl: AbstractControl | null): void {
+    const exerciseId = exerciseIdControl?.value;
+
+    const isMobile = window.innerWidth < 768;
+    if (this.ref) { this.ref.close(); }
+
+    this.ref = this.dialogService.open(ExerciseHistoryDialogComponent, {
+      header: 'Exercise History',
+      width: isMobile ? '95%' : '70%',
+      height: isMobile ? '85vh' : undefined,
+      contentStyle: { "max-height": "80vh", "overflow-y": "auto" },
+      maximizable: !isMobile,
+      modal: true,
+      closeOnEscape: true,
+      dismissableMask: true,
+      data: { exerciseId: exerciseId },
+      baseZIndex: 10001
+    });
   }
 }

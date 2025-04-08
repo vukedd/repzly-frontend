@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { API_URL } from '../../../globals';
 import { HttpClient } from '@angular/common/http';
 import { LoginRequestDto } from '../../user/login/dtos/login-request-dto';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, throwError } from 'rxjs';
 import { Token } from '../token';
 import { RefreshTokenRequest } from '../refresh-token-request';
 import { jwtDecode } from 'jwt-decode';
@@ -33,11 +33,17 @@ export class    JwtService {
     if (typeof window !== 'undefined' && window.localStorage) {
       refreshTokenId = sessionStorage.getItem("refreshToken");
     }
+    else{
+      return EMPTY;
+    }
 
     if (refreshTokenId == null) {
-      refreshTokenId = -1
+      // Don't use -1 as it will likely cause an error on the backend
+      // Better to log out the user or return an error
+      this.logout(); // Clear any remaining tokens
+      return throwError(() => new Error('No refresh token available'));
     }
-    
+   
     let body: RefreshTokenRequest = new RefreshTokenRequest(Number(refreshTokenId));
     return this.http.post(API_URL + "/auth/refresh-token", body);
   }

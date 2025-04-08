@@ -9,7 +9,7 @@ import CustomMaterialTheme from './theme.config';
 import { AuthInterceptorService } from './auth/interceptor/auth-interceptor.service';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay()),provideAnimationsAsync(),
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay()),provideAnimationsAsync(),provideHttpClient(),
     providePrimeNG({
         theme: {
             preset: CustomMaterialTheme,
