@@ -1,25 +1,22 @@
-/* In body-highlighter.component.css */
-.body-part-path {
-    cursor: pointer;
-    transition: opacity 0.2s ease-in-out;
-  }
-  
-  .body-part-path:hover {
-    opacity: 0.75;
-  }
-  /* src/app/body-highlighter/body-highlighter.component.css */
 /* src/app/body-highlighter/body-highlighter.component.css */
 :host {
   display: block;
   width: 100%; /* Component should fill its container */
-  /* max-width: 300px; */ /* <-- REMOVE THIS LINE */
-  margin: 0 auto; /* Keep if you want horizontal centering *within* its container if container is wider than SVG aspect ratio allows */
+  margin: 0 auto; /* Center horizontally */
 }
 
 .body-svg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
+  min-height: 280px; /* Ensure minimum height even when container shrinks */
 }
 
-/* ... rest of the styles ... */
+.body-part-path {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.body-part-path:hover {
+  opacity: 0.75;
+}

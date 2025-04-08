@@ -2,24 +2,3 @@
     z-index: 1001;
     width: 100%;
 }
-
-/* Medium screens and up */
-@media screen and (min-width: 768px) {
-    .headercomponent {
-        width: 100%;
-    }
-}
-
-/* Large screens and up */
-@media screen and (min-width: 992px) {
-    .headercomponent {
-        width: 100%;
-    }
-}
-
-/* Extra large screens */
-@media screen and (min-width: 1200px) {
-    .headercomponent {
-        width: 85%;
-    }
-}

@@ -11,12 +11,33 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
+import { CardModule } from 'primeng/card';
+import { ChipModule } from 'primeng/chip';
+import { TableModule } from 'primeng/table';
+import { PanelModule } from 'primeng/panel';
+import { MessageService } from 'primeng/api';
+import { DividerModule } from 'primeng/divider';
+import { BadgeModule } from 'primeng/badge';
+import { JwtService } from '../../auth/jwt/jwt.service';
+// New interface for muscle sets data
+interface MuscleSetItem {
+  muscleName: string;
+  sets: number;
+  colorHex: string;
+}
 
 @Component({
   selector: 'app-muscle-tracker',
   standalone: true,
   imports: [
     CommonModule,
+    CardModule,
+    ChipModule,
+    TableModule,
+    PanelModule,
+    MessageModule,
+    DividerModule,
+    BadgeModule,
     FormsModule,
     BodyHighlighterComponent,
     DatePickerModule,
@@ -25,11 +46,15 @@ import { MessageModule } from 'primeng/message';
     MessageModule  ],
   templateUrl: './muscle-tracker.component.html',
   styleUrls: ['./muscle-tracker.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers:[MessageService]
 })
 export class MuscleTrackerComponent implements OnInit {
   highlightData: BodyPartHighlight[] = [];
   customColors = ['#FFFACD', '#FFEB3B', '#FFC107', '#FFA000', '#FF6F00'];
+  
+  // New property to store muscle sets data for display
+  muscleSetsData: MuscleSetItem[] = [];
 
   // Initialize with default dates
   startDate: Date | null = this.getDefaultStartDate(); // Call helper function
@@ -39,8 +64,10 @@ export class MuscleTrackerComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
 
-  // In muscle-tracker.component.ts
+  // The inverse mapping from slug to muscle name
+  private slugToMuscleNameMap: Record<string, string> = {};
 
+  // In muscle-tracker.component.ts
   // Change the type signature to allow string or array of strings
   private muscleNameToSlugMap: Record<string, string | string[]> = {
     // Muscles typically only on FRONT view
@@ -76,12 +103,35 @@ export class MuscleTrackerComponent implements OnInit {
 
   constructor(
     private volumeService: VolumeService,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+    private jwtService: JwtService
+  ) {
+    // Initialize the inverse mapping
+    this.initSlugToMuscleNameMap();
+  }
+
+  // Create the inverse mapping for display purposes
+  private initSlugToMuscleNameMap(): void {
+    Object.entries(this.muscleNameToSlugMap).forEach(([muscleName, slugOrSlugs]) => {
+      if (Array.isArray(slugOrSlugs)) {
+        slugOrSlugs.forEach(slug => {
+          this.slugToMuscleNameMap[slug] = muscleName;
+        });
+      } else {
+        this.slugToMuscleNameMap[slugOrSlugs] = muscleName;
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Fetch data for the default range when the component initializes
+    if (this.isLoggedIn()) {
     this.fetchMuscleUsage();
+    }
+  }
+
+  public isLoggedIn(): boolean {
+    return this.jwtService.isLoggedIn()
   }
 
   // Helper function to get the date 7 days ago
@@ -94,20 +144,29 @@ export class MuscleTrackerComponent implements OnInit {
     return oneWeekAgo;
   }
 
+  // Helper function to get color for a value based on intensity
+  private getColorForValue(value: number, maxValue: number): string {
+    if (maxValue <= 0) return this.customColors[0];
+    
+    // Calculate index into color array
+    const normalizedValue = value / maxValue;
+    const index = Math.min(
+      Math.floor(normalizedValue * this.customColors.length),
+      this.customColors.length - 1
+    );
+    
+    return this.customColors[index];
+  }
+
   fetchMuscleUsage(): void {
     // Basic check: Ensure dates are selected before fetching
     if (!this.startDate || !this.endDate) {
       this.errorMessage = "Please select both a start and end date.";
-      // Clear previous data if desired
-      // this.highlightData = [];
-      // this.cdr.markForCheck(); // Update UI if clearing data/showing error
       return; // Stop execution if dates are missing
     }
 
     this.isLoading = true;
     this.errorMessage = null;
-    // Don't reset highlightData here if you want to show previous data during loading
-    // this.highlightData = [];
     this.cdr.markForCheck();
 
     this.volumeService.getMuscleUsage(this.startDate, this.endDate)
@@ -121,6 +180,9 @@ export class MuscleTrackerComponent implements OnInit {
         next: (data) => {
           const processedData = this.processMuscleData(data);
           this.highlightData = [...processedData]; // Force new reference
+          
+          // Process data for the muscle sets display
+          this.generateMuscleSetsDisplay(data);
 
           if (this.highlightData.length === 0 && Object.keys(data).length > 0) {
             this.errorMessage = "Received data, but could not map muscle names to visualizer slugs. Check console and mapping.";
@@ -135,12 +197,37 @@ export class MuscleTrackerComponent implements OnInit {
         error: (err) => {
           console.error("Error fetching muscle usage:", err);
           this.errorMessage = "Failed to fetch muscle usage data. Please try again later.";
+          // Reset displayed data
+          this.highlightData = [];
+          this.muscleSetsData = [];
           this.cdr.markForCheck();
         }
       });
   }
 
-  // In muscle-tracker.component.ts
+  // Generate the data for the muscle sets display panel
+  private generateMuscleSetsDisplay(rawData: Record<string, number>): void {
+    // Clear previous data
+    this.muscleSetsData = [];
+    
+    // Calculate max value for color intensity
+    const values = Object.values(rawData);
+    if (values.length === 0) return;
+    
+    const maxValue = Math.max(...values);
+    if (maxValue <= 0) return;
+    
+    // Create formatted display data and sort by number of sets (descending)
+    this.muscleSetsData = Object.entries(rawData)
+      .map(([muscleName, sets]) => ({
+        muscleName,
+        sets,
+        colorHex: this.getColorForValue(sets, maxValue)
+      }))
+      .sort((a, b) => b.sets - a.sets);
+      
+    this.cdr.markForCheck();
+  }
 
   private processMuscleData(rawData: Record<string, number>): BodyPartHighlight[] {
     const processed: BodyPartHighlight[] = [];

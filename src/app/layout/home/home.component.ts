@@ -4,6 +4,7 @@ import { BodyPartHighlight } from '../../body-highlighter/body-highlighter.model
 import { ProgramListComponent } from "../../program/program-list/program-list.component";
 import { MuscleTrackerComponent } from "../../body-highlighter/muscle-tracker/muscle-tracker.component";
 import { VolumeGraphComponent } from "../../volume-graph/volume-graph.component";
+import { JwtService } from '../../auth/jwt/jwt.service';
 
 @Component({
   selector: 'app-home',
@@ -12,5 +13,10 @@ import { VolumeGraphComponent } from "../../volume-graph/volume-graph.component"
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
+  constructor(private jwtService: JwtService) { }
+  
 
+  isLoggedIn(): boolean {
+    return this.jwtService.isLoggedIn()
+  }
 }

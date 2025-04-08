@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem, MessageService } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
-import { SidebarComponent } from "../sidebar/sidebar.component";
+
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -20,7 +20,7 @@ import { SearchService } from './search.service';
 
 @Component({
   selector: 'app-header',
-  imports: [ButtonModule, ToolbarModule, CommonModule, FormsModule, MenubarModule, DrawerModule, SidebarComponent, InputTextModule, InputGroupModule, InputGroupAddonModule, DialogModule, RegisterFormComponent, LoginFormComponent, ToastModule],
+  imports: [ButtonModule, ToolbarModule, CommonModule, FormsModule, MenubarModule, DrawerModule,  InputTextModule, InputGroupModule, InputGroupAddonModule, DialogModule, RegisterFormComponent, LoginFormComponent, ToastModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   providers:  [MessageService],
