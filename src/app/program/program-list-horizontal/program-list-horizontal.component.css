@@ -1,0 +1,25 @@
+.custom-carousel {
+    /* Reduce the padding around the carousel container */
+    .p-carousel-container {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  
+    /* Position the arrows closer to the content */
+    .p-carousel-prev,
+    .p-carousel-next {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+  
+    .p-carousel-prev {
+      left: 0.5rem; /* Adjust this value to move the left arrow closer */
+    }
+  
+    .p-carousel-next {
+      right: 0.5rem; /* Adjust this value to move the right arrow closer */
+    }
+  }

@@ -50,9 +50,9 @@ export class BodyHighlighterComponent implements OnChanges {
 
   get currentViewBox(): string {
     if (this.side === 'back') {
-      return '20 50 300 450';
+      return '33 70 270 400';
     } else {
-      return '20 50 300 450';
+      return '33 70 270 400';
     }
   }
 

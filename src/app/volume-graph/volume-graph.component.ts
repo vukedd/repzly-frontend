@@ -43,6 +43,7 @@ export class VolumeGraphComponent {
                 borderColor: '#42A5F5',
                 fill: false,
                 pointBackgroundColor: '#42A5F5',
+                tension: 0.4
               }
             ]
           };
@@ -50,6 +51,7 @@ export class VolumeGraphComponent {
           this.setsChartOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            aspectRatio:0.8,
             plugins: {
               legend: {
                 labels: { color: '#b0aeae' }

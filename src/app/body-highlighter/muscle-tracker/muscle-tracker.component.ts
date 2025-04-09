@@ -52,6 +52,7 @@ interface MuscleSetItem {
 export class MuscleTrackerComponent implements OnInit {
   highlightData: BodyPartHighlight[] = [];
   customColors = ['#FFFACD', '#FFEB3B', '#FFC107', '#FFA000', '#FF6F00'];
+  totalSets:number = 0;
   
   // New property to store muscle sets data for display
   muscleSetsData: MuscleSetItem[] = [];
@@ -180,6 +181,8 @@ export class MuscleTrackerComponent implements OnInit {
         next: (data) => {
           const processedData = this.processMuscleData(data);
           this.highlightData = [...processedData]; // Force new reference
+          this.totalSets=this.getTotalSets(data);
+          
           
           // Process data for the muscle sets display
           this.generateMuscleSetsDisplay(data);
@@ -259,5 +262,9 @@ export class MuscleTrackerComponent implements OnInit {
     }
   
     return processed;
+  }
+ 
+  private getTotalSets(muscleData: Record<string, number>): number {
+    return Object.values(muscleData).reduce((total, sets) => total + sets, 0);
   }
 }
