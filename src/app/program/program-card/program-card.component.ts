@@ -17,12 +17,7 @@ import { response } from 'express';
 })
 export class ProgramCardComponent implements OnInit {
   @Input() program!: ProgramOverviewDTO;
-  @Input() showLikeCount: boolean = true;
-  
-  isFollowed: boolean = false;
-  iconClass = 'pi pi-heart';
-  followTextClass="Follow";
-  followSeverity: 'success' | 'info' | 'warn' | 'danger' | 'help' | 'primary' | 'secondary' | 'contrast' | null | undefined = 'secondary';
+  @Input() programType:string="not-started";
   apiUrl:string;
 
   constructor(
@@ -34,9 +29,6 @@ export class ProgramCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.iconClass = !this.isFollowed ? 'pi pi-heart' : 'pi pi-heart-fill';
-    this.followTextClass=!this.isFollowed?"Follow":"Unfollow";
-    this.followSeverity=!this.isFollowed?'primary' :'secondary';
   }
   
   
@@ -48,15 +40,6 @@ export class ProgramCardComponent implements OnInit {
     this.router.navigate(['/programs', this.program.id]);
   }
   
-  toggleLike(event: Event): void {
-    event.stopPropagation(); // Prevent card click when clicking like button
-    this.isFollowed = !this.isFollowed;
-    this.iconClass = !this.isFollowed ? 'pi pi-heart' : 'pi pi-heart-fill';
-    this.followTextClass=!this.isFollowed?"Follow":"Unfollow";
-    this.followSeverity=!this.isFollowed?"primary":"secondary";
-
-    // Here you would add API call to like/unlike the program
-  }
   
   startProgram(event:Event):void{
     event.stopPropagation(); // Prevent card click when clicking like button
@@ -81,8 +64,6 @@ export class ProgramCardComponent implements OnInit {
 
   }
   
-  getCurrentRoute(): string {
-    return this.router.url;
-  }
+  
 
 }

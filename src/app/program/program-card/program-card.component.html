@@ -1,4 +1,4 @@
-<div class="h-full">
+<div class="h-full w-full">
     <p-card styleClass="h-full border-round-lg cursor-pointer" (click)="navigateToDetails()">
       <ng-template pTemplate="header">
         <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'dinja.jpg'"
@@ -31,17 +31,9 @@
      
       <ng-template pTemplate="footer">
         <div class="flex justify-content-between">
-          <p-button
-          *ngIf="getCurrentRoute()!='/started-programs'"
-            [icon]="iconClass"
-            [rounded]="true"
-            (click)="toggleLike($event)"
-            [label]="followTextClass"
-            [severity]="followSeverity">
-          </p-button>
-          <p-button label="Start program" (click)="startProgram($event)" *ngIf="getCurrentRoute()!='/started-programs'"/>
-          <p-button label="Start next workout" (click)="startWorkout($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
-          <p-button label="See History" (click)="seeHistory($event)" *ngIf="getCurrentRoute()=='/started-programs'"/>
+          <p-button label="Start program" (click)="startProgram($event)" *ngIf="programType=='not-started'"/>
+          <p-button label="Start next workout" (click)="startWorkout($event)" *ngIf="programType=='started'"/>
+          <p-button label="See History" (click)="seeHistory($event)" *ngIf="programType=='started'"/>
 
 
         </div>

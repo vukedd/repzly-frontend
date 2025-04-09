@@ -1,0 +1,33 @@
+<div class="surface-card shadow-1 pt-2" *ngIf="isLoggedIn()">
+    <div class="flex justify-content-center">
+        <div class="w-full m-0">
+            <!-- Loading Spinner -->
+            <div *ngIf="loading" class="flex justify-content-center">
+                <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)"
+                    animationDuration=".5s">
+                </p-progressSpinner>
+            </div>
+            <!-- Program Carousel -->
+            <div *ngIf="!loading" >
+                <p-carousel #programCarousel [value]="carouselItems" [numVisible]="2" [numScroll]="1" [circular]="false"
+                    [responsiveOptions]="responsiveOptions" [showNavigators]="true" [showIndicators]="true"
+                     (onPage)="onCarouselPageChange($event)" styleClass="custom-carousel">
+                    <ng-template let-item pTemplate="item">
+                        <!-- Program Card -->
+                        <div class="flex justify-content-center carousel-item-container pb-4">
+                            <div class="w-full px-2">
+                                <app-program-card [program]="item.program" programType="started"></app-program-card>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-carousel>
+            </div>
+        </div>
+    </div>
+    <!-- Hidden Paginator - Used only for loading more data -->
+    <div class="hidden">
+        <p-paginator [first]="first" [rows]="rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="[10, 20, 30]"
+            (onPageChange)="onPageChange($any($event))">
+        </p-paginator>
+    </div>
+</div>
