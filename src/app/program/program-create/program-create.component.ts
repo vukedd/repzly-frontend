@@ -21,6 +21,7 @@ import { forkJoin } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { StepperModule } from 'primeng/stepper';
 import { BadgeModule } from 'primeng/badge';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-program-create',
@@ -40,7 +41,8 @@ import { BadgeModule } from 'primeng/badge';
     InputNumberModule,
     ToastModule,
     StepperModule,
-    BadgeModule
+    BadgeModule,
+    DialogModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -54,9 +56,20 @@ export class ProgramCreateComponent implements OnInit {
   loading = false;
   activeWeekTab: string = '0';
   selectedRestTime: Map<string, string> = new Map();
-  restTimeMetrics: string[] = ['min', 's'];
+  restTimeMetrics: string[] = ['s', 'min'];
   activeStep: number = 1;
   imagePreviewUrl: string | null = null;
+  editWorkoutDialogVisible = false;
+  selectedWeekIndex: number | null = null;
+  selectedWorkoutIndex: number | null = null;
+  editWorkoutTitle = '';
+  editWorkoutNumber = '';
+  editWorkoutDescription = '';
+  restTimeDialogVisible: boolean = false;
+selectedExerciseInfo: { weekIndex: number, workoutIndex: number, exerciseIndex: number } | null = null;
+editMinRestTime: number | null = null;
+editMaxRestTime: number | null = null;
+editRestTimeMetric: string | null = null;
 
   // Add ViewChild for TabList
   @ViewChild('tablist') tablistComponent!: TabList;
@@ -441,4 +454,79 @@ export class ProgramCreateComponent implements OnInit {
       URL.revokeObjectURL(this.imagePreviewUrl);
     }
   }
+  openWorkoutEditDialog(weekIndex: number, workoutIndex: number): void {
+    this.selectedWeekIndex = weekIndex;
+    this.selectedWorkoutIndex = workoutIndex;
+
+    const workout = this.getWorkouts(weekIndex).at(workoutIndex);
+    this.editWorkoutTitle = workout.get('title')?.value || '';
+    this.editWorkoutNumber = workout.get('number')?.value || '';
+    this.editWorkoutDescription = workout.get('description')?.value || '';
+
+    this.editWorkoutDialogVisible = true;
+  }
+
+  /**
+   * Closes the workout edit dialog without saving
+   */
+  closeWorkoutEditDialog(): void {
+    this.editWorkoutDialogVisible = false;
+    this.selectedWeekIndex = null;
+    this.selectedWorkoutIndex = null;
+  }
+
+  /**
+   * Saves the workout changes from the dialog to the form
+   */
+  saveWorkoutChanges(): void {
+    if (this.selectedWeekIndex !== null && this.selectedWorkoutIndex !== null) {
+      const workout = this.getWorkouts(this.selectedWeekIndex).at(this.selectedWorkoutIndex);
+
+      workout.patchValue({
+        title: this.editWorkoutTitle,
+        number: this.editWorkoutNumber,
+        description: this.editWorkoutDescription
+      });
+
+      this.closeWorkoutEditDialog();
+    }
+  }
+  openRestTimeDialog(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
+    this.selectedExerciseInfo = { weekIndex, workoutIndex, exerciseIndex };
+
+    // Get current values from the form
+    const exercise = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
+    this.editMinRestTime = exercise.get('minimumRestTime')?.value;
+    this.editMaxRestTime = exercise.get('maximumRestTime')?.value;
+    this.editRestTimeMetric = exercise.get('restTimeMetric')?.value;
+
+    this.restTimeDialogVisible = true;
+  }
+
+  closeRestTimeDialog(): void {
+    this.restTimeDialogVisible = false;
+    this.selectedExerciseInfo = null;
+  }
+
+  saveRestTimeChanges(): void {
+    if (this.selectedExerciseInfo) {
+      const { weekIndex, workoutIndex, exerciseIndex } = this.selectedExerciseInfo;
+      const exercise = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
+
+      // Update form values
+      exercise.patchValue({
+        minimumRestTime: this.editMinRestTime,
+        maximumRestTime: this.editMaxRestTime,
+        restTimeMetric: this.editRestTimeMetric
+      });
+
+      // Call the onChange handler if needed (for unit conversion)
+      if (exercise.get('restTimeMetric')?.value !== this.editRestTimeMetric) {
+        this.onRestTimeMetricChange(weekIndex, workoutIndex, exerciseIndex, { value: this.editRestTimeMetric });
+      }
+
+      this.closeRestTimeDialog();
+    }
+  }
+
 }
