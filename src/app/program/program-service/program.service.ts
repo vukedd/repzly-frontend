@@ -111,8 +111,4 @@ export class ProgramService {
   getProgramHistory(startedProgramId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
   }
-
-  getProgramWeeklyVolume(startDate: string, endDate: string) {
-    return this.http.get<any>(`${this.apiUrl}/weekly-volume?startDate=` + startDate + `&endDate=` + endDate);
-  }
 }
