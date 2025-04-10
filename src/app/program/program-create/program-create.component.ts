@@ -22,6 +22,7 @@ import { ToastModule } from 'primeng/toast';
 import { StepperModule } from 'primeng/stepper';
 import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-program-create',
@@ -42,7 +43,8 @@ import { DialogModule } from 'primeng/dialog';
     ToastModule,
     StepperModule,
     BadgeModule,
-    DialogModule
+    DialogModule,
+    ProgressSpinnerModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
