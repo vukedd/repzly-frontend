@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ChartOptions, ChartData} from 'chart.js';
 import { ChartModule } from 'primeng/chart';
-import { ProgramService } from '../program/program-service/program.service';
 import { JwtService } from '../auth/jwt/jwt.service';
 import { DailyVolumeReport } from './model/daily-volume-report';
+import { VolumeService } from '../body-highlighter/volume.service';
 
 @Component({
   selector: 'app-volume-graph',
@@ -16,7 +16,7 @@ export class VolumeGraphComponent {
   setsChartOptions: ChartOptions | undefined;
   userSetsData: DailyVolumeReport[] = [];
 
-  constructor(private programService: ProgramService, private jwtService: JwtService) {}
+  constructor(private volumeService: VolumeService, private jwtService: JwtService) {}
 
 
   ngOnInit() {
@@ -27,7 +27,7 @@ export class VolumeGraphComponent {
   
       const formatDate = (date: Date): string => date.toISOString().split('T')[0];
   
-      this.programService.getProgramWeeklyVolume(formatDate(startDate), formatDate(endDate)).subscribe({
+      this.volumeService.getProgramWeeklyVolume(formatDate(startDate), formatDate(endDate)).subscribe({
         next: (response) => {
           this.userSetsData = response.reverse();
   
