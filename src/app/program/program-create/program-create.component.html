@@ -1,67 +1,78 @@
 <!-- program-create.component.html -->
-<div class="surface-50 p-0 shadow-2 border-round">
-  <div class="text-2xl md:text-3xl font-bold p-3">Create New Fitness Program</div>
+<div class="surface-ground px-2 py-2 md:px-4 md:py-5">
+  <!-- Loading state -->
+  <!-- <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
+    <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
+  </div> -->
 
-  <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
-    <p-stepper [value]="activeStep" [linear]="true" class="w-full">
-      <!-- Step List -->
-      <p-step-list>
-        <p-step [value]="1">Program Info</p-step>
-        <p-step [value]="2">Workout Structure</p-step>
-        <p-step [value]="3">Review & Create</p-step>
-      </p-step-list>
+  <ng-container *ngIf="!loading">
+    <!-- Header -->
+    <div class="mb-3 flex justify-content-between align-items-center">
+      <div class="text-2xl md:text-3xl font-bold">Create New Fitness Program</div>
+    </div>
 
-      <!-- Step Panels -->
-      <p-step-panels>
-        <!-- Step 1: Program Info -->
-        <p-step-panel [value]="1">
-          <ng-template #content let-activateCallback="activateCallback">
-            <div class="p-fluid grid p-3">
-              <div class="col-12 mb-4">
-                <div class="field">
-                  <label for="name" class="font-bold">Program Name</label>
-                  <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name">
-                  <small class="p-error" *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
-                    Program name is required (min 3 characters)
-                  </small>
-                </div>
+    <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
+      <p-stepper [value]="activeStep" [linear]="true" class="w-full">
+        <!-- Step List -->
+        <p-step-list>
+          <p-step [value]="1">Program Info</p-step>
+          <p-step [value]="2">Workout Structure</p-step>
+          <p-step [value]="3">Review & Create</p-step>
+        </p-step-list>
 
-                <div class="field mt-4">
-                  <label for="programImage" class="font-bold">Program Image</label>
-                  <p-fileUpload id="programImage" mode="basic" chooseLabel="Select Image" accept="image/*" [auto]="true"
-                    [maxFileSize]="1000000" (onSelect)="onImageUpload($event)" [showCancelButton]="false"></p-fileUpload>
+        <!-- Step Panels -->
+        <p-step-panels>
+          <!-- Step 1: Program Info -->
+          <p-step-panel [value]="1">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="surface-card p-3 border-round mb-3">
+                <div class="p-fluid grid">
+                  <div class="col-12 mb-3">
+                    <div class="field">
+                      <label for="name" class="font-bold mb-2">Program Name</label>
+                      <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name">
+                      <small class="p-error" *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
+                        Program name is required (min 3 characters)
+                      </small>
+                    </div>
+                  </div>
                   
-                  <!-- Image Preview Section -->
-                  <div *ngIf="imagePreviewUrl" class="mt-3">
-                    <div class="flex flex-column align-items-center">
-                      <div class="relative">
-                        <img [src]="imagePreviewUrl" class="shadow-2 border-round" style="max-width: 100%; max-height: 200px;">
-                        <button pButton type="button" icon="pi pi-times" 
-                          class="p-button-rounded p-button-danger p-button-text absolute top-0 right-0"
-                          (click)="removeImage()"></button>
+                  <div class="col-12">
+                    <div class="field">
+                      <label for="programImage" class="font-bold mb-2">Program Image</label>
+                      <p-fileUpload id="programImage" mode="basic" chooseLabel="Select Image" accept="image/*" [auto]="true"
+                        [maxFileSize]="1000000" (onSelect)="onImageUpload($event)" [showCancelButton]="false"></p-fileUpload>
+                      
+                      <!-- Image Preview Section -->
+                      <div *ngIf="imagePreviewUrl" class="mt-3">
+                        <div class="flex flex-column align-items-center">
+                          <div class="relative">
+                            <img [src]="imagePreviewUrl" class="shadow-2 border-round" style="max-width: 100%; max-height: 200px;">
+                            <button pButton type="button" icon="pi pi-times" 
+                              class="p-button-rounded p-button-danger p-button-text absolute top-0 right-0"
+                              (click)="removeImage()"></button>
+                          </div>
+                          <small class="mt-2 text-500">{{ uploadedImage?.name }} ({{ formatFileSize(uploadedImage?.size || 0) }})</small>
+                        </div>
                       </div>
-                      <small class="mt-2 text-500">{{ uploadedImage?.name }} ({{ formatFileSize(uploadedImage?.size || 0) }})</small>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div class="flex justify-content-end mt-3">
+              <div class="flex justify-content-end mt-4">
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
                   [disabled]="programForm.get('name')?.invalid" 
                   (onClick)="activateCallback(2)"></p-button>
               </div>
-            </div>
-          </ng-template>
-        </p-step-panel>
+            </ng-template>
+          </p-step-panel>
 
-        <!-- Step 2: Workout Structure & Exercises -->
-        <p-step-panel [value]="2">
-          <ng-template #content let-activateCallback="activateCallback">
-            <div class="p-3">
-              <!-- Program Structure with Weeks Section -->
-              <div class="flex flex-column sm:flex-row justify-content-between align-items-center mb-3">
-                <h3 class="m-0 mb-2 sm:mb-0">Program Structure</h3>
+          <!-- Step 2: Workout Structure & Exercises -->
+          <p-step-panel [value]="2">
+            <ng-template #content let-activateCallback="activateCallback">
+              <div class="mb-3 flex justify-content-between align-items-center">
+                <h3 class="m-0">Program Structure</h3>
                 <button pButton type="button" label="Add Week" icon="pi pi-plus" 
                   class="p-button-outlined" (click)="addWeek()"></button>
               </div>
@@ -74,8 +85,8 @@
                 <p-tabpanels>
                   <p-tabpanel *ngFor="let week of weeks.controls; let i = index" [value]="i.toString()">
                     <div [formGroupName]="i">
-                      <div class="flex flex-column sm:flex-row justify-content-between align-items-center mb-3">
-                        <h3 class="m-0 mb-2 sm:mb-0">Week {{ i + 1 }}</h3>
+                      <div class="flex justify-content-between align-items-center mb-3">
+                        <h3 class="m-0">Week {{ i + 1 }}</h3>
                         <button pButton type="button" icon="pi pi-trash"
                           class="p-button-rounded p-button-danger p-button-text" (click)="removeWeek(i)"
                           [disabled]="weeks.length <= 1"></button>
@@ -84,10 +95,13 @@
                       <!-- Workouts for this Week -->
                       <div formArrayName="workouts" class="w-full">
                         <div *ngFor="let workout of getWorkouts(i).controls; let workoutIndex = index"
-                           class="p-2 mb-4 surface-card shadow-1 border-round">
+                          class="surface-card p-3 border-round mb-4">
                           <div [formGroupName]="workoutIndex">
-                            <div class="flex justify-content-between align-items-center mb-2">
-                              <h4 class="m-0">Workout {{ workoutIndex + 1 }}</h4>
+                            <div class="flex justify-content-between align-items-center mb-3">
+                              <div class="flex align-items-center">
+                                <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
+                                <span class="text-xl">Workout</span>
+                              </div>
                               <button pButton type="button" icon="pi pi-trash"
                                 class="p-button-rounded p-button-danger p-button-text"
                                 (click)="removeWorkout(i, workoutIndex)"
@@ -114,19 +128,23 @@
                             
                             <!-- Exercises for this Workout -->
                             <div formArrayName="workoutExercises" class="mt-4">
-                              <div class="flex justify-content-between align-items-center mb-2">
+                              <div class="flex justify-content-between align-items-center mb-3">
                                 <h5 class="m-0">Exercises</h5>
-                                <button pButton type="button" label="Add Exercise" icon="pi pi-plus" class="p-button-sm p-button-info"
+                                <button pButton type="button" label="Add Exercise" icon="pi pi-plus" 
+                                  class="p-button-outlined p-button-sm"
                                   (click)="addWorkoutExercise(i, workoutIndex)"></button>
                               </div>
 
                               <div *ngFor="let exercise of getWorkoutExercises(i, workoutIndex).controls; let exerciseIndex = index"
-                                class="p-2 mt-3 surface-ground border-round">
+                                class="surface-card p-3 border-round mb-3">
                                 <div [formGroupName]="exerciseIndex">
-                                  <div class="flex justify-content-between align-items-center mb-2">
-                                    <h6 class="m-0">Exercise {{ exerciseIndex + 1 }}</h6>
+                                  <div class="flex justify-content-between align-items-center mb-3">
+                                    <div class="flex align-items-center">
+                                      <span class="font-bold text-lg mr-2">{{exerciseIndex + 1}}</span>
+                                      <span class="text-lg">Exercise</span>
+                                    </div>
                                     <button pButton type="button" icon="pi pi-times"
-                                      class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                                      class="p-button-rounded p-button-danger p-button-text"
                                       (click)="removeWorkoutExercise(i, workoutIndex, exerciseIndex)"
                                       [disabled]="getWorkoutExercises(i, workoutIndex).length <= 1"></button>
                                   </div>
@@ -171,50 +189,56 @@
                                   <!-- Sets for this Exercise -->
                                   <div formArrayName="sets" class="mt-4">
                                     <div class="flex justify-content-between align-items-center mb-2">
-                                      <div class="text-sm font-medium">Sets</div>
-                                      <button pButton type="button" label="Add Set" icon="pi pi-plus" class="p-button-sm p-button-success"
+                                      <div class="font-bold">Sets</div>
+                                      <button pButton type="button" label="Add Set" icon="pi pi-plus" 
+                                        class="p-button-outlined p-button-sm"
                                         (click)="addSet(i, workoutIndex, exerciseIndex)"></button>
                                     </div>
 
-                                    <div class="grid mb-2 text-sm font-medium">
-                                      <div class="col-3">Set</div>
-                                      <div class="col-4">
-                                        {{ selectedVolumeMetrics.get(i + '-' + workoutIndex + '-' + exerciseIndex)?.title || 'Volume' }}
+                                    <!-- Sets Table -->
+                                    <div class="surface-card p-3 border-round">
+                                      <!-- Table Header -->
+                                      <div class="grid mb-2 border-bottom-1 surface-border pb-2">
+                                        <div class="col-1 flex justify-content-center">#</div>
+                                        <div class="col-5 flex justify-content-center">
+                                          {{ selectedVolumeMetrics.get(i + '-' + workoutIndex + '-' + exerciseIndex)?.title || 'Volume' }}
+                                        </div>
+                                        <div class="col-5 flex justify-content-center">
+                                          {{ selectedIntensityMetrics.get(i + '-' + workoutIndex + '-' + exerciseIndex)?.title || 'Intensity' }}
+                                        </div>
+                                        <div class="col-1 flex justify-content-center"></div>
                                       </div>
-                                      <div class="col-4">
-                                        {{ selectedIntensityMetrics.get(i + '-' + workoutIndex + '-' + exerciseIndex)?.title || 'Intensity' }}
-                                      </div>
-                                      <div class="col-1"></div>
-                                    </div>
 
-                                    <div *ngFor="let set of getSets(i, workoutIndex, exerciseIndex).controls; let setIndex = index"
-                                      [formGroupName]="setIndex" class="grid align-items-center mb-2 text-sm">
-                                      <div class="col-3">Set {{ setIndex + 1 }}</div>
-                                      <div class="col-4">
-                                        <div class="flex align-items-center" formGroupName="volume">
-                                          <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
-                                            formControlName="minimumVolume"
-                                            [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
-                                          <span class="mx-1" *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
-                                          <p-inputnumber formControlName="maximumVolume"
-                                            [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                      <!-- Sets Rows -->
+                                      <div *ngFor="let set of getSets(i, workoutIndex, exerciseIndex).controls; let setIndex = index"
+                                        [formGroupName]="setIndex" class="grid align-items-center mb-3">
+                                        <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
+                                        <div class="col-5 flex justify-content-center">
+                                          <div class="flex align-items-center" formGroupName="volume">
+                                            <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
+                                              formControlName="minimumVolume"
+                                              [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            <span class="mx-1" *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
+                                            <p-inputnumber formControlName="maximumVolume"
+                                              [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                          </div>
                                         </div>
-                                      </div>
-                                      <div class="col-4">
-                                        <div class="flex align-items-center" formGroupName="intensity">
-                                          <p-inputnumber *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)"
-                                            formControlName="minimumIntensity"
-                                            [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
-                                          <span class="mx-1" *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)">-</span>
-                                          <p-inputnumber formControlName="maximumIntensity"
-                                            [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                        <div class="col-5 flex justify-content-center">
+                                          <div class="flex align-items-center" formGroupName="intensity">
+                                            <p-inputnumber *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)"
+                                              formControlName="minimumIntensity"
+                                              [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            <span class="mx-1" *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)">-</span>
+                                            <p-inputnumber formControlName="maximumIntensity"
+                                              [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                          </div>
                                         </div>
-                                      </div>
-                                      <div class="col-1 text-right">
-                                        <button pButton type="button" icon="pi pi-times"
-                                          class="p-button-rounded p-button-danger p-button-text p-button-sm"
-                                          (click)="removeSet(i, workoutIndex, exerciseIndex, setIndex)"
-                                          [disabled]="getSets(i, workoutIndex, exerciseIndex).length <= 1"></button>
+                                        <div class="col-1 flex justify-content-center">
+                                          <button pButton type="button" icon="pi pi-times"
+                                            class="p-button-rounded p-button-danger p-button-text"
+                                            (click)="removeSet(i, workoutIndex, exerciseIndex, setIndex)"
+                                            [disabled]="getSets(i, workoutIndex, exerciseIndex).length <= 1"></button>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
@@ -225,7 +249,8 @@
                         </div>
 
                         <div class="flex justify-content-center mt-3">
-                          <button pButton type="button" label="Add Workout" icon="pi pi-plus" class="p-button-primary"
+                          <button pButton type="button" label="Add Workout" icon="pi pi-plus" 
+                            class="p-button-outlined"
                             (click)="addWorkout(i)"></button>
                         </div>
                       </div>
@@ -240,17 +265,15 @@
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
                   (onClick)="activateCallback(3)"></p-button>
               </div>
-            </div>
-          </ng-template>
-        </p-step-panel>
+            </ng-template>
+          </p-step-panel>
 
-        <!-- Step 3: Review & Create -->
-        <p-step-panel [value]="3">
-          <ng-template #content let-activateCallback="activateCallback">
-            <div class="p-3">
+          <!-- Step 3: Review & Create -->
+          <p-step-panel [value]="3">
+            <ng-template #content let-activateCallback="activateCallback">
               <h3 class="mb-3">Review Program</h3>
               
-              <div class="surface-card p-4 shadow-2 border-round">
+              <div class="surface-card p-4 border-round">
                 <div class="text-xl font-bold mb-3">{{ programForm.get('name')?.value }}</div>
                 
                 <p-divider></p-divider>
@@ -280,12 +303,12 @@
                 <p-button type="submit" label="Create Program" icon="pi pi-check" 
                   [loading]="loading"></p-button>
               </div>
-            </div>
-          </ng-template>
-        </p-step-panel>
-      </p-step-panels>
-    </p-stepper>
-  </form>
-</div>
+            </ng-template>
+          </p-step-panel>
+        </p-step-panels>
+      </p-stepper>
+    </form>
+  </ng-container>
 
-<p-toast></p-toast>
+  <p-toast></p-toast>
+</div>
