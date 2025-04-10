@@ -37,5 +37,15 @@ export class VolumeService {
     }
     
     return this.http.get<Record<string, number>>(`${this.apiUrl}/per-muscle`, { params });
-}
+  }
+
+  getProgramWeeklyVolume(startDate: string, endDate: string) {
+    return this.http.get<any>(`${this.apiUrl}/weekly-volume?startDate=` + startDate + `&endDate=` + endDate);
+  }
+
+  getWeeklyWorkoutDurationReport(startDate: string, endDate:string) {
+    console.log(startDate);
+    console.log(endDate);
+    return this.http.get<any>(`${this.apiUrl}/weekly-workout-duration-report?startDate=` + startDate + `&endDate=` + endDate);
+  }
 }
