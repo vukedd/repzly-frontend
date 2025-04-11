@@ -8,7 +8,11 @@ export interface NextWorkout {
 
 export interface StartedWorkout {
     id: number;
-    workout: Workout;
+    title: string;
+    description?: string;
+    number?: string;
+    workoutId:number;
+    workoutExercises: WorkoutExercise[];
     doneSets: DoneSet[];
     startDate: Date;
     doneDate: Date | null;

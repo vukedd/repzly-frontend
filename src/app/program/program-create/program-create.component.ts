@@ -100,6 +100,7 @@ export class ProgramCreateComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.programForm = this.fb.group({
+      id: [null],
       name: ['', [Validators.required, Validators.minLength(3)]],
       weeks: this.fb.array([])
     });
@@ -163,6 +164,7 @@ export class ProgramCreateComponent implements OnInit {
             
             // Handle the program image
             if (result.programImage && result.programImage.size > 0) {
+              this.uploadedImage = result.programImage;
               const imageUrl = URL.createObjectURL(result.programImage);
               this.existingImageUrl = imageUrl;
               this.imagePreviewUrl = imageUrl;
@@ -201,6 +203,9 @@ export class ProgramCreateComponent implements OnInit {
   loadProgramData(program: Program): void {
     // Set program name
     this.programForm.get('name')?.setValue(program.name);
+    this.programForm.get('id')?.setValue(program.id);
+    
+    // Set image
     
     // Set image if available
     // if (program) {
@@ -216,12 +221,14 @@ export class ProgramCreateComponent implements OnInit {
     // Load program structure (weeks, workouts, exercises)
     program.weeks.forEach((week, weekIndex) => {
       const weekForm = this.fb.group({
+        id: [week.id],
         workouts: this.fb.array([])
       });
       this.weeks.push(weekForm);
       
       week.workouts.forEach(workout => {
         const workoutForm = this.fb.group({
+          id: [workout.id],
           title: [workout.title || '', Validators.required],
           description: [workout.description || ''],
           number: [workout.number || ''],
@@ -231,6 +238,7 @@ export class ProgramCreateComponent implements OnInit {
         
         workout.workoutExercises.forEach(exercise => {
           const exerciseForm = this.fb.group({
+            id: [exercise.id],
             exercise: [this.findExerciseById(exercise.exercise.id?exercise.exercise.id:0), Validators.required],
             volumeMetric: [this.findVolumeMetricById(exercise.sets.length>0? exercise.sets[0].volumeMetric.id:0), Validators.required],
             intensityMetric: [this.findIntensityMetricById(exercise.sets.length>0? exercise.sets[0].intensityMetric.id:0), Validators.required],
@@ -251,6 +259,7 @@ export class ProgramCreateComponent implements OnInit {
           // Load sets
           exercise.sets.forEach(set => {
             const setForm = this.fb.group({
+              id: [set.id],
               volume: this.fb.group({
                 minimumVolume: [set.volume.minimumVolume],
                 maximumVolume: [set.volume.maximumVolume, Validators.required]
@@ -510,7 +519,10 @@ export class ProgramCreateComponent implements OnInit {
     this.loading = true;
 
     // Use the service to prepare the form data
-    const formData = this.programService.prepareFormData(this.programForm.value, this.uploadedImage);
+    const formData =this.isEditMode ? 
+    this.programService.prepareFormDataUpdate(this.programForm.value, this.uploadedImage):
+    this.programService.prepareFormData(this.programForm.value, this.uploadedImage);
+
 
     // Determine whether to create or update
     const action = this.isEditMode 

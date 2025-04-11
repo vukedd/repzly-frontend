@@ -173,7 +173,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
 
     // Create form structure based on the workout data
-    nextWorkoutDetails.workout.workoutExercises.forEach((exercise: WorkoutExercise) => {
+    nextWorkoutDetails.workoutExercises.forEach((exercise: WorkoutExercise) => {
       const exerciseGroup = this.fb.group({
         id: [exercise.id],
         exerciseId: [exercise.exercise.id],
@@ -250,9 +250,9 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     if (!this.currentWorkout?.nextWorkoutDetails) return;
 
     const nextWorkoutDetails = this.currentWorkout.nextWorkoutDetails;
-    this.totalExercises = nextWorkoutDetails.workout.workoutExercises.length;
+    this.totalExercises = nextWorkoutDetails.workoutExercises.length;
 
-    this.totalSets = nextWorkoutDetails.workout.workoutExercises.reduce(
+    this.totalSets = nextWorkoutDetails.workoutExercises.reduce(
       (total: number, exercise: WorkoutExercise) => total + exercise.sets.length, 0
     );
 
