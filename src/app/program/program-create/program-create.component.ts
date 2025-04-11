@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Exercise, ExerciseOverview, IntensityMetric, VolumeMetric } from '../program.model';
+import { Exercise, ExerciseOverview, IntensityMetric, Program, VolumeMetric } from '../program.model';
 import { ProgramService } from '../program-service/program.service';
 import { ExerciseService } from '../../exercise/exercise-service.service';
 import { MetricService } from '../../exercise/metric-service.service';
@@ -10,14 +10,13 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { CommonModule } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { TabsModule, TabList } from 'primeng/tabs'; // Import TabList
 import { InputNumberModule } from 'primeng/inputnumber';
-import { forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { StepperModule } from 'primeng/stepper';
 import { BadgeModule } from 'primeng/badge';
@@ -68,10 +67,16 @@ export class ProgramCreateComponent implements OnInit {
   editWorkoutNumber = '';
   editWorkoutDescription = '';
   restTimeDialogVisible: boolean = false;
-selectedExerciseInfo: { weekIndex: number, workoutIndex: number, exerciseIndex: number } | null = null;
-editMinRestTime: number | null = null;
-editMaxRestTime: number | null = null;
-editRestTimeMetric: string | null = null;
+  selectedExerciseInfo: { weekIndex: number, workoutIndex: number, exerciseIndex: number } | null = null;
+  editMinRestTime: number | null = null;
+  editMaxRestTime: number | null = null;
+  editRestTimeMetric: string | null = null;
+  
+  // NEW PROPERTIES FOR EDIT MODE
+  isEditMode: boolean = false;
+  programId: number | null = null;
+  existingImageUrl: string | null = null;
+  imageChanged: boolean = false;
 
   // Add ViewChild for TabList
   @ViewChild('tablist') tablistComponent!: TabList;
@@ -91,7 +96,8 @@ editRestTimeMetric: string | null = null;
     private exerciseService: ExerciseService,
     private metricService: MetricService,
     private messageService: MessageService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.programForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -100,34 +106,189 @@ editRestTimeMetric: string | null = null;
   }
 
   ngOnInit(): void {
-    // Create observables for all data loading
-    const exercises$ = this.exerciseService.getExercisesOverview();
-    const volumeMetrics$ = this.metricService.getVolumeMetrics();
-    const intensityMetrics$ = this.metricService.getIntensityMetrics();
-
-    // Use forkJoin to wait for all data to load
-    forkJoin({
-      exercises: exercises$,
-      volumeMetrics: volumeMetrics$,
-      intensityMetrics: intensityMetrics$
-    }).subscribe({
-      next: (result) => {
-        this.exercises = result.exercises;
-        this.volumeMetrics = result.volumeMetrics;
-        this.intensityMetrics = result.intensityMetrics;
-
-        // Only add the initial week after data is loaded
-        this.addWeek();
-      },
-      error: (error) => {
+    this.loading = true;
+   
+    // Check if we're in edit mode by looking for an ID in the route parameters
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isEditMode = true;
+          this.programId = +id;
+          return forkJoin({
+            exercises: this.exerciseService.getExercisesOverview(),
+            volumeMetrics: this.metricService.getVolumeMetrics(),
+            intensityMetrics: this.metricService.getIntensityMetrics(),
+            program: this.programService.getProgramById(this.programId),
+            programImage: this.programService.getProgramImage(+id).pipe(
+              catchError(() => of(null)) // Handle image fetch errors gracefully
+            )
+          });
+        } else {
+          return forkJoin({
+            exercises: this.exerciseService.getExercisesOverview(),
+            volumeMetrics: this.metricService.getVolumeMetrics(),
+            intensityMetrics: this.metricService.getIntensityMetrics(),
+            program: of(null),
+            programImage: of(null)
+          });
+        }
+      }),
+      catchError(error => {
+        console.error('Error loading data:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load form data'
+          detail: 'Failed to load data'
         });
-        console.error('Error loading form data:', error);
+        // Return a default value to continue the observable chain
+        return of({
+          exercises: [],
+          volumeMetrics: [],
+          intensityMetrics: [],
+          program: null,
+          programImage: null
+        });
+      })
+    ).subscribe({
+      next: result => {
+        console.log(result);
+        this.exercises = result.exercises;
+        this.volumeMetrics = result.volumeMetrics;
+        this.intensityMetrics = result.intensityMetrics;
+  
+        if (this.isEditMode && result.program) {
+          try {
+            this.loadProgramData(result.program);
+            
+            // Handle the program image
+            if (result.programImage && result.programImage.size > 0) {
+              const imageUrl = URL.createObjectURL(result.programImage);
+              this.existingImageUrl = imageUrl;
+              this.imagePreviewUrl = imageUrl;
+            } else {
+              // Make sure we clear image URLs if no valid image
+              this.existingImageUrl = null;
+              this.imagePreviewUrl = null;
+            }
+          } catch (err) {
+            console.error('Error loading program data:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to parse program data'
+            });
+            // Add a default week in case of error
+            this.addWeek();
+          }
+        } else {
+          // Only add the initial week for new programs
+          this.addWeek();
+        }
+        this.loading = false; // Set loading to false after processing the data
+      },
+      error: err => {
+        console.error('Subscribe error handler:', err);
+        this.loading = false; // Make sure loading is false on error
+        this.addWeek(); // Make sure we have at least one week
+      },
+      complete: () => {
+        this.loading = false; // Make sure loading is false on completion
       }
     });
+  }
+
+  loadProgramData(program: Program): void {
+    // Set program name
+    this.programForm.get('name')?.setValue(program.name);
+    
+    // Set image if available
+    // if (program) {
+    //   this.existingImageUrl = program.imageUrl;
+    //   this.imagePreviewUrl = program.imageUrl;
+    // }
+    
+    // Clear existing weeks array
+    while (this.weeks.length) {
+      this.weeks.removeAt(0);
+    }
+    
+    // Load program structure (weeks, workouts, exercises)
+    program.weeks.forEach((week, weekIndex) => {
+      const weekForm = this.fb.group({
+        workouts: this.fb.array([])
+      });
+      this.weeks.push(weekForm);
+      
+      week.workouts.forEach(workout => {
+        const workoutForm = this.fb.group({
+          title: [workout.title || '', Validators.required],
+          description: [workout.description || ''],
+          number: [workout.number || ''],
+          workoutExercises: this.fb.array([])
+        });
+        this.getWorkouts(weekIndex).push(workoutForm);
+        
+        workout.workoutExercises.forEach(exercise => {
+          const exerciseForm = this.fb.group({
+            exercise: [this.findExerciseById(exercise.exercise.id?exercise.exercise.id:0), Validators.required],
+            volumeMetric: [this.findVolumeMetricById(exercise.sets.length>0? exercise.sets[0].volumeMetric.id:0), Validators.required],
+            intensityMetric: [this.findIntensityMetricById(exercise.sets.length>0? exercise.sets[0].intensityMetric.id:0), Validators.required],
+            sets: this.fb.array([]),
+            minimumRestTime: [exercise.minimumRestTime || 0, Validators.required],
+            maximumRestTime: [exercise.maximumRestTime || 60, Validators.required],
+            restTimeMetric: [this.restTimeMetrics[0], Validators.required]
+          });
+          
+          this.getWorkoutExercises(weekIndex, this.getWorkouts(weekIndex).length - 1).push(exerciseForm);
+          
+          // Update the metrics maps
+          const key = `${weekIndex}-${this.getWorkouts(weekIndex).length - 1}-${this.getWorkoutExercises(weekIndex, this.getWorkouts(weekIndex).length - 1).length - 1}`;
+          
+          this.selectedVolumeMetrics.set(key, exerciseForm.get('volumeMetric')?.value!);
+          this.selectedIntensityMetrics.set(key, exerciseForm.get('intensityMetric')?.value!);
+          
+          // Load sets
+          exercise.sets.forEach(set => {
+            const setForm = this.fb.group({
+              volume: this.fb.group({
+                minimumVolume: [set.volume.minimumVolume],
+                maximumVolume: [set.volume.maximumVolume, Validators.required]
+              }),
+              intensity: this.fb.group({
+                minimumIntensity: [set.intensity.minimumIntensity],
+                maximumIntensity: [set.intensity.maximumIntensity, Validators.required]
+              }),
+              volumeMetric: [exerciseForm.get('volumeMetric')?.value],
+              intensityMetric: [exerciseForm.get('intensityMetric')?.value]
+            });
+            
+            this.getSets(
+              weekIndex, 
+              this.getWorkouts(weekIndex).length - 1, 
+              this.getWorkoutExercises(weekIndex, this.getWorkouts(weekIndex).length - 1).length - 1
+            ).push(setForm);
+          });
+        });
+      });
+    });
+    
+    // If no weeks were loaded, add a default one
+    if (this.weeks.length === 0) {
+      this.addWeek();
+    }
+  }
+
+  findExerciseById(id: number): ExerciseOverview | null {
+    return this.exercises.find(e => e.id === id) || null;
+  }
+
+  findVolumeMetricById(id: number): VolumeMetric | null {
+    return this.volumeMetrics.find(m => m.id === id) || null;
+  }
+
+  findIntensityMetricById(id: number): IntensityMetric | null {
+    return this.intensityMetrics.find(m => m.id === id) || null;
   }
 
   get weeks(): FormArray {
@@ -191,8 +352,6 @@ editRestTimeMetric: string | null = null;
     this.activeWeekTab = event.index.toString();
     this.scrollToActiveTab();
   }
-
-  // Rest of the component remains the same...
 
   getWorkouts(weekIndex: number): FormArray {
     return this.weeks.at(weekIndex).get('workouts') as FormArray;
@@ -338,8 +497,6 @@ editRestTimeMetric: string | null = null;
     return metric?.range || false;
   }
 
-
-
   onSubmit(): void {
     if (this.programForm.invalid) {
       this.messageService.add({
@@ -355,13 +512,18 @@ editRestTimeMetric: string | null = null;
     // Use the service to prepare the form data
     const formData = this.programService.prepareFormData(this.programForm.value, this.uploadedImage);
 
-    this.programService.createProgram(formData).subscribe({
+    // Determine whether to create or update
+    const action = this.isEditMode 
+      ? this.programService.updateProgram(this.programId!, formData)
+      : this.programService.createProgram(formData);
+
+    action.subscribe({
       next: (result: any) => {
         this.loading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Program created successfully'
+          detail: this.isEditMode ? 'Program updated successfully' : 'Program created successfully'
         });
         this.router.navigate(['/programs', result.id]);
       },
@@ -370,9 +532,9 @@ editRestTimeMetric: string | null = null;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'An error occurred while creating the program'
+          detail: this.isEditMode ? 'An error occurred while updating the program' : 'An error occurred while creating the program'
         });
-        console.error('Error creating program:', error);
+        console.error(this.isEditMode ? 'Error updating program:' : 'Error creating program:', error);
       }
     });
   }
@@ -401,22 +563,22 @@ editRestTimeMetric: string | null = null;
       }
     }
   }
+
   getExerciseTitle(weekIndex: number, workoutIndex: number, exerciseIndex: number): string {
     const exercise = this.getWorkoutExercises(weekIndex, workoutIndex)
       .at(exerciseIndex).get('exercise')?.value;
     return exercise ? exercise.title : `Exercise ${exerciseIndex + 1}`;
   }
 
-
-
   createImagePreview(file: File): void {
     // Reset the preview URL if already exists
-    if (this.imagePreviewUrl) {
+    if (this.imagePreviewUrl && this.imageChanged) {
       URL.revokeObjectURL(this.imagePreviewUrl);
     }
 
     // Create a new preview URL
     this.imagePreviewUrl = URL.createObjectURL(file);
+    this.imageChanged = true;
   }
 
   removeImage(): void {
@@ -424,10 +586,13 @@ editRestTimeMetric: string | null = null;
     this.uploadedImage = null;
 
     // Revoke and clear the preview URL
-    if (this.imagePreviewUrl) {
+    if (this.imagePreviewUrl && this.imageChanged) {
       URL.revokeObjectURL(this.imagePreviewUrl);
-      this.imagePreviewUrl = null;
     }
+    
+    this.imagePreviewUrl = null;
+    this.existingImageUrl = null;
+    this.imageChanged = true;
   }
 
   formatFileSize(bytes: number): string {
@@ -440,7 +605,6 @@ editRestTimeMetric: string | null = null;
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  // Override the existing onImageUpload method with this updated version
   onImageUpload(event: any): void {
     if (event.files && event.files.length > 0) {
       this.uploadedImage = event.files[0];
@@ -450,12 +614,6 @@ editRestTimeMetric: string | null = null;
     }
   }
 
-  // Make sure to clean up the object URLs when the component is destroyed
-  ngOnDestroy(): void {
-    if (this.imagePreviewUrl) {
-      URL.revokeObjectURL(this.imagePreviewUrl);
-    }
-  }
   openWorkoutEditDialog(weekIndex: number, workoutIndex: number): void {
     this.selectedWeekIndex = weekIndex;
     this.selectedWorkoutIndex = workoutIndex;
@@ -468,18 +626,12 @@ editRestTimeMetric: string | null = null;
     this.editWorkoutDialogVisible = true;
   }
 
-  /**
-   * Closes the workout edit dialog without saving
-   */
   closeWorkoutEditDialog(): void {
     this.editWorkoutDialogVisible = false;
     this.selectedWeekIndex = null;
     this.selectedWorkoutIndex = null;
   }
 
-  /**
-   * Saves the workout changes from the dialog to the form
-   */
   saveWorkoutChanges(): void {
     if (this.selectedWeekIndex !== null && this.selectedWorkoutIndex !== null) {
       const workout = this.getWorkouts(this.selectedWeekIndex).at(this.selectedWorkoutIndex);
@@ -493,6 +645,7 @@ editRestTimeMetric: string | null = null;
       this.closeWorkoutEditDialog();
     }
   }
+
   openRestTimeDialog(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
     this.selectedExerciseInfo = { weekIndex, workoutIndex, exerciseIndex };
 
@@ -531,4 +684,20 @@ editRestTimeMetric: string | null = null;
     }
   }
 
+  // Clean up when component is destroyed
+  ngOnDestroy(): void {
+    if (this.imagePreviewUrl && this.imageChanged) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+    }
+  }
+
+  // Helper method to get page title based on mode
+  getPageTitle(): string {
+    return this.isEditMode ? 'Edit Fitness Program' : 'Create New Fitness Program';
+  }
+
+  // Helper method to get submit button text based on mode
+  getSubmitButtonText(): string {
+    return this.isEditMode ? 'Update Program' : 'Create Program';
+  }
 }

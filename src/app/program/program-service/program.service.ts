@@ -53,7 +53,6 @@ export class ProgramService {
 
     const formData = new FormData();
     formData.append('program', JSON.stringify(programCopy));
-    console.log(formData);
 
     if (image) {
       formData.append('image', image);
@@ -64,7 +63,6 @@ export class ProgramService {
 
   // Map the frontend program model to match backend expectations
   private mapProgramForBackend(program: Program): any {
-    console.log(program);
     return {
       name: program.name,
       weeks: program.weeks.map(week => ({
@@ -78,8 +76,6 @@ export class ProgramService {
             maximumRestTime: exercise.maximumRestTime,
             sets: exercise.sets.map(set => {
               // Debug logs to help identify problems
-              console.log('Set volume metric:', set.volumeMetric);
-              console.log('Set intensity metric:', set.intensityMetric);
 
               return {
                 volumeMin: set.volume.minimumVolume,
@@ -94,6 +90,14 @@ export class ProgramService {
         }))
       }))
     };
+  }
+
+  getProgramImage(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/image/${id}`, { responseType: 'blob' });
+  }
+
+  updateProgram(id: number, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
   getCurrentWorkout(workoutId: number): Observable<any> {
