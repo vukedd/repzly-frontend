@@ -7,13 +7,23 @@
   <ng-container *ngIf="!loading && currentWorkout && currentWorkout.nextWorkoutDetails">
     <!-- Header -->
     <div class="mb-3 flex justify-content-between align-items-center">
+      <!-- Workout Title -->
+      <h2 class="m-0">{{currentWorkout.nextWorkoutDetails.title}}</h2>
+
       <!-- Stopwatch Display -->
       <div class="flex align-items-center">
-        <button pButton icon="pi pi-clock" class="p-button-text p-button-rounded" [disabled]="true">
-          {{ workoutDurationDisplay }} <!-- Display stopwatch time here -->
-        </button>
+        <div class="flex align-items-center">
+          <i class="pi pi-clock p-button-text mr-2"></i>
+          <span class="p-button-text">{{ workoutDurationDisplay }}</span>
+        </div>
       </div>
-      <!-- Finish button removed from here -->
+    </div>
+
+
+    <!-- Progress Bar -->
+    <div class="mb-3">
+      <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
+      <div class="text-sm text-right mt-1">{{progress.toFixed(0)}}% Complete</div>
     </div>
 
     <!-- Workout Form -->
@@ -23,13 +33,30 @@
           [formGroupName]="exerciseIndex" class="mb-4">
 
           <!-- Exercise Header -->
-          <div class="flex justify-content-between align-items-center mb-2">
-            <div class="flex align-items-center">
-              <span class="font-bold text-xl mr-2">{{exerciseIndex + 1}}</span>
-              <span class="text-xl">{{exerciseControl.get('exerciseTitle')?.value}}</span>
+          <div class="surface-card p-3 border-round mb-2">
+            <div class="flex justify-content-between align-items-center">
+              <div class="flex align-items-center">
+                <span class="font-bold text-xl mr-2">{{exerciseIndex + 1}}</span>
+                <span class="text-xl">{{exerciseControl.get('exerciseTitle')?.value}}</span>
+              </div>
+
+
+
+              <div class="flex">
+                <button pButton icon="pi pi-sort" class="p-button-text p-button-rounded mr-2"
+                  (click)="openExerciseOrderDialog()" pTooltip="Reorder Exercises">
+                </button>
+                <!-- Change Exercise Button -->
+                <button pButton icon="pi pi-sync" class="p-button-text p-button-rounded mr-2"
+                  (click)="openChangeExerciseDialog(exerciseIndex)" pTooltip="Change Exercise">
+                </button>
+
+                <!-- History Button -->
+                <button pButton icon="pi pi-chart-line" class="p-button-text p-button-rounded"
+                  (click)="showHistoryDialog(exerciseControl.get('exerciseId'))" pTooltip="View History">
+                </button>
+              </div>
             </div>
-            <button pButton icon="pi pi-chart-line" class="p-button-text p-button-rounded"
-              (click)="showHistoryDialog(exerciseControl.get('exerciseId'))"></button>
           </div>
 
           <!-- Sets Table -->
@@ -38,9 +65,11 @@
             <div class="grid mb-2 border-bottom-1 surface-border pb-2">
               <div class="col-1 flex justify-content-center">#</div>
               <div class="col-3 flex justify-content-center">Weight</div>
-              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl, 0)?.get('volumeMetric')?.value?.title ||
+              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl,
+                0)?.get('volumeMetric')?.value?.title ||
                 'Volume'}}</div>
-              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl, 0)?.get('intensityMetric')?.value?.title ||
+              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl,
+                0)?.get('intensityMetric')?.value?.title ||
                 'Intensity'}}</div>
               <div class="col-2 flex justify-content-center"></div>
             </div>
@@ -48,49 +77,45 @@
             <!-- Sets -->
             <div formArrayName="sets">
               <div *ngFor="let setControl of getExerciseSets(exerciseIndex)?.controls; let setIndex = index"
-                [formGroupName]="setIndex" class="grid align-items-center mb-3">
+                [formGroupName]="setIndex" class="grid align-items-center mb-3"
+                >
 
                 <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
 
                 <div class="col-3 flex justify-content-center">
-                  <input pInputText type="number" formControlName="weightLifted"
-                    [style]="{'width': '100%'}" class="p-inputtext-sm">
+                  <input pInputText type="number" formControlName="weightLifted" [style]="{'width': '100%'}"
+                    class="p-inputtext-sm">
                 </div>
 
                 <div class="col-3 flex justify-content-center">
                   <input pInputText type="number" formControlName="actualVolume"
-                    [placeholder]="getVolumePlaceholder(setControl)"
-                    [style]="{'width': '100%'}" class="p-inputtext-sm">
+                    [placeholder]="getVolumePlaceholder(setControl)" [style]="{'width': '100%'}" class="p-inputtext-sm">
                 </div>
 
                 <div class="col-3 flex justify-content-center">
                   <input pInputText type="number" formControlName="actualIntensity"
-                    [placeholder]="getIntensityPlaceholder(setControl)"
-                    [style]="{'width': '100%'}" class="p-inputtext-sm">
+                    [placeholder]="getIntensityPlaceholder(setControl)" [style]="{'width': '100%'}"
+                    class="p-inputtext-sm">
                 </div>
 
                 <div class="col-2 flex justify-content-center">
                   <div *ngIf="!setControl.get('completed')?.value">
                     <button pButton icon="pi pi-check" class="p-button-rounded p-button-text"
-                      (click)="completeSet(exerciseIndex, setIndex)"></button>
+                      (click)="completeSet(exerciseIndex, setIndex)" pTooltip="Complete Set"></button>
                   </div>
                   <div *ngIf="setControl.get('completed')?.value">
                     <button pButton icon="pi pi-check" class="p-button-rounded p-button-text text-green-500"
-                      (click)="uncompleteSet(exerciseIndex, setIndex)"></button>
+                      (click)="uncompleteSet(exerciseIndex, setIndex)" pTooltip="Undo Complete"></button>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="flex justify-content-center mt-3">
-              <button pButton 
-                      label="Add Set" 
-                      icon="pi pi-plus" 
-                      (click)="addSet(exerciseIndex)" 
-                      class="p-button-outlined p-button-sm">
+              <button pButton label="Add Set" icon="pi pi-plus" (click)="addSet(exerciseIndex)"
+                class="p-button-outlined p-button-sm">
               </button>
             </div>
-
           </div>
         </div>
       </div>
@@ -98,19 +123,11 @@
 
     <!-- Action Buttons at the Bottom -->
     <div class="mt-4 flex justify-content-end align-items-center">
-        <button pButton
-                label="See Summary"
-                icon="pi pi-list"
-                (click)="openSummary()"
-                class="p-button-secondary mr-2">
-        </button>
-        <button pButton
-                label="Finish Workout"
-                icon="pi pi-flag-fill"
-                (click)="submitWorkout()"
-                [loading]="submitting"
-                class="p-button-primary">
-        </button>
+      <button pButton label="See Summary" icon="pi pi-list" (click)="openSummary()" class="p-button-secondary mr-2">
+      </button>
+      <button pButton label="Finish Workout" icon="pi pi-flag-fill" (click)="submitWorkout()" [loading]="submitting"
+        class="p-button-primary">
+      </button>
     </div>
 
     <!-- Rest Timer Dialog -->
@@ -124,15 +141,15 @@
     </p-dialog>
 
     <!-- Summary Dialog -->
-    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true" [style]="{width: '90vw', maxWidth: '700px'}"
-      [modal]="true">
+    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true"
+      [style]="{width: '90vw', maxWidth: '700px'}" [modal]="true">
       <div class="p-2">
         <p-divider align="left">
           <span class="p-tag p-tag-info">Duration</span>
         </p-divider>
-         <div class="mb-4 text-center text-xl">
-            Total Time: {{ workoutDurationDisplay }}
-         </div>
+        <div class="mb-4 text-center text-xl">
+          Total Time: {{ workoutDurationDisplay }}
+        </div>
 
         <p-divider align="left">
           <span class="p-tag p-tag-info">Progress</span>
@@ -145,8 +162,8 @@
         <p-divider align="left">
           <span class="p-tag p-tag-info">Exercises</span>
         </p-divider>
-        <!-- Rest of the summary content remains the same -->
-         <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" class="mb-4">
+        <!-- Exercise summary section -->
+        <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" class="mb-4">
           <div class="flex justify-content-between align-items-center mb-2">
             <h4 class="m-0">{{exerciseControl.get('exerciseTitle')?.value}}</h4>
 
@@ -172,8 +189,10 @@
               <div class="col-8">
                 Set {{setIndex + 1}}
                 <span *ngIf="setControl.get('completed')?.value">
-                  ({{setControl.get('weightLifted')?.value || 0}}kg, {{setControl.get('actualVolume')?.value}} {{setControl.get('volumeMetric')?.value?.metricSymbol || ''}},
-                  {{setControl.get('actualIntensity')?.value}} {{setControl.get('intensityMetric')?.value?.metricSymbol || ''}})
+                  ({{setControl.get('weightLifted')?.value || 0}}kg, {{setControl.get('actualVolume')?.value}}
+                  {{setControl.get('volumeMetric')?.value?.metricSymbol || ''}},
+                  {{setControl.get('actualIntensity')?.value}} {{setControl.get('intensityMetric')?.value?.metricSymbol
+                  || ''}})
                 </span>
               </div>
               <div class="col-4 text-right">
@@ -189,17 +208,31 @@
         </div>
         <!-- Submit button inside Summary Dialog -->
         <div class="flex justify-content-end mt-4">
-            <button pButton label="Close" icon="pi pi-times" (click)="showSummary = false" class="p-button-text mr-2"></button>
-            <button pButton
-                    label="Submit Workout"
-                    icon="pi pi-check"
-                    (click)="submitWorkout()"
-                    [disabled]="progress < 100 && countCompletedSets() === 0"  
-                    [loading]="submitting"
-                    class="p-button-success">
-            </button>
-            <!-- Consider changing the disable logic. Maybe allow submission even if not 100% -->
-            <!-- Example: [disabled]="countCompletedSets() === 0" -> allows submission if at least one set is done -->
+          <button pButton label="Close" icon="pi pi-times" (click)="showSummary = false"
+            class="p-button-text mr-2"></button>
+          <button pButton label="Submit Workout" icon="pi pi-check" (click)="submitWorkout()"
+            [disabled]="countCompletedSets() === 0" [loading]="submitting" class="p-button-success">
+          </button>
+        </div>
+      </div>
+    </p-dialog>
+
+    <!-- Change Exercise Dialog -->
+    <p-dialog header="Change Exercise" [(visible)]="showExerciseChangeDialog" [style]="{width: '450px'}" [modal]="true">
+      <div class="p-fluid">
+        <div class="field">
+          <label for="exerciseSelect" class="font-bold">Select Exercise</label>
+          <p-select id="exerciseSelect" [options]="availableExercises" [(ngModel)]="selectedExerciseId"
+            optionLabel="title" optionValue="id" [filter]="true" filterBy="title" placeholder="Select an exercise"
+            appendTo="body">
+          </p-select>
+        </div>
+
+        <div class="flex justify-content-end mt-4">
+          <button pButton label="Cancel" icon="pi pi-times" (click)="showExerciseChangeDialog = false"
+            class="p-button-text mr-2"></button>
+          <button pButton label="Change" icon="pi pi-check" (click)="changeExercise()" [disabled]="!selectedExerciseId"
+            class="p-button-success"></button>
         </div>
       </div>
     </p-dialog>
@@ -207,7 +240,7 @@
 
   <!-- Error state (no workout found) -->
   <div *ngIf="!loading && (!currentWorkout || !currentWorkout.nextWorkoutDetails)"
-     class="flex flex-column align-items-center justify-content-center min-h-screen">
+    class="flex flex-column align-items-center justify-content-center min-h-screen">
     <div class="text-xl font-bold mb-3">Workout Not Found</div>
     <p>The requested workout could not be loaded.</p>
     <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="router.navigate(['/dashboard'])"

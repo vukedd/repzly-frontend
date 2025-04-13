@@ -12,12 +12,14 @@ import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ProgramService } from '../../program/program-service/program.service';
 import { DoneSet, NextWorkout } from '../next-workout';
-import { WorkoutService } from '../workout.service';
-import { WorkoutExercise, WorkoutExerciseSet } from '../../program/program.model';
+import { WorkoutService, CreateSetDTO, ChangeExerciseOrderDTO } from '../workout.service';
+import { ExerciseOverview, WorkoutExercise, WorkoutExerciseSet } from '../../program/program.model';
 import { CreateDoneSetDTO } from '../create-done-set-dto';
 import { ExerciseHistoryDialogComponent } from '../../exercise/exercise-history-dialog/exercise-history-dialog.component';
+import { ExerciseService } from '../../exercise/exercise-service.service';
+import { ExerciseOrderDialogComponent } from '../exercise-order-dialog/exercise-order-dialog.component';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-workout-tracker',
@@ -33,7 +35,8 @@ import { ExerciseHistoryDialogComponent } from '../../exercise/exercise-history-
     ProgressBarModule,
     ToastModule,
     DialogModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    SelectModule
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
@@ -43,12 +46,17 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   // Core workout data
   currentWorkout: NextWorkout | null = null;
   workoutForm: FormGroup;
-
+  
   // UI state
   loading = true;
   submitting = false;
   showSummary = false;
-
+  showExerciseChangeDialog = false;
+  selectedExerciseIndex: number | null = null;
+  selectedExerciseId: number | null = null;
+  // Update the property type
+  availableExercises: ExerciseOverview[] = [];
+  
   // Progress tracking
   totalExercises = 0;
   totalSets = 0;
@@ -75,7 +83,8 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     private workoutService: WorkoutService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private exerciseService:ExerciseService
   ) {
     this.workoutForm = this.fb.group({
       exercises: this.fb.array([])
@@ -141,6 +150,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           this.initializeForm();
           this.calculateTotals();
           this.startWorkoutTimer();
+          
         } else {
           this.messageService.add({
             severity: 'info',
@@ -462,6 +472,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     });
   }
 
+  // --- UPDATED: Add Set Method to use Backend API ---
   addSet(exerciseIndex: number): void {
     const exerciseControl = this.getExerciseControl(exerciseIndex);
     const setsArray = this.getExerciseSets(exerciseIndex);
@@ -475,7 +486,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Get the last set to clone its structure
+    // Get the last set to use as a template
     const lastSetIndex = setsArray.length - 1;
     if (lastSetIndex < 0) {
       this.messageService.add({
@@ -487,44 +498,282 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
 
     const lastSet = setsArray.at(lastSetIndex) as FormGroup;
+    const volumeRange = lastSet.get('volumeRange')?.value;
+    const intensityRange = lastSet.get('intensityRange')?.value;
+    const volumeMetricId = lastSet.get('volumeMetric')?.value?.id;
+    const intensityMetricId = lastSet.get('intensityMetric')?.value?.id;
 
-    // Create new set based on the last set - reusing the same set ID
-    const newSetGroup = this.fb.group({
-      id: [lastSet.get('id')?.value],
-      volumeMetric: [lastSet.get('volumeMetric')?.value],
-      intensityMetric: [lastSet.get('intensityMetric')?.value],
-      volumeRange: [lastSet.get('volumeRange')?.value],
-      intensityRange: [lastSet.get('intensityRange')?.value],
-      completed: [false],
-      actualVolume: [null],
-      actualIntensity: [null],
-      weightLifted: [null],
-      isAdditionalSet: [true],
-      doneSetId: [null]
-    });
+    // Prepare data for backend
+    const createSetDTO: CreateSetDTO = {
+      volumeMin: volumeRange?.min,
+      volumeMax: volumeRange?.max,
+      volumeMetric: volumeMetricId,
+      intensityMin: intensityRange?.min,
+      intensityMax: intensityRange?.max,
+      intensityMetric: intensityMetricId
+    };
 
-    // Add the new set to the FormArray
-    setsArray.push(newSetGroup);
+    const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
+    const workoutExerciseId = exerciseControl.get('id')?.value;
 
-    // Update totals
-    this.totalSets++;
-    this.updateProgress();
+    if (!startedWorkoutId || !workoutExerciseId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Missing workout or exercise ID.'
+      });
+      return;
+    }
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'New Set Added',
-      detail: 'Added set to exercise',
-      life: 2000
+    this.workoutService.addSet(startedWorkoutId, workoutExerciseId, createSetDTO).subscribe({
+      next: (response) => {
+        // Create a new FormGroup for the added set
+        const newSetId = response.id;
+        
+        // Clone set from the last one, but with the new ID
+        const newSetGroup = this.fb.group({
+          id: [newSetId],
+          volumeMetric: [lastSet.get('volumeMetric')?.value],
+          intensityMetric: [lastSet.get('intensityMetric')?.value],
+          volumeRange: [lastSet.get('volumeRange')?.value],
+          intensityRange: [lastSet.get('intensityRange')?.value],
+          completed: [false],
+          actualVolume: [null],
+          actualIntensity: [null],
+          weightLifted: [null],
+          isAdditionalSet: [true],
+          doneSetId: [null]
+        });
+
+        // Add the new set to the FormArray
+        setsArray.push(newSetGroup);
+
+        // Update totals
+        this.totalSets++;
+        this.updateProgress();
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'New Set Added',
+          detail: 'Added set to exercise',
+          life: 2000
+        });
+      },
+      error: (error) => {
+        const detail = error?.error?.message || 'Failed to add new set.';
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Add Set Failed', 
+          detail: detail 
+        });
+        console.error('Error adding set:', error);
+      }
     });
   }
 
+  // --- NEW: Change Exercise Method ---
+  openChangeExerciseDialog(exerciseIndex: number): void {
+    this.selectedExerciseIndex = exerciseIndex;
+    const exerciseControl = this.getExerciseControl(exerciseIndex);
+    
+    if (exerciseControl) {
+      this.selectedExerciseId = exerciseControl.get('exerciseId')?.value || null;
+      
+      // Load available exercises from the exercise service
+      this.exerciseService.getExercisesOverview().subscribe({
+        next: (exercises: ExerciseOverview[]) => {
+          this.availableExercises = exercises;
+          this.showExerciseChangeDialog = true;
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to load available exercises.'
+          });
+          console.error('Error loading exercises:', error);
+        }
+      });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Could not find exercise data.'
+      });
+    }
+  }
+
+  changeExercise(): void {
+    if (this.selectedExerciseIndex === null || !this.selectedExerciseId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please select an exercise.'
+      });
+      return;
+    }
+  
+    const exerciseControl = this.getExerciseControl(this.selectedExerciseIndex);
+    if (!exerciseControl) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Exercise data not found.'
+      });
+      return;
+    }
+  
+    const currentExerciseId = exerciseControl.get('exerciseId')?.value;
+    if (currentExerciseId === this.selectedExerciseId) {
+      this.showExerciseChangeDialog = false;
+      return; // No change needed
+    }
+  
+    const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
+    const workoutExerciseId = exerciseControl.get('id')?.value;
+  
+    if (!startedWorkoutId || !workoutExerciseId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Missing workout or exercise ID.'
+      });
+      return;
+    }
+  
+    this.workoutService.changeExercise(
+      startedWorkoutId, 
+      workoutExerciseId, 
+      this.selectedExerciseId
+    ).subscribe({
+      next: (response) => {
+        // Find the selected exercise details
+        const newExercise = this.availableExercises.find(e => e.id === this.selectedExerciseId);
+        
+        if (newExercise) {
+          // Update the exercise in the form
+          exerciseControl.patchValue({
+            exerciseId: newExercise.id,
+            exerciseTitle: newExercise.title,
+          });
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Exercise Changed',
+            detail: response || 'Exercise changed successfully',
+            life: 2000
+          });
+        }
+        
+        this.showExerciseChangeDialog = false;
+      },
+      error: (error) => {
+        const detail = error?.error?.message || 'Failed to change exercise.';
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Change Failed', 
+          detail: detail 
+        });
+        console.error('Error changing exercise:', error);
+      }
+    });
+  }
+
+  // --- NEW: Reorder Exercises Method ---
+  openExerciseOrderDialog(): void {
+    // Format the exercises for the dialog
+    const exercises = this.exercises.controls.map(exerciseControl => {
+      return {
+        id: exerciseControl.get('id')?.value,
+        title: exerciseControl.get('exerciseTitle')?.value,
+        exerciseId: exerciseControl.get('exerciseId')?.value
+      };
+    });
+  
+    this.ref = this.dialogService.open(ExerciseOrderDialogComponent, {
+      header: 'Reorder Exercises',
+      width: '450px',
+      data: {
+        exercises: exercises
+      }
+    });
+  
+    this.ref.onClose.subscribe((result) => {
+      if (result) {
+        // Get the IDs in the new order
+        const exerciseIds: number[] = result.map((exercise: { id: any; }) => exercise.id);
+        const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
+        
+        if (!startedWorkoutId || exerciseIds.length === 0) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Could not update exercise order.'
+          });
+          return;
+        }
+        
+        const changeOrderDTO: ChangeExerciseOrderDTO = {
+          workoutExerciseIds: exerciseIds
+        };
+        
+        this.workoutService.changeExerciseOrder(startedWorkoutId, changeOrderDTO).subscribe({
+          next: (response) => {
+            // Update the local form to match the new order
+            this.reorderExercisesInForm(exerciseIds);
+            
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Order Updated',
+              detail: response || 'Exercise order updated successfully',
+              life: 2000
+            });
+          },
+          error: (error) => {
+            const detail = error?.error?.message || 'Failed to update exercise order.';
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Update Failed', 
+              detail: detail 
+            });
+            console.error('Error updating exercise order:', error);
+          }
+        });
+      }
+    });
+  }
+  
+  // Helper method to reorder the exercises in the form
+  reorderExercisesInForm(orderedIds: number[]): void {
+    const currentControls = this.exercises.controls;
+    const newControls = [];
+    
+    // Re-arrange the controls according to the new order
+    for (const id of orderedIds) {
+      const controlIndex = currentControls.findIndex(
+        control => control.get('id')?.value === id
+      );
+      
+      if (controlIndex !== -1) {
+        newControls.push(currentControls[controlIndex]);
+      }
+    }
+    
+    // Clear and rebuild the form array
+    while (this.exercises.length) {
+      this.exercises.removeAt(0);
+    }
+    
+    for (const control of newControls) {
+      this.exercises.push(control);
+    }
+  }
   // --- Workout Completion ---
 
   openSummary(): void {
     this.updateProgress();
     this.showSummary = true;
   }
-
   submitWorkout(): void {
     this.updateProgress();
 
@@ -625,8 +874,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   skipRestTimer(): void {
     this.stopRestTimer();
   }
-
-  // --- Workout Timer Methods ---
 
   // --- Workout Timer Methods ---
 
