@@ -1,9 +1,6 @@
 <!-- program-create.component.html -->
 <div class="surface-ground px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
-  <!-- <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
-    <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
-  </div> -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center">
     <p-progressSpinner></p-progressSpinner>
   </div>
@@ -11,7 +8,7 @@
   <ng-container *ngIf="!loading">
     <!-- Header -->
     <div class="mb-3 flex justify-content-between align-items-center">
-      <div class="text-2xl md:text-3xl font-bold">Create New Fitness Program</div>
+      <div class="text-2xl md:text-3xl font-bold">{{ getPageTitle() }}</div>
     </div>
 
     <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
@@ -20,7 +17,7 @@
         <p-step-list>
           <p-step [value]="1">Program Info</p-step>
           <p-step [value]="2">Workout Structure</p-step>
-          <p-step [value]="3">Review & Create</p-step>
+          <p-step [value]="3">Review & {{ isEditMode ? 'Update' : 'Create' }}</p-step>
         </p-step-list>
 
         <!-- Step Panels -->
@@ -49,17 +46,21 @@
                         [showCancelButton]="false"></p-fileUpload>
 
                       <!-- Image Preview Section -->
-                      <div *ngIf="imagePreviewUrl" class="mt-3">
+                      <!-- Image Preview Section - Only show when there's actually an image -->
+                      <div
+                        *ngIf="(imagePreviewUrl || existingImageUrl) && (uploadedImage || (existingImageUrl && !imageChanged))"
+                        class="mt-3">
                         <div class="flex flex-column align-items-center">
                           <div class="relative">
-                            <img [src]="imagePreviewUrl" class="shadow-2 border-round"
+                            <img [src]="imagePreviewUrl || existingImageUrl" class="shadow-2 border-round"
                               style="max-width: 100%; max-height: 200px;">
                             <button pButton type="button" icon="pi pi-times"
                               class="p-button-rounded p-button-danger p-button-text absolute top-0 right-0"
                               (click)="removeImage()"></button>
                           </div>
-                          <small class="mt-2 text-500">{{ uploadedImage?.name }} ({{ formatFileSize(uploadedImage?.size
-                            || 0) }})</small>
+                          <small *ngIf="uploadedImage" class="mt-2 text-500">{{ uploadedImage.name }} ({{
+                            formatFileSize(uploadedImage.size || 0) }})</small>
+                          <small *ngIf="existingImageUrl && !imageChanged" class="mt-2 text-500">Current image</small>
                         </div>
                       </div>
                     </div>
@@ -97,14 +98,13 @@
                 <p-tabpanels class="p-1">
                   <p-tabpanel *ngFor="let week of weeks.controls; let i = index" [value]="i.toString()">
                     <div [formGroupName]="i">
-
-
                       <!-- Workouts for this Week -->
                       <div formArrayName="workouts" class="w-full">
                         <div *ngFor="let workout of getWorkouts(i).controls; let workoutIndex = index"
                           class="border-round mb-4">
                           <!-- Improved Workout Section -->
-                          <div [formGroupName]="workoutIndex" class="surface-100 border-1 border-round surface-border mb-4">
+                          <div [formGroupName]="workoutIndex"
+                            class="surface-100 border-1 border-round surface-border mb-4">
                             <!-- Workout Header -->
                             <div class="flex justify-content-between align-items-center p-2">
                               <div class="flex align-items-center">
@@ -142,7 +142,8 @@
                                       <div class="col-7 md:col-7">
                                         <p-select id="exercise{{i}}-{{workoutIndex}}-{{exerciseIndex}}"
                                           formControlName="exercise" [options]="exercises" optionLabel="title"
-                                          placeholder="Select an Exercise" [filter]="true" filterBy="title" styleClass="w-full h-full justify-content-center align-items-center"></p-select>
+                                          placeholder="Select an Exercise" [filter]="true" filterBy="title"
+                                          styleClass="w-full h-full justify-content-center align-items-center"></p-select>
                                       </div>
                                       <div class="col-3 md:col-3 flex align-items-center justify-content-center">
                                         <button pButton type="button" icon="pi pi-clock"
@@ -160,8 +161,6 @@
                                     <p-divider class="mt-1 mb-1" align="left">
                                       <span class="p-tag p-tag-success">Sets</span>
                                     </p-divider>
-
-                                   
                                   </div>
 
                                   <!-- Volume and Intensity Metrics Selection - outside of formArrayName -->
@@ -184,7 +183,7 @@
                                   <!-- Sets Section -->
                                   <div formArrayName="sets" class="">
                                     <!-- Sets Rows -->
-                                  <p-divider class="mt-1 mb-1" />
+                                    <p-divider class="mt-1 mb-1" />
 
                                     <div
                                       *ngFor="let set of getSets(i, workoutIndex, exerciseIndex).controls; let setIndex = index"
@@ -223,8 +222,7 @@
                                     <!-- Add Set Button - Now positioned after all sets -->
                                     <div class="flex justify-content-center mt-3 mb-2">
                                       <button pButton type="button" label="Add Set" icon="pi pi-plus"
-                                        class="p-button-sm"
-                                        (click)="addSet(i, workoutIndex, exerciseIndex)"></button>
+                                        class="p-button-sm" (click)="addSet(i, workoutIndex, exerciseIndex)"></button>
                                     </div>
                                   </div>
                                 </div>
@@ -258,7 +256,7 @@
             </ng-template>
           </p-step-panel>
 
-          <!-- Step 3: Review & Create -->
+          <!-- Step 3: Review & Create/Update -->
           <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
               <h3 class="mb-3">Review Program</h3>
@@ -292,7 +290,8 @@
               <div class="flex justify-content-between mt-4">
                 <p-button label="Back" icon="pi pi-arrow-left" severity="secondary"
                   (onClick)="activateCallback(2)"></p-button>
-                <p-button type="submit" label="Create Program" icon="pi pi-check" [loading]="loading"></p-button>
+                <p-button type="submit" [label]="getSubmitButtonText()" icon="pi pi-check"
+                  [loading]="loading"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -325,8 +324,10 @@
       <button pButton pRipple label="Save" icon="pi pi-check" (click)="saveWorkoutChanges()"></button>
     </ng-template>
   </p-dialog>
-  <!-- Add this dialog component to your template (outside the form) -->
-  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible" [style]="{width: '400px',height:'550px'}" [modal]="true">
+
+  <!-- Rest Time Dialog -->
+  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible" [style]="{width: '400px',height:'550px'}"
+    [modal]="true">
     <div class="p-fluid grid" *ngIf="selectedExerciseInfo">
       <div class="field col-12 mb-3">
         <label for="restTimeMin" class="font-bold">Minimum Rest Time</label>
@@ -344,8 +345,8 @@
       </div>
       <div class="field col-12">
         <label for="restTimeMetric" class="font-bold">Time Unit</label>
-        <p-select id="restTimeMetric" [options]="restTimeMetrics" [(ngModel)]="editRestTimeMetric" styleClass="overflow-visible"
-          [style]="{width: '100%'}"></p-select>
+        <p-select id="restTimeMetric" [options]="restTimeMetrics" [(ngModel)]="editRestTimeMetric"
+          styleClass="overflow-visible" [style]="{width: '100%'}"></p-select>
       </div>
     </div>
 
@@ -355,7 +356,6 @@
       <button pButton pRipple label="Save" icon="pi pi-check" (click)="saveRestTimeChanges()"></button>
     </ng-template>
   </p-dialog>
-
 
   <p-toast></p-toast>
 </div>

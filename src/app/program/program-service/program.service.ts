@@ -53,7 +53,20 @@ export class ProgramService {
 
     const formData = new FormData();
     formData.append('program', JSON.stringify(programCopy));
-    console.log(formData);
+
+    if (image) {
+      formData.append('image', image);
+    }
+
+    return formData;
+  }
+
+  prepareFormDataUpdate(program: Program, image: File | null): FormData {
+    // Create a deep copy to modify without affecting the original
+    const programCopy = this.mapProgramForBackendUpdate(program);
+
+    const formData = new FormData();
+    formData.append('program', JSON.stringify(programCopy));
 
     if (image) {
       formData.append('image', image);
@@ -64,7 +77,6 @@ export class ProgramService {
 
   // Map the frontend program model to match backend expectations
   private mapProgramForBackend(program: Program): any {
-    console.log(program);
     return {
       name: program.name,
       weeks: program.weeks.map(week => ({
@@ -78,8 +90,6 @@ export class ProgramService {
             maximumRestTime: exercise.maximumRestTime,
             sets: exercise.sets.map(set => {
               // Debug logs to help identify problems
-              console.log('Set volume metric:', set.volumeMetric);
-              console.log('Set intensity metric:', set.intensityMetric);
 
               return {
                 volumeMin: set.volume.minimumVolume,
@@ -94,6 +104,48 @@ export class ProgramService {
         }))
       }))
     };
+  }
+
+  private mapProgramForBackendUpdate(program: Program): any {
+    return {
+      name: program.name,
+      id: program.id,
+      weeks: program.weeks.map(week => ({
+        id:week.id,
+        workouts: week.workouts.map(workout => ({
+          id:workout.id,
+          title: workout.title,
+          description: workout.description,
+          number: workout.number,
+          workoutExercises: workout.workoutExercises.map(exercise => ({
+            id:exercise.id,
+            exercise: exercise.exercise.id,
+            minimumRestTime: exercise.minimumRestTime,
+            maximumRestTime: exercise.maximumRestTime,
+            sets: exercise.sets.map(set => {
+              return {
+                id:set.id,
+                volumeMin: set.volume.minimumVolume,
+                volumeMax: set.volume.maximumVolume,
+                intensityMin: set.intensity.minimumIntensity,
+                intensityMax: set.intensity.maximumIntensity,
+                volumeMetric: set.volumeMetric?.id || null,
+                intensityMetric: set.intensityMetric?.id || null
+              };
+            })
+          }))
+        }))
+      }))
+    };
+  }
+
+
+  getProgramImage(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/image/${id}`, { responseType: 'blob' });
+  }
+
+  updateProgram(id: number, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
   getCurrentWorkout(workoutId: number): Observable<any> {

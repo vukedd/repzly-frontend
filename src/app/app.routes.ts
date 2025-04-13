@@ -26,6 +26,11 @@ export const routes: Routes = [
         title: 'Log in'
     },
     {
+        path: 'update-program/:id',
+        component: ProgramCreateComponent,
+        title: 'Update program'
+    },
+    {
         path: 'create-program',
         component: ProgramCreateComponent,
         title: 'Create program'
