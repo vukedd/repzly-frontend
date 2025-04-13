@@ -8,6 +8,7 @@ import { WorkoutTrackerComponent } from './workout/workout-tracker/workout-track
 import { StartedProgramsPageComponent } from './layout/started-programs-page/started-programs-page.component';
 import { ProgramHistoryComponent } from './program/program-history/program-history.component';
 import { HomeComponent } from './layout/home/home.component';
+import { SearchProgramsPageComponent } from './layout/search-programs-page/search-programs-page.component';
 
 export const routes: Routes = [
     {
@@ -49,6 +50,11 @@ export const routes: Routes = [
         path: 'programs-history/:id',
         component: ProgramHistoryComponent,
         title:'Program history'
+    },
+    {
+        path: 'search',
+        component: SearchProgramsPageComponent,
+        title: 'Search programs'
     }
 ];
 

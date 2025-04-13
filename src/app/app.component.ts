@@ -4,7 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from "./layout/header/header.component";
 import { AvatarModule } from 'primeng/avatar';
 import { InputGroupModule } from 'primeng/inputgroup';
-import { ProgramCreateComponent } from "./program/program-create/program-create.component";
 
 @Component({
   selector: 'app-root',
