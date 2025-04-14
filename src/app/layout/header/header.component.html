@@ -1,20 +1,55 @@
 <p-toast />
 <p-toolbar styleClass="flex surface-50 justify-content-between fixed top-0 right-0 border-noround border-none headercomponent p-2">
   <div class="p-toolbar-group-start flex align-items-center">
-    <p-button icon="pi pi-align-justify" styleClass="mr-2 xl:hidden p-button-text p-button-rounded" severity="secondary" (onClick)="sidemenuVisible = true" />
-    <p-inputgroup styleClass="w-full md:w-20rem lg:w-25rem" *ngIf="this.isSearchPossible">
-      <input pInputText placeholder="Search" id="searchBar" #searchInput/>
-      <p-inputgroup-addon>
-          <p-button icon="pi pi-search" severity="secondary" variant="text" (onClick)="searchPrograms(searchInput.value)"/>
-      </p-inputgroup-addon>
-    </p-inputgroup>
+    <span class="hidden lg:flex mx-3"><b>Logo</b></span>
+    <p-button icon="pi pi-align-justify" styleClass="mr-3 lg:hidden p-button-text p-button-rounded" severity="secondary" (onClick)="sidemenuVisible = true" *ngIf="items != undefined"/>
+    <p-sidebar [(visible)]="sidemenuVisible" [modal]="true" position="left" class="w-max">
+      <ul class="list-none px-0">
+        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+          <p-button [link]="true" [routerLink]="''" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full">Dashboard</p-button>
+        </li>
+        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+          <p-button [link]="true" [routerLink]="'search'" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full">Explore</p-button>
+        </li>
+        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+          <p-button [link]="true" [routerLink]="''" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full">Create programs</p-button>
+        </li>
+      </ul>
+    </p-sidebar>
+  </div>
+  <div class="flex justify-content-center" *ngIf="items != undefined">
+    <ul class="hidden lg:flex align-content-around w-full list-none my-0">
+      <li class="mx-4">
+        <p-button [link]="true" [routerLink]="''" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer">Dashboard</p-button>
+      </li>
+      <li class="mx-4">
+        <p-button [link]="true" [routerLink]="'search'" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer">Explore</p-button>
+      </li>
+      <li class="mx-4">
+        <p-button [link]="true" [routerLink]="'#'" class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer">Create programs</p-button>
+      </li>
+    </ul>
+    <span class="flex lg:hidden"><b>Logo</b></span>
   </div>
   <div class="p-toolbar-group-end flex align-items-center">
     <p-button icon="pi pi-lightbulb" styleClass="p-button-rounded p-button-text" (click)="toggleTheme()" />
-    <p-menubar *ngIf="items != undefined" [model]="items" styleClass="border-none bg-transparent hidden sm:flex" />
+
+    <p-button
+      styleClass="p-button-icon-only w-5rem px-5"
+      *ngIf="items != undefined"
+      (click)="menu.toggle($event)">
+      <span class="pi pi-user mr-10"></span>
+      <span class="pi pi-angle-down"></span>
+    </p-button>
+    
+    <p-menu 
+        #menu               
+        [model]="items"
+        [popup]="true">
+    </p-menu>
     <p-button label="Log in" *ngIf="items == undefined" (click)="showDialog()"/>
    
-    <p-dialog maskStyleClass="backdrop-blur-sm" [(visible)]="visible" [modal]="true" class="p-5">
+    <p-dialog maskStyleClass="backdrop-blur-sm" [(visible)]="visible" [modal]="true" >
         <ng-template #header>
           <div class="inline-flex items-center justify-center gap-2" *ngIf="isLoginMode">
               <h2 class="font-bold whitespace-nowrap">Sign in</h2>

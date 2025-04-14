@@ -5,9 +5,8 @@ import { ThemeService } from '../../theme.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenubarModule } from 'primeng/menubar';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService, PrimeIcons } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
-
 import { InputTextModule } from 'primeng/inputtext';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -16,11 +15,30 @@ import { DialogModule } from 'primeng/dialog';
 import { RegisterFormComponent } from "../../user/register/register-form/register-form.component";
 import { LoginFormComponent } from "../../user/login/login-form/login-form.component";
 import { ToastModule } from 'primeng/toast';
-import { SearchService } from './search.service';
+import { SidebarModule } from 'primeng/sidebar';
+import { PanelMenuModule } from 'primeng/panelmenu';
+import { MenuModule } from 'primeng/menu';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [ButtonModule, ToolbarModule, CommonModule, FormsModule, MenubarModule, DrawerModule,  InputTextModule, InputGroupModule, InputGroupAddonModule, DialogModule, RegisterFormComponent, LoginFormComponent, ToastModule],
+  imports: [ButtonModule
+    , ToolbarModule
+    , CommonModule
+    , FormsModule
+    , MenubarModule
+    , DrawerModule
+    , InputTextModule
+    , InputGroupModule
+    , InputGroupAddonModule
+    , DialogModule
+    , RegisterFormComponent
+    , LoginFormComponent
+    , ToastModule
+    , SidebarModule
+    , PanelMenuModule
+    , MenuModule
+    , RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   providers:  [MessageService],
@@ -76,7 +94,7 @@ export class HeaderComponent implements OnInit{
     }
   }
 
-  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService, private searchService: SearchService) {
+  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService) {
     this.themeService.darkMode$.subscribe(
         isDark => this.isDarkMode = isDark
     );
@@ -90,8 +108,8 @@ export class HeaderComponent implements OnInit{
           next: (response) => {
             this.items = [
               {
-                label: `${response.email}`,
-                icon: '',
+                label: `${response.username}`,
+                icon: PrimeIcons.USER,
                 items: [
                   {
                     label: 'Profile',
@@ -100,7 +118,7 @@ export class HeaderComponent implements OnInit{
                   },
                   {
                     label: 'Logout',
-                    icon: 'pi pi-sign-out',
+                    icon: PrimeIcons.SIGN_OUT,
                     command: () => {
                       this.jwtService.logout()
                       window.location.href = '';
@@ -116,27 +134,10 @@ export class HeaderComponent implements OnInit{
         }
       )
     }
-
-    this.searchService.currentProgramsType.subscribe(
-      (programsType) => {
-        if (programsType != 'started') {
-          this.isSearchPossible = true;
-        } else {
-          this.isSearchPossible = false;
-          this.searchService.updateSearchTerm('');
-        }
-      }
-    );
   }
 
   toggleTheme() {
     this.themeService.toggleDarkMode();
-  }
-
-  searchPrograms(searchInput: string) {
-    if (this.isSearchPossible) {
-      this.searchService.updateSearchTerm(searchInput);
-    }
   }
  
 }
