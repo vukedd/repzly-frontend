@@ -16,14 +16,16 @@
     <div class="col-4 p-2">
         <div class="flex flex-column align-items-center justify-content-center h-full">
             <div class="mb-3 text-center">
-                <button pButton class="p-0 p-button-text border-primary-50">
-                    <div class="surface-card p-3 border-roundshadow-2 flex align-items-center">
-                        <div class="bg-primary-50 border-round-xl p-2 mr-3">
-                            <i class="pi pi-search text-primary text-xl"></i>
+                <a [routerLink]="'search'">
+                    <button pButton class="p-0 p-button-text border-primary-50">
+                        <div class="surface-card p-3 border-roundshadow-2 flex align-items-center">
+                            <div class="bg-primary-50 border-round-xl p-2 mr-3">
+                                <i class="pi pi-search text-primary text-xl"></i>
+                            </div>
+                            <span class="font-medium text-900 uppercase">FIND A PROGRAM</span>
                         </div>
-                        <span class="font-medium text-900 uppercase">FIND A PROGRAM</span>
-                    </div>
-                </button>
+                    </button>
+                </a>
             </div>
             <div class="text-center">
                 <button pButton class="p-0 p-button-text border-primary-50">
@@ -39,5 +41,4 @@
     </div>
 </div>
 <div class="m-8 pt-8">
-    <app-program-list></app-program-list>
 </div>

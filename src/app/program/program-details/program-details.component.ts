@@ -24,6 +24,7 @@ import { Program, Week, Workout, WorkoutExercise, WorkoutExerciseSet, Exercise, 
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RatingModule } from 'primeng/rating';
 import * as XLSX from 'xlsx';
+
 @Component({
   selector: 'app-program-details',
   standalone: true,

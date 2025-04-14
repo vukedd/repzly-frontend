@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { JwtService } from '../../auth/jwt/jwt.service';
 import { Subscription } from 'rxjs';
-import { SearchService } from '../../layout/header/search.service';
+import { SearchService } from '../../search/search.service';
 import { ChartModule } from 'primeng/chart';
 
 
