@@ -44,8 +44,6 @@ export class VolumeService {
   }
 
   getWeeklyWorkoutDurationReport(startDate: string, endDate:string) {
-    console.log(startDate);
-    console.log(endDate);
     return this.http.get<any>(`${this.apiUrl}/weekly-workout-duration-report?startDate=` + startDate + `&endDate=` + endDate);
   }
 }

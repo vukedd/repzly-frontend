@@ -6,8 +6,6 @@ import { EMPTY, Observable, throwError } from 'rxjs';
 import { Token } from '../token';
 import { RefreshTokenRequest } from '../refresh-token-request';
 import { jwtDecode } from 'jwt-decode';
-import { UserProfile } from '../../user/login/dtos/user-profile';
-import { decode } from 'punycode';
 
 
 @Injectable({

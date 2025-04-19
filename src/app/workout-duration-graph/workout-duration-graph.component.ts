@@ -30,7 +30,6 @@ export class WorkoutDurationGraphComponent {
     
         this.volumeService.getWeeklyWorkoutDurationReport(formatDate(startDate), formatDate(endDate)).subscribe({
           next: (response) => {
-            console.log(response)
             this.userSetsData = response.reverse();
     
             const labels = this.userSetsData.map(entry => entry.date.toString());
