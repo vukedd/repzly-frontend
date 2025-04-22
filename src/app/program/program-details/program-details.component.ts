@@ -24,6 +24,7 @@ import { Program, Week, Workout, WorkoutExercise, WorkoutExerciseSet, Exercise, 
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RatingModule } from 'primeng/rating';
 import * as XLSX from 'xlsx';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-program-details',
@@ -49,7 +50,8 @@ import * as XLSX from 'xlsx';
     InputNumberModule,
     SelectModule,
     FileUploadModule,
-    DialogModule
+    DialogModule,
+    TagModule
   ],
   templateUrl: './program-details.component.html',
   styleUrl: './program-details.component.css',
