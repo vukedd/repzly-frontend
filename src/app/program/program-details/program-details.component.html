@@ -114,7 +114,7 @@
                   <span>{{exercise.exercise.title}}</span>
                   
                   <!-- Rest Time Display -->
-                  <span class="ml-3 p-tag p-tag-info">
+                  <p-tag class="ml-3" severity="info">
                     Rest: 
                     <ng-container *ngIf="exercise.minimumRestTime > 0">
                       {{exercise.minimumRestTime}}-{{exercise.maximumRestTime}}s
@@ -122,7 +122,7 @@
                     <ng-container *ngIf="exercise.minimumRestTime <= 0">
                       {{exercise.maximumRestTime}}s
                     </ng-container>
-                  </span>
+                  </p-tag>
                 </div>
               </div>
 
@@ -130,7 +130,7 @@
               <div class="p-3 border-top-1 surface-border">
                 <!-- Sets Table - Updated to match create component -->
                 <p-divider class="mt-1 mb-1" align="left">
-                  <span class="p-tag p-tag-success">Sets</span>
+                  <p-tag severity="success">Sets</p-tag>
                 </p-divider>
 
                 <!-- Sets header row -->

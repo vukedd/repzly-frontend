@@ -19,7 +19,10 @@ import { ProgramService } from '../program-service/program.service';
 import { CalendarModule } from 'primeng/calendar';
 import { ChipModule } from 'primeng/chip';
 import { TagModule } from 'primeng/tag';
-import { WorkoutExerciseSet } from '../program.model';
+import { Workout, WorkoutExerciseSet } from '../program.model';
+import { DialogModule } from 'primeng/dialog';
+import * as XLSX from 'xlsx';
+
 
 @Component({
   selector: 'app-program-history',
@@ -43,7 +46,8 @@ import { WorkoutExerciseSet } from '../program.model';
     InputTextModule,
     CalendarModule,
     ChipModule,
-    TagModule
+    TagModule,
+    DialogModule
   ],
   templateUrl: './program-history.component.html',
   styleUrl: './program-history.component.css',
@@ -57,6 +61,10 @@ export class ProgramHistoryComponent implements OnInit {
   activeWeekTab: string = '0';
   expandedExercises: Set<string> = new Set();
   expandedWorkouts: Set<string> = new Set();
+
+  displayDescriptionDialog: boolean = false;
+  selectedWorkoutDescription: string = '';
+  selectedWorkoutTitle: string = '';
 
   // New properties to store combined data
   allWeeks: any[] = [];
@@ -146,6 +154,7 @@ export class ProgramHistoryComponent implements OnInit {
 
 
     // Sort weeks by week number
+    console.log(this.allWeeks);
     this.allWeeks.sort((a, b) => a.weekNumber - b.weekNumber);
   }
 
@@ -153,13 +162,13 @@ export class ProgramHistoryComponent implements OnInit {
   combineWorkouts(notStartedWorkouts: any[], startedWorkouts: any[]): any[] {
     const combinedWorkouts: any[] = [];
 
-    
+
 
     // Add any remaining started workouts
     startedWorkouts.forEach(startedWorkout => {
       combinedWorkouts.push({
         ...startedWorkout,
-        id: startedWorkout.workoutId,
+        id: startedWorkout.id,
         isStarted: true,
         workoutExercises: this.combineExercises(
           startedWorkout.workoutExercises
@@ -169,7 +178,7 @@ export class ProgramHistoryComponent implements OnInit {
     notStartedWorkouts.forEach(notStartedWorkout => {
       combinedWorkouts.push({
         ...notStartedWorkout,
-        id: notStartedWorkout.workoutId,
+        id: notStartedWorkout.id,
         isStarted: false,
         workoutExercises: this.combineExercises(
           notStartedWorkout.workoutExercises
@@ -187,7 +196,7 @@ export class ProgramHistoryComponent implements OnInit {
       // Determine if the exercise is actually started
       // An exercise is considered started if it has any done sets
       const hasDoneSets = (exercise.doneSets || []).length > 0;
-      
+
       combinedExercises.push({
         ...exercise,
         isStarted: hasDoneSets, // Only mark as started if there are completed sets
@@ -256,7 +265,6 @@ export class ProgramHistoryComponent implements OnInit {
     if (!exercise || !exercise.allSets) {
       return [];
     }
-    console.log(exercise.allSets);
     return exercise.allSets.filter((set: any) => !set.isCompleted);
   }
 
@@ -332,30 +340,21 @@ export class ProgramHistoryComponent implements OnInit {
     return Math.round((completedSets / totalSets) * 100);
   }
 
-  toggleExerciseDetails(workoutId: any, exerciseId: any): void {
-    const key = `${workoutId}-${exerciseId}`;
-    if (this.expandedExercises.has(key)) {
-      this.expandedExercises.delete(key);
+
+
+
+  // Toggle workout expansion state
+  toggleWorkoutDetails(workoutId: string): void {
+    if (this.expandedWorkouts.has(workoutId)) {
+      this.expandedWorkouts.delete(workoutId);
     } else {
-      this.expandedExercises.add(key);
+      this.expandedWorkouts.add(workoutId);
     }
   }
 
-  isExerciseExpanded(workoutId: any, exerciseId: any): boolean {
-    return this.expandedExercises.has(`${workoutId}-${exerciseId}`);
-  }
-
-  toggleWorkoutDetails(weekId: any, workoutId: any): void {
-    const key = `${weekId}-${workoutId}`;
-    if (this.expandedWorkouts.has(key)) {
-      this.expandedWorkouts.delete(key);
-    } else {
-      this.expandedWorkouts.add(key);
-    }
-  }
-
-  isWorkoutExpanded(weekId: any, workoutId: any): boolean {
-    return this.expandedWorkouts.has(`${weekId}-${workoutId}`);
+  // Check if a workout is expanded
+  isWorkoutExpanded(workoutId: string): boolean {
+    return this.expandedWorkouts.has(workoutId);
   }
 
   formatDate(date: string | Date): string {
@@ -374,11 +373,11 @@ export class ProgramHistoryComponent implements OnInit {
     }
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'secondary' {
     switch (status) {
       case 'Completed': return 'success';
       case 'In Progress': return 'info';
-      case 'Not Started': return 'warning';
+      case 'Not Started': return 'warn';
       default: return 'secondary';
     }
   }
@@ -389,25 +388,250 @@ export class ProgramHistoryComponent implements OnInit {
 
   exportHistoryData(): void {
     if (!this.programHistory) return;
-
-    const dataStr = JSON.stringify(this.programHistory, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = `${this.programHistory.title.replace(/\s+/g, '_')}_history.json`;
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+  
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+  
+    // Program Overview Sheet
+    const programOverview = [{
+      'Program Name': this.programHistory.title,
+      'Creator': this.programHistory.creator?.name || 'Unknown',
+      'Started Date': this.formatDate(this.programHistory.startDate),
+      'Completion Status': `${this.getCompletionPercentage()}% Completed`,
+      'Total Workouts': this.getTotalWorkouts(),
+      'Total Exercises': this.getTotalExercises(),
+      'Completed Sets': this.getTotalCompletedSets(),
+      'Total Sets': this.getTotalPlannedSets(),
+      'Total Weight Lifted': `${this.getTotalWeightLifted()} kg`
+    }];
+  
+    const overviewSheet = XLSX.utils.json_to_sheet(programOverview);
+  
+    // Set column widths for overview sheet
+    const overviewCols = [
+      { wch: 15 }, // Program Name
+      { wch: 15 }, // Creator
+      { wch: 15 }, // Started Date
+      { wch: 18 }, // Completion Status
+      { wch: 15 }, // Total Workouts
+      { wch: 15 }, // Total Exercises
+      { wch: 15 }, // Completed Sets
+      { wch: 12 }, // Total Sets
+      { wch: 18 }  // Total Weight Lifted
+    ];
+  
+    overviewSheet['!cols'] = overviewCols;
+    XLSX.utils.book_append_sheet(wb, overviewSheet, 'Program Overview');
+  
+    // Process each week
+    this.allWeeks.forEach((week, weekIndex) => {
+      // Use aoa (array of arrays) for more control over formatting
+      const weekData = [];
+      const merges = [];
+  
+      // Add sheet title
+      weekData.push([`Week ${weekIndex + 1} Training History`]);
+      merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 8 } });
+  
+      // Add week status info
+      weekData.push([]);
+      weekData.push(['Week Status:', this.getWeekStatus(week)]);
+      weekData.push(['Start Date:', this.formatDate(week.startDate)]);
+      weekData.push(['Completion Date:', this.formatDate(week.doneDate)]);
+      weekData.push([]);
+  
+      if (week.allWorkouts && week.allWorkouts.length > 0) {
+        week.allWorkouts.forEach((workout: { title: any; number: any; isStarted: any; finished: any; description: any; workoutExercises: any[]; }, workoutIndex: number) => {
+          // Add workout header
+          const workoutRow = weekData.length;
+          weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${workout.number || `Day ${workoutIndex + 1}`}) - ${workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'}`]);
+          merges.push({ s: { r: workoutRow, c: 0 }, e: { r: workoutRow, c: 8 } });
+  
+          // Add workout description if available
+          if (workout.description) {
+            const descRow = weekData.length;
+            weekData.push([`Description: ${workout.description}`]);
+            merges.push({ s: { r: descRow, c: 0 }, e: { r: descRow, c: 8 } });
+          }
+  
+          if (workout.workoutExercises && workout.workoutExercises.length > 0) {
+            workout.workoutExercises.forEach((exercise, exerciseIndex) => {
+              // Add exercise header
+              weekData.push([]);
+              const exerciseRow = weekData.length;
+              weekData.push([`Exercise ${exerciseIndex + 1}: ${exercise.title || exercise.exercise.title || 'Exercise ' + (exerciseIndex + 1)} - ${this.getExerciseStatus(exercise)}`]);
+              merges.push({ s: { r: exerciseRow, c: 0 }, e: { r: exerciseRow, c: 8 } });
+  
+              // Add completed sets section if available
+              if (exercise.doneSets && exercise.doneSets.length > 0) {
+                weekData.push(['Completed Sets:']);
+                weekData.push(['Set #', 'Volume', 'Volume Unit', 'Intensity', 'Intensity Unit', 'Weight', 'Date', 'Notes']);
+  
+                exercise.doneSets.forEach((doneSet: { volume: any; setDetails: { volumeMetric: { metricSymbol: any; }; intensityMetric: { metricSymbol: any; }; }; intensity: any; weightLifted: any; date: string | Date; notes: any; }, setIndex: number) => {
+                  weekData.push([
+                    setIndex + 1,
+                    doneSet.volume,
+                    doneSet.setDetails?.volumeMetric?.metricSymbol || '',
+                    doneSet.intensity,
+                    doneSet.setDetails?.intensityMetric?.metricSymbol || '',
+                    doneSet.weightLifted ? `${doneSet.weightLifted} kg` : 'N/A',
+                    this.formatDate(doneSet.date),
+                    doneSet.notes || ''
+                  ]);
+                });
+              } else {
+                weekData.push(['No sets completed for this exercise yet.']);
+                merges.push({ s: { r: weekData.length - 1, c: 0 }, e: { r: weekData.length - 1, c: 8 } });
+              }
+  
+              // Add remaining planned sets section
+              const remainingPlannedSets = this.getRemainingPlannedSets(exercise);
+              if (remainingPlannedSets.length > 0) {
+                weekData.push([]);
+                weekData.push(['Planned Sets:']);
+                weekData.push(['Set #', 'Volume', 'Volume Unit', 'Intensity', 'Intensity Unit', '', '', '']);
+  
+                remainingPlannedSets.forEach((plannedSet, setIndex) => {
+                  const volumeValue = this.isVolumeRange(plannedSet) ?
+                    `${plannedSet.volume.minimumVolume}-${plannedSet.volume.maximumVolume}` :
+                    `${plannedSet.volume.maximumVolume}`;
+  
+                  const intensityValue = this.isIntensityRange(plannedSet) ?
+                    `${plannedSet.intensity.minimumIntensity}-${plannedSet.intensity.maximumIntensity}` :
+                    `${plannedSet.intensity.maximumIntensity}`;
+  
+                  weekData.push([
+                    setIndex + (exercise.doneSets?.length || 0) + 1,
+                    volumeValue,
+                    plannedSet.volumeMetric.metricSymbol,
+                    intensityValue,
+                    plannedSet.intensityMetric.metricSymbol,
+                    '', '', ''
+                  ]);
+                });
+              } else if (exercise.doneSets && exercise.doneSets.length > 0) {
+                weekData.push([]);
+                weekData.push(['All planned sets have been completed!']);
+                merges.push({ s: { r: weekData.length - 1, c: 0 }, e: { r: weekData.length - 1, c: 8 } });
+              }
+  
+              // Add empty row for spacing
+              weekData.push([]);
+            });
+          } else {
+            weekData.push(['No exercises defined for this workout.']);
+            merges.push({ s: { r: weekData.length - 1, c: 0 }, e: { r: weekData.length - 1, c: 8 } });
+            weekData.push([]);
+          }
+  
+          // Add empty row between workouts
+          weekData.push([]);
+        });
+      } else {
+        weekData.push(['No workouts defined for this week.']);
+        merges.push({ s: { r: weekData.length - 1, c: 0 }, e: { r: weekData.length - 1, c: 8 } });
+      }
+  
+      // Create the sheet from the array data
+      const weekSheet = XLSX.utils.aoa_to_sheet(weekData);
+  
+      // Add the merges to the sheet
+      weekSheet['!merges'] = merges;
+  
+      // Set column widths
+      const weekCols = [
+        { wch: 8 },  // Set #
+        { wch: 10 }, // Volume
+        { wch: 12 }, // Volume Unit
+        { wch: 10 }, // Intensity
+        { wch: 12 }, // Intensity Unit
+        { wch: 10 }, // Weight
+        { wch: 15 }, // Date
+        { wch: 20 }  // Notes
+      ];
+      weekSheet['!cols'] = weekCols;
+  
+      // Apply styling for title row
+      weekSheet['A1'] = {
+        v: weekData[0][0], t: 's', s: {
+          font: { bold: true, size: 14, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "2F5597" } },
+          alignment: { horizontal: "center", vertical: "center" }
+        }
+      };
+  
+      // Add the sheet to the workbook
+      XLSX.utils.book_append_sheet(wb, weekSheet, `Week ${weekIndex + 1}`);
+    });
+  
+    // Progress Statistics Sheet
+    const progressStats = [];
+    progressStats.push(['Program Progress Statistics']);
+    progressStats.push([]);
+    progressStats.push(['Completion Percentage', `${this.getCompletionPercentage()}%`]);
+    progressStats.push(['Total Completed Sets', this.getTotalCompletedSets()]);
+    progressStats.push(['Total Planned Sets', this.getTotalPlannedSets()]);
+    progressStats.push(['Total Weight Lifted', `${this.getTotalWeightLifted()} kg`]);
+    
+    const statsSheet = XLSX.utils.aoa_to_sheet(progressStats);
+    
+    // Apply styling for title row in stats sheet
+    statsSheet['A1'] = {
+      v: progressStats[0][0], t: 's', s: {
+        font: { bold: true, size: 14, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "2F5597" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      }
+    };
+    
+    // Add merge for the title
+    statsSheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+    
+    // Set column widths for stats sheet
+    statsSheet['!cols'] = [
+      { wch: 25 },
+      { wch: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, statsSheet, 'Progress Statistics');
+  
+    // Generate Excel file with styling
+    const excelOptions: any = {
+      bookType: 'xlsx',
+      type: 'array',
+      cellStyles: true
+    };
+  
+    const excelBuffer = XLSX.write(wb, excelOptions);
+  
+    // Save to file
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+  
+    const fileName = `${this.programHistory.title.replace(/\s+/g, '_')}_history.xlsx`;
+  
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+  
+    window.URL.revokeObjectURL(url);
+  
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Export Successful',
+      detail: `History exported as Excel file: ${fileName}`
+    });
   }
 
   navigateToProgram(): void {
     if (this.programHistory && this.programHistory.programId) {
-      this.router.navigate(['/programs/details', this.programHistory.programId]);
+      this.router.navigate(['/programs/', this.programHistory.programId]);
     }
   }
   isVolumeRange(set: any): boolean {
-    console.log(set);
     return set.volumeMetric?.range || false;
   }
   isIntensityRange(set: any): boolean {
@@ -415,29 +639,35 @@ export class ProgramHistoryComponent implements OnInit {
   }
   // Add these methods to your component class
 
-/**
- * Gets the display status for an exercise
- */
-getExerciseStatus(exercise: any): string {
-  if (!exercise.doneSets || exercise.doneSets.length === 0) {
-    return 'Not Started';
-  } else if (exercise.doneSets.length === exercise.sets.length) {
-    return 'Completed';
-  } else {
-    return 'In Progress';
+  /**
+   * Gets the display status for an exercise
+   */
+  getExerciseStatus(exercise: any): string {
+    if (!exercise.doneSets || exercise.doneSets.length === 0) {
+      return 'Not Started';
+    } else if (exercise.doneSets.length === exercise.sets.length) {
+      return 'Completed';
+    } else {
+      return 'In Progress';
+    }
   }
-}
 
-/**
- * Gets the appropriate severity class for the p-tag component
- */
-getExerciseSeverity(exercise: any): 'warn'|'success'|'info' {
-  if (!exercise.doneSets || exercise.doneSets.length === 0) {
-    return 'warn';
-  } else if (exercise.sets.length==0) {
-    return 'success';
-  } else {
-    return 'info';
+  showDescription(workout: Workout): void {
+    this.selectedWorkoutTitle = workout.title || 'Workout Details';
+    this.selectedWorkoutDescription = workout.description || 'No description available.';
+    this.displayDescriptionDialog = true;
   }
-}
+
+  /**
+   * Gets the appropriate severity class for the p-tag component
+   */
+  getExerciseSeverity(exercise: any): 'warn' | 'success' | 'info' {
+    if (!exercise.doneSets || exercise.doneSets.length === 0) {
+      return 'warn';
+    } else if (exercise.sets.length == 0) {
+      return 'success';
+    } else {
+      return 'info';
+    }
+  }
 }
