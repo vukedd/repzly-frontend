@@ -114,7 +114,7 @@ export class HeaderComponent implements OnInit{
                   {
                     label: 'Profile',
                     icon: 'pi pi-user',
-                    
+                    routerLink: 'me'
                   },
                   {
                     label: 'Logout',
