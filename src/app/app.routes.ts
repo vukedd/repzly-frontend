@@ -9,12 +9,18 @@ import { StartedProgramsPageComponent } from './layout/started-programs-page/sta
 import { ProgramHistoryComponent } from './program/program-history/program-history.component';
 import { HomeComponent } from './layout/home/home.component';
 import { SearchProgramsPageComponent } from './layout/search-programs-page/search-programs-page.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 export const routes: Routes = [
     {
         path: '',
         component: HomeComponent,
         title: 'Home'
+    },
+    {
+        path:'me',
+        component: ProfileComponent,
+        title: 'Profile'
     },
     {
         path: 'register',
