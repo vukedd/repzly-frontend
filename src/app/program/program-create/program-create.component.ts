@@ -16,13 +16,15 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { TabsModule, TabList } from 'primeng/tabs'; // Import TabList
 import { InputNumberModule } from 'primeng/inputnumber';
-import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { StepperModule } from 'primeng/stepper';
 import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Ripple } from 'primeng/ripple';
+import { BreakpointObserver } from '@angular/cdk/layout';
+
 @Component({
   selector: 'app-program-create',
   standalone: true,
@@ -94,6 +96,9 @@ export class ProgramCreateComponent implements OnInit {
   copiedExercise: any = null;
   copiedWeek: any = null;
 
+  showInputButtons = false;
+  private destroy$ = new Subject<void>();
+
   constructor(
     private fb: FormBuilder,
     private programService: ProgramService,
@@ -101,7 +106,8 @@ export class ProgramCreateComponent implements OnInit {
     private metricService: MetricService,
     private messageService: MessageService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.programForm = this.fb.group({
       id: [null],
@@ -112,6 +118,12 @@ export class ProgramCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
+    this.breakpointObserver
+    .observe(['(min-width: 768px)'])
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(result => {
+      this.showInputButtons = result.matches;
+    });
 
     // Check if we're in edit mode by looking for an ID in the route parameters
     this.route.paramMap.pipe(
@@ -704,6 +716,8 @@ export class ProgramCreateComponent implements OnInit {
 
   // Clean up when component is destroyed
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.imagePreviewUrl && this.imageChanged) {
       URL.revokeObjectURL(this.imagePreviewUrl);
     }

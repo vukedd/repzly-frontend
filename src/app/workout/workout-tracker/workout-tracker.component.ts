@@ -20,6 +20,9 @@ import { ExerciseHistoryDialogComponent } from '../../exercise/exercise-history-
 import { ExerciseService } from '../../exercise/exercise-service.service';
 import { ExerciseOrderDialogComponent } from '../exercise-order-dialog/exercise-order-dialog.component';
 import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { Subject, takeUntil } from 'rxjs';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-workout-tracker',
@@ -36,7 +39,8 @@ import { SelectModule } from 'primeng/select';
     ToastModule,
     DialogModule,
     ConfirmDialogModule,
-    SelectModule
+    SelectModule,
+    InputNumberModule
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
@@ -46,7 +50,9 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   // Core workout data
   currentWorkout: NextWorkout | null = null;
   workoutForm: FormGroup;
-  
+  showInputButtons = false;
+  private destroy$ = new Subject<void>();
+
   // UI state
   loading = true;
   submitting = false;
@@ -56,7 +62,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   selectedExerciseId: number | null = null;
   // Update the property type
   availableExercises: ExerciseOverview[] = [];
-  
+
   // Progress tracking
   totalExercises = 0;
   totalSets = 0;
@@ -84,7 +90,8 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService,
-    private exerciseService:ExerciseService
+    private exerciseService: ExerciseService,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.workoutForm = this.fb.group({
       exercises: this.fb.array([])
@@ -100,6 +107,12 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+    this.breakpointObserver
+      .observe(['(min-width: 768px)'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.showInputButtons = result.matches;
+      });
   }
 
   ngOnDestroy(): void {
@@ -109,7 +122,8 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
     this.stopRestTimer();
     this.stopWorkoutTimer();
-    console.log('WorkoutTrackerComponent destroyed, timers stopped.');
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // --- Form Access Methods ---
@@ -150,7 +164,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           this.initializeForm();
           this.calculateTotals();
           this.startWorkoutTimer();
-          
+
         } else {
           this.messageService.add({
             severity: 'info',
@@ -315,6 +329,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     let weight = setControl.get('weightLifted')?.value;
     let volume = setControl.get('actualVolume')?.value;
     let intensity = setControl.get('actualIntensity')?.value;
+    console.log(intensity, Number(intensity));
 
     // Update form values if empty
     if (volume === null || volume === undefined || volume === '') {
@@ -529,7 +544,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Create a new FormGroup for the added set
         const newSetId = response.id;
-        
+
         // Clone set from the last one, but with the new ID
         const newSetGroup = this.fb.group({
           id: [newSetId],
@@ -561,10 +576,10 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         const detail = error?.error?.message || 'Failed to add new set.';
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Add Set Failed', 
-          detail: detail 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Add Set Failed',
+          detail: detail
         });
         console.error('Error adding set:', error);
       }
@@ -575,10 +590,10 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   openChangeExerciseDialog(exerciseIndex: number): void {
     this.selectedExerciseIndex = exerciseIndex;
     const exerciseControl = this.getExerciseControl(exerciseIndex);
-    
+
     if (exerciseControl) {
       this.selectedExerciseId = exerciseControl.get('exerciseId')?.value || null;
-      
+
       // Load available exercises from the exercise service
       this.exerciseService.getExercisesOverview().subscribe({
         next: (exercises: ExerciseOverview[]) => {
@@ -612,7 +627,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     const exerciseControl = this.getExerciseControl(this.selectedExerciseIndex);
     if (!exerciseControl) {
       this.messageService.add({
@@ -622,16 +637,16 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     const currentExerciseId = exerciseControl.get('exerciseId')?.value;
     if (currentExerciseId === this.selectedExerciseId) {
       this.showExerciseChangeDialog = false;
       return; // No change needed
     }
-  
+
     const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
     const workoutExerciseId = exerciseControl.get('id')?.value;
-  
+
     if (!startedWorkoutId || !workoutExerciseId) {
       this.messageService.add({
         severity: 'error',
@@ -640,23 +655,23 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     this.workoutService.changeExercise(
-      startedWorkoutId, 
-      workoutExerciseId, 
+      startedWorkoutId,
+      workoutExerciseId,
       this.selectedExerciseId
     ).subscribe({
       next: (response) => {
         // Find the selected exercise details
         const newExercise = this.availableExercises.find(e => e.id === this.selectedExerciseId);
-        
+
         if (newExercise) {
           // Update the exercise in the form
           exerciseControl.patchValue({
             exerciseId: newExercise.id,
             exerciseTitle: newExercise.title,
           });
-          
+
           this.messageService.add({
             severity: 'success',
             summary: 'Exercise Changed',
@@ -664,15 +679,15 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             life: 2000
           });
         }
-        
+
         this.showExerciseChangeDialog = false;
       },
       error: (error) => {
         const detail = error?.error?.message || 'Failed to change exercise.';
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Change Failed', 
-          detail: detail 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Change Failed',
+          detail: detail
         });
         console.error('Error changing exercise:', error);
       }
@@ -689,7 +704,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
         exerciseId: exerciseControl.get('exerciseId')?.value
       };
     });
-  
+
     this.ref = this.dialogService.open(ExerciseOrderDialogComponent, {
       header: 'Reorder Exercises',
       width: '450px',
@@ -697,13 +712,13 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
         exercises: exercises
       }
     });
-  
+
     this.ref.onClose.subscribe((result) => {
       if (result) {
         // Get the IDs in the new order
         const exerciseIds: number[] = result.map((exercise: { id: any; }) => exercise.id);
         const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
-        
+
         if (!startedWorkoutId || exerciseIds.length === 0) {
           this.messageService.add({
             severity: 'error',
@@ -712,16 +727,16 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           });
           return;
         }
-        
+
         const changeOrderDTO: ChangeExerciseOrderDTO = {
           workoutExerciseIds: exerciseIds
         };
-        
+
         this.workoutService.changeExerciseOrder(startedWorkoutId, changeOrderDTO).subscribe({
           next: (response) => {
             // Update the local form to match the new order
             this.reorderExercisesInForm(exerciseIds);
-            
+
             this.messageService.add({
               severity: 'success',
               summary: 'Order Updated',
@@ -731,10 +746,10 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             const detail = error?.error?.message || 'Failed to update exercise order.';
-            this.messageService.add({ 
-              severity: 'error', 
-              summary: 'Update Failed', 
-              detail: detail 
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Update Failed',
+              detail: detail
             });
             console.error('Error updating exercise order:', error);
           }
@@ -742,28 +757,28 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
+
   // Helper method to reorder the exercises in the form
   reorderExercisesInForm(orderedIds: number[]): void {
     const currentControls = this.exercises.controls;
     const newControls = [];
-    
+
     // Re-arrange the controls according to the new order
     for (const id of orderedIds) {
       const controlIndex = currentControls.findIndex(
         control => control.get('id')?.value === id
       );
-      
+
       if (controlIndex !== -1) {
         newControls.push(currentControls[controlIndex]);
       }
     }
-    
+
     // Clear and rebuild the form array
     while (this.exercises.length) {
       this.exercises.removeAt(0);
     }
-    
+
     for (const control of newControls) {
       this.exercises.push(control);
     }
@@ -1006,4 +1021,5 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       baseZIndex: 10001
     });
   }
+
 }

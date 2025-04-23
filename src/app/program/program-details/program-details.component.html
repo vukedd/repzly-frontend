@@ -15,8 +15,8 @@
         <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined" 
                 (click)="exportProgramData()"></button>
         <p-confirmPopup></p-confirmPopup>
-        <button pButton icon="pi pi-trash" label="Delete" class="p-button-outlined p-button-danger" 
-                (click)="confirmDelete($event)"></button>
+        <!-- <button pButton icon="pi pi-trash" label="Delete" class="p-button-outlined p-button-danger" 
+                (click)="confirmDelete($event)"></button> -->
       </div>
     </div>
 
@@ -31,7 +31,7 @@
           <div class="grid">
             <div class="col-12">
               <div class="flex justify-content-center md:justify-content-start align-items-center">
-                <span class="text-600">Created by: {{program.creator?.name || 'Unknown'}}</span>
+                <span class="text-600">Created by: {{program.creator?.username || 'Unknown'}}</span>
               </div>
               <div class="mt-2 flex justify-content-center md:justify-content-start align-items-center">
                 <p-rating [ngModel]="program.rating" [readonly]="true"></p-rating>
@@ -63,12 +63,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Print Button -->
-    <div class="flex justify-content-end mb-3">
-      <button pButton type="button" label="Print Program" icon="pi pi-print" class="p-button-outlined"
-        (click)="printProgram()"></button>
     </div>
 
     <!-- Weeks Section with Tabs -->

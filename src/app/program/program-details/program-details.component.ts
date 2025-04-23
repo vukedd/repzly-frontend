@@ -174,7 +174,7 @@ export class ProgramDetailsComponent implements OnInit {
 
   editProgram(): void {
     if (this.program) {
-      this.router.navigate(['/programs/edit', this.program.id]);
+      this.router.navigate(['/update-program/', this.program.id]);
     }
   }
 
@@ -237,7 +237,7 @@ export class ProgramDetailsComponent implements OnInit {
     // Program Overview Sheet
     const programOverview = [{
       'Program Name': this.program.name,
-      'Creator': this.program.creator?.name || 'Unknown',
+      'Creator': this.program.creator?.username || 'Unknown',
       'Rating': this.program.rating || 'Not rated',
       'Weeks': this.program.weeks.length,
       'Total Workouts': this.getTotalWorkouts(),
