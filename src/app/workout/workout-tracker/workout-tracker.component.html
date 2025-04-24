@@ -1,4 +1,4 @@
-<div class="surface-ground px-2 py-2 md:px-4 md:py-5">
+<div class="surface-50 px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
     <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
@@ -77,7 +77,7 @@
             <!-- Sets -->
             <div formArrayName="sets">
               <div *ngFor="let setControl of getExerciseSets(exerciseIndex)?.controls; let setIndex = index"
-                [formGroupName]="setIndex" class="grid align-items-center mb-3">
+                [formGroupName]="setIndex" class="grid align-items-center mb-3" [ngClass]="setControl.get('completed')?.value?'surface-100':''">
 
                 <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
 
@@ -113,7 +113,7 @@
                       (click)="completeSet(exerciseIndex, setIndex)" pTooltip="Complete Set"></button>
                   </div>
                   <div *ngIf="setControl.get('completed')?.value">
-                    <button pButton icon="pi pi-check" class="p-button-rounded p-button-text text-green-500"
+                    <button pButton icon="pi pi-times" class="p-button-rounded p-button-text"
                       (click)="uncompleteSet(exerciseIndex, setIndex)" pTooltip="Undo Complete"></button>
                   </div>
                 </div>

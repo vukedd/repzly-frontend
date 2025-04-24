@@ -1,5 +1,5 @@
 <!-- program-details.component.html (Updated with Dialog) -->
-<div class="surface-ground px-2 py-2 md:px-4 md:py-5">
+<div class="surface-0 px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center">
     <p-progressSpinner></p-progressSpinner>
@@ -31,7 +31,7 @@
           <div class="grid">
             <div class="col-12">
               <div class="flex justify-content-center md:justify-content-start align-items-center">
-                <span class="text-600">Created by: {{program.creator?.username || 'Unknown'}}</span>
+                <span class="">Created by: {{program.creator?.username || 'Unknown'}}</span>
               </div>
               <div class="mt-2 flex justify-content-center md:justify-content-start align-items-center">
                 <p-rating [ngModel]="program.rating" [readonly]="true"></p-rating>
@@ -89,7 +89,7 @@
               <div class="flex align-items-center">
                 <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
                 <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2 text-600">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
+                <span class="ml-2">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
               </div>
               
               <!-- Description button, only show if description exists -->
