@@ -28,7 +28,7 @@
           <div class="grid">
             <div class="col-12">
               <div class="flex justify-content-center md:justify-content-start align-items-center">
-                <span class="text-600">Started Program</span>
+                <span class="">Started Program</span>
               </div>
               <div class="mt-2 flex justify-content-center md:justify-content-start align-items-center">
                 <p-tag [value]="getCompletionPercentage() + '% Completed'"
@@ -64,11 +64,6 @@
       </div>
     </div>
 
-    <!-- Print Button -->
-    <div class="flex justify-content-end mb-3">
-      <button pButton type="button" label="Print History" icon="pi pi-print" class="p-button-outlined"
-        (click)="printHistory()"></button>
-    </div>
 
     <!-- Weeks Section with Tabs -->
     <p-tabs [value]="activeWeekTab" scrollable>
@@ -118,7 +113,7 @@
               <div class="flex align-items-center">
                 <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
                 <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2 text-600">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
+                <span class="ml-2">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
                 <p-tag [value]="workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'" 
                        [severity]="workout.isStarted ? (workout.finished ? 'success' : 'info') : 'warn'"
                        class="ml-2"></p-tag>
@@ -182,7 +177,7 @@
                   
                   <!-- Show message if no completed sets -->
                   <div *ngIf="!exercise.doneSets || exercise.doneSets.length === 0" class="p-3 text-center">
-                    <p class="text-600">No sets completed for this exercise yet.</p>
+                    <p class="">No sets completed for this exercise yet.</p>
                   </div>
 
                   <!-- Remaining Planned Sets Section -->
@@ -223,7 +218,7 @@
                   
                   <!-- Show message if all sets are completed -->
                   <div *ngIf="getRemainingPlannedSets(exercise).length === 0" class="p-3 text-center">
-                    <p class="text-600">All planned sets have been completed!</p>
+                    <p class="">All planned sets have been completed!</p>
                   </div>
                 </div>
               </div>
@@ -234,7 +229,7 @@
           
           <!-- No workouts message -->
           <div *ngIf="!hasAnyWorkoutsForWeek(week)" class="p-3 text-center">
-            <p class="text-600">No workouts defined for this week.</p>
+            <p class="">No workouts defined for this week.</p>
           </div>
         </p-tabpanel>
         }

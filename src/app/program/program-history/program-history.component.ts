@@ -153,9 +153,7 @@ export class ProgramHistoryComponent implements OnInit {
 
 
 
-    // Sort weeks by week number
-    console.log(this.allWeeks);
-    this.allWeeks.sort((a, b) => a.weekNumber - b.weekNumber);
+    
   }
 
   // Combine started and not-started workouts

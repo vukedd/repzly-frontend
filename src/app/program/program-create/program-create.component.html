@@ -228,22 +228,30 @@
                                         <div class="flex align-items-center" formGroupName="volume">
                                           <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
                                             formControlName="minimumVolume" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" 
+                                            [min]="0"
+                                            [max]="100000"/>
                                           <span class="mx-1"
                                             *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
                                           <p-inputnumber formControlName="maximumVolume" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                                            [min]="0"
+                                            [max]="100000" />
                                         </div>
                                       </div>
                                       <div class="col-5 flex justify-content-center">
                                         <div class="flex align-items-center" formGroupName="intensity">
                                           <p-inputnumber *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)"
                                             formControlName="minimumIntensity" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                                            [min]="set.get('intensityMetric')?.value?.minimumIntensity"
+                                            [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10" />
                                           <span class="mx-1"
                                             *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)">-</span>
                                           <p-inputnumber formControlName="maximumIntensity" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="false" />
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                                            [min]="set.get('intensityMetric')?.value?.minimumIntensity"
+                                            [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10" />
                                         </div>
                                       </div>
                                       <div class="col-1 flex justify-content-center">
