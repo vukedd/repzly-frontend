@@ -7,6 +7,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import CustomMaterialTheme from './theme.config';
 import { AuthInterceptorService } from './auth/interceptor/auth-interceptor.service';
+import { AuthGuard } from './auth/auth-guard';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay()),provideAnimationsAsync(),provideHttpClient(withFetch()),
@@ -23,5 +24,6 @@ export const appConfig: ApplicationConfig = {
         }
     }),
     provideHttpClient(withInterceptorsFromDi())
-    ,{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }
+    ,{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
+    AuthGuard
 ]};
