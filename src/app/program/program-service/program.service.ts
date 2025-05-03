@@ -163,4 +163,12 @@ export class ProgramService {
   getProgramHistory(startedProgramId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
   }
+
+  getProgramsCreatedByMe(size: number, page: number, refreshTokenId: string): Observable<any> {
+    let params = new HttpParams()
+    .set('size', size.toString())
+    .set('page', page.toString());
+
+    return this.http.get<any>(`${this.apiUrl}/my-programs/${refreshTokenId}`, {params});
+  }
 }

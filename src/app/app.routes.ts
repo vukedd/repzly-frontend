@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { ProgramListComponent } from './program/program-list/program-list.component';
 import { RegisterComponent } from './user/register/register.component';
 import { LoginComponent } from './user/login/login.component';
 import { ProgramCreateComponent } from './program/program-create/program-create.component';
@@ -10,6 +9,7 @@ import { ProgramHistoryComponent } from './program/program-history/program-histo
 import { HomeComponent } from './layout/home/home.component';
 import { SearchProgramsPageComponent } from './layout/search-programs-page/search-programs-page.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { MyProgramsPageComponent } from './layout/my-programs-page/my-programs-page.component';
 
 export const routes: Routes = [
     {
@@ -21,6 +21,11 @@ export const routes: Routes = [
         path:'me',
         component: ProfileComponent,
         title: 'Profile'
+    },
+    {
+        path: 'my-programs',
+        component: MyProgramsPageComponent,
+        title: 'My programs'
     },
     {
         path: 'register',

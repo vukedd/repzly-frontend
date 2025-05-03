@@ -11,7 +11,7 @@
             </div>
             <div *ngIf="!loading" class="grid">
                 <!-- Add Program Card (Always First) -->
-                <div class="col-12 sm:col-6 lg:col-3 p-2">
+                <div class="col-12 sm:col-6 lg:col-3 p-2" *ngIf="this.programsType == 'my-programs'">
                     <app-add-program-card></app-add-program-card>
                 </div>
                 

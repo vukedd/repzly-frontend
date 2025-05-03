@@ -58,8 +58,10 @@ export class ProgramListComponent implements OnInit {
         (searchTerm) => {
           if (this.programsType == "started") {
             this.loadPrograms(0, 10);
-          } else {
+          } else if (this.programsType == "search"){
             this.searchPrograms(this.rows, 0, searchTerm);
+          } else {
+            this.getProgramsCreatedByMe(this.rows, 0);
           }
         }
       );
@@ -91,7 +93,6 @@ export class ProgramListComponent implements OnInit {
       case "search":{
         this.programService.searchProgramOverviews(size, page, this.searchInput).subscribe({
           next: (response) => {
-            console.log(response);
             this.programs = response.content;
             this.totalRecords = response.page.totalElements;
             this.totalPages = response.page.totalPages;
@@ -104,6 +105,23 @@ export class ProgramListComponent implements OnInit {
             this.loading = false;
           }
         });
+        break;
+      }
+      case "my-programs": {
+        this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1').subscribe({
+          next: (response) => {
+            this.programs = response.content;
+            this.totalRecords = response.page.totalElements;
+            this.totalPages = response.page.totalPages;
+            this.loading = false;
+            this.programsType = "my-programs"
+            this.searchService.updateSearchTerm("");
+          },
+          error: (error) => {
+            console.error('Error loading programs:', error);
+            this.loading = false;
+          }
+        })
         break;
       }
       default:{
@@ -140,6 +158,22 @@ export class ProgramListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  getProgramsCreatedByMe(size: number, page: number) {
+    this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1').subscribe({
+      next: (response) => {
+        this.programs = response.content;
+        this.totalRecords = response.page.totalElements;
+        this.totalPages = response.page.totalPages;
+        this.loading = false;
+        this.programsType = "my-programs"
+      },
+      error: (error) => {
+        console.error('Error loading programs:', error);
+        this.loading = false;
+      }
+    })
   }
 
   onPageChange(event: PageEvent) {
