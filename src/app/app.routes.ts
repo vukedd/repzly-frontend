@@ -9,11 +9,7 @@ import { ProgramHistoryComponent } from './program/program-history/program-histo
 import { HomeComponent } from './layout/home/home.component';
 import { SearchProgramsPageComponent } from './layout/search-programs-page/search-programs-page.component';
 import { ProfileComponent } from './user/profile/profile.component';
-<<<<<<< HEAD
 import { MyProgramsPageComponent } from './layout/my-programs-page/my-programs-page.component';
-=======
-import { AuthGuard } from './auth/auth-guard';
->>>>>>> main
 
 export const routes: Routes = [
     {
@@ -25,7 +21,6 @@ export const routes: Routes = [
         path:'me',
         component: ProfileComponent,
         title: 'Profile',
-        canActivate: [AuthGuard]
     },
     {
         path: 'my-programs',
