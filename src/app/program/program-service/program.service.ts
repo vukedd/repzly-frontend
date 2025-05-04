@@ -164,11 +164,15 @@ export class ProgramService {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
   }
 
-  getProgramsCreatedByMe(size: number, page: number, refreshTokenId: string): Observable<any> {
+  getProgramsCreatedByMe(size: number, page: number, refreshTokenId: string, title: string): Observable<any> {
     let params = new HttpParams()
     .set('size', size.toString())
-    .set('page', page.toString());
+    .set('page', page.toString())
+    .set('refreshTokenId', refreshTokenId)
+    .set('title', title);
 
-    return this.http.get<any>(`${this.apiUrl}/my-programs/${refreshTokenId}`, {params});
+    console.log(title);
+
+    return this.http.get<any>(`${this.apiUrl}/my-programs`, {params});
   }
 }
