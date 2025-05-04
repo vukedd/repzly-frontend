@@ -17,7 +17,6 @@ export interface Program {
     id?: number;
     title: string;
     description?: string;
-    number?: string;
     workoutExercises: WorkoutExercise[];
   }
   

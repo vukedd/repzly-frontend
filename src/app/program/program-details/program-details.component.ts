@@ -277,7 +277,7 @@ export class ProgramDetailsComponent implements OnInit {
       week.workouts.forEach((workout, workoutIndex) => {
         // Add workout header
         const workoutRow = weekData.length;
-        weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${workout.number || `Day ${workoutIndex + 1}`})`]);
+        weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${`Workout ${workoutIndex + 1}`})`]);
         merges.push({ s: { r: workoutRow, c: 0 }, e: { r: workoutRow, c: 8 } }); // Extended to include new columns
 
         // Add workout description if available

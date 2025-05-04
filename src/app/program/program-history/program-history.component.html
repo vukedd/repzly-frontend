@@ -113,7 +113,7 @@
               <div class="flex align-items-center">
                 <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
                 <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
+                <span class="ml-2">({{'Workout ' + (workoutIndex + 1)}})</span>
                 <p-tag [value]="workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'" 
                        [severity]="workout.isStarted ? (workout.finished ? 'success' : 'info') : 'warn'"
                        class="ml-2"></p-tag>

@@ -79,26 +79,26 @@
           <p-step-panel [value]="2">
             <ng-template #content let-activateCallback="activateCallback">
               <div class="mb-3 flex justify-content-between align-items-center">
-                <button pButton  type="button" label="Add Week" icon="pi pi-plus" class="p-button-outlined"
+                <button pButton type="button" label="Add Week" icon="pi pi-plus" class="p-button-outlined"
                   (click)="addWeek()"></button>
               </div>
 
               <p-tabs [value]="activeWeekTab" formArrayName="weeks" scrollable (onChange)="onTabChange($event)">
                 <div class="flex justify-content-end mb-2">
-                  <button pButton  type="button" label="Paste Week" icon="pi pi-file-import" class="p-button-outlined mr-2"
-                    (click)="pasteWeek()" [disabled]="!copiedWeek"></button>
+                  <button pButton type="button" label="Paste Week" icon="pi pi-file-import"
+                    class="p-button-outlined mr-2" (click)="pasteWeek()" [disabled]="!copiedWeek"></button>
                 </div>
 
                 <p-tablist #tablist>
-                  <p-tab *ngFor="let week of weeks.controls; let i = index"  [value]="i.toString()">
+                  <p-tab *ngFor="let week of weeks.controls; let i = index" [value]="i.toString()">
                     <div class="flex justify-content-between align-items-center">
                       <h4 class="m-0">Week {{ i + 1 }}</h4>
                       <div>
                         <!-- In your template -->
-                        <button pButton type="button" icon="pi pi-copy"  class="p-button-rounded p-button-text"
+                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text"
                           (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
 
-                        <button pButton type="button"  icon="pi pi-times"
+                        <button pButton type="button" icon="pi pi-times"
                           class="p-button-rounded p-button-danger p-button-text"
                           (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
                           [disabled]="weeks.length <= 1"></button>
@@ -146,7 +146,6 @@
                             <!-- Hidden form controls (not visible to user) -->
                             <div class="hidden">
                               <input id="title{{i}}-{{workoutIndex}}" type="text" pInputText formControlName="title">
-                              <input id="number{{i}}-{{workoutIndex}}" type="text" pInputText formControlName="number">
                               <textarea id="description{{i}}-{{workoutIndex}}" pTextarea
                                 formControlName="description"></textarea>
                             </div>
@@ -163,35 +162,56 @@
                                     <!-- Exercise Selection and Delete Button -->
                                     <!-- Exercise Selection and Delete Button -->
                                     <div class="grid">
-                                      <div class="col-7 md:col-7">
+                                      <div class="col-9 md:col-7">
                                         <p-select id="exercise{{i}}-{{workoutIndex}}-{{exerciseIndex}}"
                                           formControlName="exercise" [options]="exercises" optionLabel="title"
                                           placeholder="Select an Exercise" [filter]="true" filterBy="title"
                                           styleClass="w-full h-full justify-content-center align-items-center"
                                           [virtualScroll]="true" [virtualScrollItemSize]="38"></p-select>
                                       </div>
-                                      <div class="col-3 md:col-3 flex align-items-center justify-content-center">
-                                        <button pButton type="button" icon="pi pi-copy"
-                                          class="p-button-rounded p-button-text mr-1"
-                                          (click)="copyExercise(i, workoutIndex, exerciseIndex)"></button>
-                                        <button pButton type="button" icon="pi pi-clock"
-                                          class="p-button-rounded p-button-text mr-1"
-                                          (click)="openRestTimeDialog(i, workoutIndex, exerciseIndex)"></button>
-                                        <button pButton type="button" icon="pi pi-arrow-up"
-                                          class="p-button-rounded p-button-text mr-1"
-                                          (click)="moveExerciseUp(i, workoutIndex, exerciseIndex)"
-                                          [disabled]="exerciseIndex === 0"></button>
-                                        <button pButton type="button" icon="pi pi-arrow-down"
-                                          class="p-button-rounded p-button-text"
-                                          (click)="moveExerciseDown(i, workoutIndex, exerciseIndex)"
-                                          [disabled]="exerciseIndex === getWorkoutExercises(i, workoutIndex).length - 1"></button>
-                                      </div>
-                                      <div class="col-2 md:col-2 flex align-items-center justify-content-end">
-                                        <button pButton type="button" icon="pi pi-times"
-                                          class="p-button-rounded p-button-danger p-button-text"
-                                          (click)="removeWorkoutExercise(i, workoutIndex, exerciseIndex)"
-                                          [disabled]="getWorkoutExercises(i, workoutIndex).length <= 1">
-                                        </button>
+                                      <div class="exercise-controls flex justify-content-center align-items-center col-3 md:col-5">
+                                        <ng-container *ngIf="!showInputButtons; else desktopControls">
+                                          <!-- Mobile Menu -->
+                                          <button pButton icon="pi pi-bars" class="p-button-text p-button-rounded"
+                                            (click)="menu.toggle($event)" pTooltip="Exercise Options" type="button">
+                                          </button>
+                                          <p-menu #menu [popup]="true" [model]="getExerciseMenuItems(i, workoutIndex, exerciseIndex)"></p-menu>
+                                        </ng-container>
+                                        
+                                        <ng-template #desktopControls>
+                                          <!-- Desktop Buttons Layout -->
+                                          <div class="flex align-items-center justify-content-center">
+                                            <button pButton icon="pi pi-video" class="p-button-text p-button-rounded mr-2"
+                                              (click)="showExerciseVideo(exercise, $event)"
+                                              [disabled]="!exercise.get('exercise')?.value" pTooltip="Watch Exercise Demo"
+                                              type="button">
+                                            </button>
+                                            <button pButton type="button" icon="pi pi-copy"
+                                              class="p-button-rounded p-button-text mr-1"
+                                              (click)="copyExercise(i, workoutIndex, exerciseIndex)"
+                                              pTooltip="Copy Exercise"></button>
+                                            <button pButton type="button" icon="pi pi-clock"
+                                              class="p-button-rounded p-button-text mr-1"
+                                              (click)="openRestTimeDialog(i, workoutIndex, exerciseIndex)"
+                                              pTooltip="Set Rest Time"></button>
+                                            <button pButton type="button" icon="pi pi-arrow-up"
+                                              class="p-button-rounded p-button-text mr-1"
+                                              (click)="moveExerciseUp(i, workoutIndex, exerciseIndex)"
+                                              [disabled]="exerciseIndex === 0"
+                                              pTooltip="Move Up"></button>
+                                            <button pButton type="button" icon="pi pi-arrow-down"
+                                              class="p-button-rounded p-button-text mr-1"
+                                              (click)="moveExerciseDown(i, workoutIndex, exerciseIndex)"
+                                              [disabled]="exerciseIndex === getWorkoutExercises(i, workoutIndex).length - 1"
+                                              pTooltip="Move Down"></button>
+                                            <button pButton type="button" icon="pi pi-times"
+                                              class="p-button-rounded p-button-danger p-button-text"
+                                              (click)="removeWorkoutExercise(i, workoutIndex, exerciseIndex)"
+                                              [disabled]="getWorkoutExercises(i, workoutIndex).length <= 1"
+                                              pTooltip="Remove Exercise">
+                                            </button>
+                                          </div>
+                                        </ng-template>
                                       </div>
                                     </div>
                                     <p-divider class="mt-1 mb-1" align="left">
@@ -229,14 +249,12 @@
                                         <div class="flex align-items-center" formGroupName="volume">
                                           <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
                                             formControlName="minimumVolume" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" 
-                                            [min]="0"
-                                            [max]="100000"/>
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" [min]="0"
+                                            [max]="100000" />
                                           <span class="mx-1"
                                             *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
                                           <p-inputnumber formControlName="maximumVolume" [style]="{'width':'5rem'}"
-                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                                            [min]="0"
+                                            [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" [min]="0"
                                             [max]="100000" />
                                         </div>
                                       </div>
@@ -285,11 +303,11 @@
                         </div>
 
                         <div class="mb-3 flex justify-content-center mt-3">
-                            <button pButton type="button" label="Add Workout" icon="pi pi-plus"
-                              class="p-button-outlined" (click)="addWorkout(i)"></button>
-                            <button pButton type="button" label="Paste Workout" icon="pi pi-file-import"
-                              class="p-button-outlined ml-2" (click)="pasteWorkout(i)"
-                              [disabled]="!copiedWorkout"></button>
+                          <button pButton type="button" label="Add Workout" icon="pi pi-plus" class="p-button-outlined"
+                            (click)="addWorkout(i)"></button>
+                          <button pButton type="button" label="Paste Workout" icon="pi pi-file-import"
+                            class="p-button-outlined ml-2" (click)="pasteWorkout(i)"
+                            [disabled]="!copiedWorkout"></button>
                         </div>
                       </div>
                     </div>
@@ -357,10 +375,6 @@
         <label for="editWorkoutTitle" class="font-bold">Workout Title</label>
         <input id="editWorkoutTitle" type="text" pInputText [(ngModel)]="editWorkoutTitle" placeholder="Workout Title">
       </div>
-      <div class="field col-12 mb-3">
-        <label for="editWorkoutNumber" class="font-bold">Workout Number</label>
-        <input id="editWorkoutNumber" type="text" pInputText [(ngModel)]="editWorkoutNumber" placeholder="e.g. Day 1">
-      </div>
       <div class="field col-12">
         <label for="editWorkoutDescription" class="font-bold">Description</label>
         <textarea id="editWorkoutDescription" pTextarea [(ngModel)]="editWorkoutDescription" placeholder="Description"
@@ -369,9 +383,9 @@
     </div>
 
     <ng-template pTemplate="footer">
-      <button pButton  label="Cancel" icon="pi pi-times" class="p-button-text"
+      <button pButton label="Cancel" icon="pi pi-times" class="p-button-text"
         (click)="closeWorkoutEditDialog()"></button>
-      <button pButton  label="Save" icon="pi pi-check" (click)="saveWorkoutChanges()"></button>
+      <button pButton label="Save" icon="pi pi-check" (click)="saveWorkoutChanges()"></button>
     </ng-template>
   </p-dialog>
 
@@ -401,10 +415,24 @@
     </div>
 
     <ng-template pTemplate="footer">
-      <button pButton  label="Cancel" icon="pi pi-times" class="p-button-text"
-        (click)="closeRestTimeDialog()"></button>
-      <button pButton  label="Save" icon="pi pi-check" (click)="saveRestTimeChanges()"></button>
+      <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeRestTimeDialog()"></button>
+      <button pButton label="Save" icon="pi pi-check" (click)="saveRestTimeChanges()"></button>
     </ng-template>
+  </p-dialog>
+  <p-dialog header="Exercise Demonstration" [(visible)]="showVideoDialog" [style]="{width: '90vw', maxWidth: '800px'}"
+    [modal]="true">
+    <div class="p-fluid">
+      <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+        <iframe *ngIf="currentVideoUrl" [src]="currentVideoUrl | safe: 'resourceUrl'"
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div *ngIf="!currentVideoUrl" class="text-center p-4">
+        <p>No video available for this exercise.</p>
+      </div>
+    </div>
   </p-dialog>
 
   <p-toast></p-toast>

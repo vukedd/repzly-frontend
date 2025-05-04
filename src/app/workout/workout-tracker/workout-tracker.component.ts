@@ -24,6 +24,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Subject, takeUntil } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { SafePipe } from './safe-pipe';
+import { MenuItem } from 'primeng/api';
+import { Menu, MenuModule } from 'primeng/menu';
 
 
 @Component({
@@ -43,7 +45,8 @@ import { SafePipe } from './safe-pipe';
     ConfirmDialogModule,
     SelectModule,
     InputNumberModule,
-    SafePipe
+    SafePipe,
+    MenuModule
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
@@ -635,7 +638,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     const exerciseControl = this.getExerciseControl(this.selectedExerciseIndex);
     if (!exerciseControl) {
       this.messageService.add({
@@ -645,16 +648,16 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     const currentExerciseId = exerciseControl.get('exerciseId')?.value;
     if (currentExerciseId === this.selectedExerciseId) {
       this.showExerciseChangeDialog = false;
       return; // No change needed
     }
-  
+
     const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
     const workoutExerciseId = exerciseControl.get('id')?.value;
-  
+
     if (!startedWorkoutId || !workoutExerciseId) {
       this.messageService.add({
         severity: 'error',
@@ -663,7 +666,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     this.workoutService.changeExercise(
       startedWorkoutId,
       workoutExerciseId,
@@ -672,7 +675,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Find the selected exercise details
         const newExercise = this.availableExercises.find(e => e.id === this.selectedExerciseId);
-  
+
         if (newExercise) {
           // Update the exercise in the form, including the video link
           exerciseControl.patchValue({
@@ -680,7 +683,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             exerciseTitle: newExercise.title,
             exerciseLink: newExercise.link
           });
-  
+
           this.messageService.add({
             severity: 'success',
             summary: 'Exercise Changed',
@@ -688,7 +691,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             life: 2000
           });
         }
-  
+
         this.showExerciseChangeDialog = false;
       },
       error: (error) => {
@@ -1040,14 +1043,14 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-  
+
     // Handle YouTube URLs
     if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
       // Convert youtu.be URLs to embed format
       if (videoUrl.includes('youtu.be')) {
         const videoId = videoUrl.split('/').pop();
         videoUrl = `https://www.youtube.com/embed/${videoId}`;
-      } 
+      }
       // Convert regular YouTube URLs to embed format
       else if (videoUrl.includes('watch?v=')) {
         const videoId = new URL(videoUrl).searchParams.get('v');
@@ -1055,9 +1058,37 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       }
       // For YouTube URLs already in embed format, use as is
     }
-  
+
     this.currentVideoUrl = videoUrl;
     this.showVideoDialog = true;
+  }
+  
+  getExerciseMenuItems(exerciseIndex: number, exerciseControl: AbstractControl | null): MenuItem[] {
+    if (!exerciseControl) return [];
+
+    return [
+      {
+        label: 'Watch Exercise Demo',
+        icon: 'pi pi-video',
+        command: () => this.showExerciseVideo(exerciseControl.get('exerciseLink')?.value),
+        disabled: !exerciseControl.get('exerciseLink')?.value
+      },
+      {
+        label: 'Reorder Exercises',
+        icon: 'pi pi-sort',
+        command: () => this.openExerciseOrderDialog()
+      },
+      {
+        label: 'Change Exercise',
+        icon: 'pi pi-sync',
+        command: () => this.openChangeExerciseDialog(exerciseIndex)
+      },
+      {
+        label: 'View History',
+        icon: 'pi pi-chart-line',
+        command: () => this.showHistoryDialog(exerciseControl.get('exerciseId'))
+      }
+    ];
   }
 
 }

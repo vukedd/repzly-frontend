@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Exercise, ExerciseOverview, IntensityMetric, Program, VolumeMetric } from '../program.model';
 import { ProgramService } from '../program-service/program.service';
 import { ExerciseService } from '../../exercise/exercise-service.service';
@@ -24,6 +24,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Ripple } from 'primeng/ripple';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { SafePipe } from '../../workout/workout-tracker/safe-pipe';
+import { MenuModule } from 'primeng/menu';
 
 @Component({
   selector: 'app-program-create',
@@ -45,7 +47,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     StepperModule,
     BadgeModule,
     DialogModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    SafePipe,
+    MenuModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -66,7 +70,6 @@ export class ProgramCreateComponent implements OnInit {
   selectedWeekIndex: number | null = null;
   selectedWorkoutIndex: number | null = null;
   editWorkoutTitle = '';
-  editWorkoutNumber = '';
   editWorkoutDescription = '';
   restTimeDialogVisible: boolean = false;
   selectedExerciseInfo: { weekIndex: number, workoutIndex: number, exerciseIndex: number } | null = null;
@@ -99,6 +102,9 @@ export class ProgramCreateComponent implements OnInit {
   showInputButtons = false;
   private destroy$ = new Subject<void>();
 
+  showVideoDialog = false;
+  currentVideoUrl: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private programService: ProgramService,
@@ -119,11 +125,11 @@ export class ProgramCreateComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
     this.breakpointObserver
-    .observe(['(min-width: 768px)'])
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(result => {
-      this.showInputButtons = result.matches;
-    });
+      .observe(['(min-width: 768px)'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.showInputButtons = result.matches;
+      });
 
     // Check if we're in edit mode by looking for an ID in the route parameters
     this.route.paramMap.pipe(
@@ -169,7 +175,6 @@ export class ProgramCreateComponent implements OnInit {
       })
     ).subscribe({
       next: result => {
-        console.log(result);
         this.exercises = result.exercises;
         this.volumeMetrics = result.volumeMetrics;
         this.intensityMetrics = result.intensityMetrics;
@@ -247,7 +252,6 @@ export class ProgramCreateComponent implements OnInit {
           id: [workout.id],
           title: [workout.title || '', Validators.required],
           description: [workout.description || ''],
-          number: [workout.number || ''],
           workoutExercises: this.fb.array([])
         });
         this.getWorkouts(weekIndex).push(workoutForm);
@@ -341,7 +345,7 @@ export class ProgramCreateComponent implements OnInit {
     setTimeout(() => this.scrollToActiveTab(), 100);
   }
 
-  removeWeek(weekIndex: number,event: Event): void {
+  removeWeek(weekIndex: number, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.weeks.removeAt(weekIndex);
@@ -388,7 +392,6 @@ export class ProgramCreateComponent implements OnInit {
     const workoutForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      number: [''],
       workoutExercises: this.fb.array([])
     });
     this.getWorkouts(weekIndex).push(workoutForm);
@@ -650,7 +653,6 @@ export class ProgramCreateComponent implements OnInit {
 
     const workout = this.getWorkouts(weekIndex).at(workoutIndex);
     this.editWorkoutTitle = workout.get('title')?.value || '';
-    this.editWorkoutNumber = workout.get('number')?.value || '';
     this.editWorkoutDescription = workout.get('description')?.value || '';
 
     this.editWorkoutDialogVisible = true;
@@ -668,7 +670,6 @@ export class ProgramCreateComponent implements OnInit {
 
       workout.patchValue({
         title: this.editWorkoutTitle,
-        number: this.editWorkoutNumber,
         description: this.editWorkoutDescription
       });
 
@@ -804,7 +805,7 @@ export class ProgramCreateComponent implements OnInit {
     if (restTimeTo) this.selectedRestTime.set(fromKey, restTimeTo);
   }
 
-  copyWeek(weekIndex: number,event: Event): void {
+  copyWeek(weekIndex: number, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     // Deep clone the week form group
@@ -843,7 +844,6 @@ export class ProgramCreateComponent implements OnInit {
       const workoutForm = this.fb.group({
         title: [workout.title || '', Validators.required],
         description: [workout.description || ''],
-        number: [workout.number || ''],
         workoutExercises: this.fb.array([])
       });
       this.getWorkouts(newWeekIndex).push(workoutForm);
@@ -938,7 +938,6 @@ export class ProgramCreateComponent implements OnInit {
     const workoutForm = this.fb.group({
       title: [this.copiedWorkout.title || '', Validators.required],
       description: [this.copiedWorkout.description || ''],
-      number: [this.copiedWorkout.number || ''],
       workoutExercises: this.fb.array([])
     });
     this.getWorkouts(weekIndex).push(workoutForm);
@@ -1105,5 +1104,86 @@ export class ProgramCreateComponent implements OnInit {
         delete set.id;
       });
     }
+  }
+
+  showExerciseVideo(exercise: any, event?: Event): void {
+    // Prevent the event from propagating up and potentially submitting the form
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    let videoUrl = exercise.get('exercise')?.value.link;
+    if (!videoUrl) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Video',
+        detail: 'No demonstration video available for this exercise.'
+      });
+      return;
+    }
+    // Handle YouTube URLs
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+      // Convert youtu.be URLs to embed format
+      if (videoUrl.includes('youtu.be')) {
+        const videoId = videoUrl.split('/').pop();
+        videoUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      // Convert regular YouTube URLs to embed format
+      else if (videoUrl.includes('watch?v=')) {
+        const videoId = new URL(videoUrl).searchParams.get('v');
+        videoUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      // For YouTube URLs already in embed format, use as is
+    }
+    this.currentVideoUrl = videoUrl;
+    this.showVideoDialog = true;
+  }
+
+  getExerciseMenuItems(formIndex: number, workoutIndex: number, exerciseIndex: number): MenuItem[] {
+    const exercise = this.getExerciseControl(formIndex, workoutIndex, exerciseIndex);
+    if (!exercise) return [];
+    
+    return [
+      {
+        label: 'Watch Exercise Demo',
+        icon: 'pi pi-video',
+        command: () => this.showExerciseVideo(exercise),
+        disabled: !exercise.get('exercise')?.value
+      },
+      {
+        label: 'Copy Exercise',
+        icon: 'pi pi-copy',
+        command: () => this.copyExercise(formIndex, workoutIndex, exerciseIndex)
+      },
+      {
+        label: 'Set Rest Time',
+        icon: 'pi pi-clock',
+        command: () => this.openRestTimeDialog(formIndex, workoutIndex, exerciseIndex)
+      },
+      {
+        label: 'Move Up',
+        icon: 'pi pi-arrow-up',
+        command: () => this.moveExerciseUp(formIndex, workoutIndex, exerciseIndex),
+        disabled: exerciseIndex === 0
+      },
+      {
+        label: 'Move Down',
+        icon: 'pi pi-arrow-down',
+        command: () => this.moveExerciseDown(formIndex, workoutIndex, exerciseIndex),
+        disabled: exerciseIndex === this.getWorkoutExercises(formIndex, workoutIndex).length - 1
+      },
+      {
+        label: 'Remove Exercise',
+        icon: 'pi pi-times',
+        command: () => this.removeWorkoutExercise(formIndex, workoutIndex, exerciseIndex),
+        disabled: this.getWorkoutExercises(formIndex, workoutIndex).length <= 1
+      }
+    ];
+  }
+  
+  getExerciseControl(formIndex: number, workoutIndex: number, exerciseIndex: number): AbstractControl | null {
+    const exercises = this.getWorkoutExercises(formIndex, workoutIndex);
+    return exercises && exercises.length > exerciseIndex ? exercises.at(exerciseIndex) : null;
   }
 }

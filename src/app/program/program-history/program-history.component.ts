@@ -439,10 +439,10 @@ export class ProgramHistoryComponent implements OnInit {
       weekData.push([]);
   
       if (week.allWorkouts && week.allWorkouts.length > 0) {
-        week.allWorkouts.forEach((workout: { title: any; number: any; isStarted: any; finished: any; description: any; workoutExercises: any[]; }, workoutIndex: number) => {
+        week.allWorkouts.forEach((workout: { title: any; isStarted: any; finished: any; description: any; workoutExercises: any[]; }, workoutIndex: number) => {
           // Add workout header
           const workoutRow = weekData.length;
-          weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${workout.number || `Day ${workoutIndex + 1}`}) - ${workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'}`]);
+          weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${`Workout ${workoutIndex + 1}`}) - ${workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'}`]);
           merges.push({ s: { r: workoutRow, c: 0 }, e: { r: workoutRow, c: 8 } });
   
           // Add workout description if available
