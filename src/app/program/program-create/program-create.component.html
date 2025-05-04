@@ -167,7 +167,8 @@
                                         <p-select id="exercise{{i}}-{{workoutIndex}}-{{exerciseIndex}}"
                                           formControlName="exercise" [options]="exercises" optionLabel="title"
                                           placeholder="Select an Exercise" [filter]="true" filterBy="title"
-                                          styleClass="w-full h-full justify-content-center align-items-center"></p-select>
+                                          styleClass="w-full h-full justify-content-center align-items-center"
+                                          [virtualScroll]="true" [virtualScrollItemSize]="38"></p-select>
                                       </div>
                                       <div class="col-3 md:col-3 flex align-items-center justify-content-center">
                                         <button pButton type="button" icon="pi pi-copy"

@@ -23,6 +23,8 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Subject, takeUntil } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { SafePipe } from './safe-pipe';
+
 
 @Component({
   selector: 'app-workout-tracker',
@@ -40,7 +42,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     DialogModule,
     ConfirmDialogModule,
     SelectModule,
-    InputNumberModule
+    InputNumberModule,
+    SafePipe
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
@@ -78,6 +81,9 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   workoutDurationInterval: ReturnType<typeof setInterval> | null = null;
   workoutDurationSeconds = 0;
   workoutDurationDisplay = '00:00';
+
+  showVideoDialog = false;
+  currentVideoUrl: string | null = null;
 
   // Dialog reference
   private ref: DynamicDialogRef | undefined;
@@ -198,11 +204,13 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
 
     // Create form structure based on the workout data
     nextWorkoutDetails.workoutExercises.forEach((exercise: WorkoutExercise) => {
+      console.log(exercise);
       const exerciseGroup = this.fb.group({
         id: [exercise.id],
         exerciseId: [exercise.exercise.id],
         exerciseTitle: [exercise.exercise.title],
         exerciseDescription: [exercise.exercise.description],
+        exerciseLink: [exercise.exercise.link],
         restTime: [{ min: exercise.minimumRestTime, max: exercise.maximumRestTime }],
         sets: this.fb.array([])
       });
@@ -329,7 +337,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     let weight = setControl.get('weightLifted')?.value;
     let volume = setControl.get('actualVolume')?.value;
     let intensity = setControl.get('actualIntensity')?.value;
-    console.log(intensity, Number(intensity));
+
 
     // Update form values if empty
     if (volume === null || volume === undefined || volume === '') {
@@ -627,7 +635,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-
+  
     const exerciseControl = this.getExerciseControl(this.selectedExerciseIndex);
     if (!exerciseControl) {
       this.messageService.add({
@@ -637,16 +645,16 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-
+  
     const currentExerciseId = exerciseControl.get('exerciseId')?.value;
     if (currentExerciseId === this.selectedExerciseId) {
       this.showExerciseChangeDialog = false;
       return; // No change needed
     }
-
+  
     const startedWorkoutId = this.currentWorkout?.nextWorkoutDetails?.id || 0;
     const workoutExerciseId = exerciseControl.get('id')?.value;
-
+  
     if (!startedWorkoutId || !workoutExerciseId) {
       this.messageService.add({
         severity: 'error',
@@ -655,7 +663,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
-
+  
     this.workoutService.changeExercise(
       startedWorkoutId,
       workoutExerciseId,
@@ -664,14 +672,15 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Find the selected exercise details
         const newExercise = this.availableExercises.find(e => e.id === this.selectedExerciseId);
-
+  
         if (newExercise) {
-          // Update the exercise in the form
+          // Update the exercise in the form, including the video link
           exerciseControl.patchValue({
             exerciseId: newExercise.id,
             exerciseTitle: newExercise.title,
+            exerciseLink: newExercise.link
           });
-
+  
           this.messageService.add({
             severity: 'success',
             summary: 'Exercise Changed',
@@ -679,7 +688,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             life: 2000
           });
         }
-
+  
         this.showExerciseChangeDialog = false;
       },
       error: (error) => {
@@ -1020,6 +1029,35 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       data: { exerciseId: exerciseId },
       baseZIndex: 10001
     });
+  }
+
+  showExerciseVideo(videoUrl: string | null): void {
+    if (!videoUrl) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No Video',
+        detail: 'No demonstration video available for this exercise.'
+      });
+      return;
+    }
+  
+    // Handle YouTube URLs
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+      // Convert youtu.be URLs to embed format
+      if (videoUrl.includes('youtu.be')) {
+        const videoId = videoUrl.split('/').pop();
+        videoUrl = `https://www.youtube.com/embed/${videoId}`;
+      } 
+      // Convert regular YouTube URLs to embed format
+      else if (videoUrl.includes('watch?v=')) {
+        const videoId = new URL(videoUrl).searchParams.get('v');
+        videoUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      // For YouTube URLs already in embed format, use as is
+    }
+  
+    this.currentVideoUrl = videoUrl;
+    this.showVideoDialog = true;
   }
 
 }

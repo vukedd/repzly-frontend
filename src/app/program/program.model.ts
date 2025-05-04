@@ -48,11 +48,13 @@ export interface Program {
     id: number;
     title: string;
     description?: string;
+    link?:string;
   }
 
   export interface ExerciseOverview {
     id: number;
     title: string;
+    link:string;
   }
   
   export interface VolumeMetric {
