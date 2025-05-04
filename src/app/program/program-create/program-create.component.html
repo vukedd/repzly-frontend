@@ -29,7 +29,7 @@
                 <div class="p-fluid grid">
                   <div class="col-12 mb-3">
                     <div class="field">
-                      <label for="name" class="font-bold mb-2">Program Name</label>
+                      <label for="name" class="font-bold mb-2 mr-2">Program Name</label>
                       <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name">
                       <small class="p-error"
                         *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
@@ -372,12 +372,12 @@
   <p-dialog header="Edit Workout" [(visible)]="editWorkoutDialogVisible" [style]="{width: '500px'}" [modal]="true">
     <div class="p-fluid grid" *ngIf="selectedWeekIndex !== null && selectedWorkoutIndex !== null">
       <div class="field col-12 mb-3">
-        <label for="editWorkoutTitle" class="font-bold">Workout Title</label>
-        <input id="editWorkoutTitle" type="text" pInputText [(ngModel)]="editWorkoutTitle" placeholder="Workout Title">
+        <label for="editWorkoutTitle" class="font-bold mr-2">Workout Title</label>
+        <input id="editWorkoutTitle" type="text" pInputText [(ngModel)]="editWorkoutTitle" placeholder="Workout Title" class="w-full">
       </div>
       <div class="field col-12">
-        <label for="editWorkoutDescription" class="font-bold">Description</label>
-        <textarea id="editWorkoutDescription" pTextarea [(ngModel)]="editWorkoutDescription" placeholder="Description"
+        <label for="editWorkoutDescription" class="font-bold mr-2">Description</label>
+        <textarea id="editWorkoutDescription" pTextarea [(ngModel)]="editWorkoutDescription" placeholder="Description" class="w-full"
           rows="3"></textarea>
       </div>
     </div>

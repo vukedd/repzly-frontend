@@ -250,7 +250,7 @@ export class ProgramCreateComponent implements OnInit {
       week.workouts.forEach(workout => {
         const workoutForm = this.fb.group({
           id: [workout.id],
-          title: [workout.title || '', Validators.required],
+          title: [workout.title || ''],
           description: [workout.description || ''],
           workoutExercises: this.fb.array([])
         });
@@ -390,7 +390,7 @@ export class ProgramCreateComponent implements OnInit {
 
   addWorkout(weekIndex: number): void {
     const workoutForm = this.fb.group({
-      title: ['', Validators.required],
+      title: [''],
       description: [''],
       workoutExercises: this.fb.array([])
     });
@@ -842,7 +842,7 @@ export class ProgramCreateComponent implements OnInit {
     const newWeekIndex = this.weeks.length - 1;
     this.copiedWeek.workouts.forEach((workout: any) => {
       const workoutForm = this.fb.group({
-        title: [workout.title || '', Validators.required],
+        title: [workout.title || ''],
         description: [workout.description || ''],
         workoutExercises: this.fb.array([])
       });
@@ -936,7 +936,7 @@ export class ProgramCreateComponent implements OnInit {
 
     // Create a new workout with the copied data
     const workoutForm = this.fb.group({
-      title: [this.copiedWorkout.title || '', Validators.required],
+      title: [this.copiedWorkout.title || ''],
       description: [this.copiedWorkout.description || ''],
       workoutExercises: this.fb.array([])
     });
