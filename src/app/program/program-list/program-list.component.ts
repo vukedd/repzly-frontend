@@ -47,19 +47,22 @@ export class ProgramListComponent implements OnInit {
   public totalRecords: number = 0;
   public totalPages: number = 0;
   private searchInput: string = "";
-  private searchSubscription: Subscription | undefined;
+  private searchAllSubscription: Subscription | undefined;
 
   constructor(private programService: ProgramService, private jwtService: JwtService, private searchService: SearchService) { }
 
   ngOnInit() {
     if (this.isLoggedIn()) {
       this.searchService.updateProgramsType(this.programsType);
-      this.searchSubscription = this.searchService.currentSearchTerm.subscribe(
+      this.searchService.updateSearchTerm('');
+      this.searchAllSubscription = this.searchService.currentSearchTerm.subscribe(
         (searchTerm) => {
           if (this.programsType == "started") {
             this.loadPrograms(0, 10);
-          } else {
+          } else if (this.programsType == "search"){
             this.searchPrograms(this.rows, 0, searchTerm);
+          } else {
+            this.getProgramsCreatedByMe(this.rows, 0, searchTerm);
           }
         }
       );
@@ -91,7 +94,6 @@ export class ProgramListComponent implements OnInit {
       case "search":{
         this.programService.searchProgramOverviews(size, page, this.searchInput).subscribe({
           next: (response) => {
-            console.log(response);
             this.programs = response.content;
             this.totalRecords = response.page.totalElements;
             this.totalPages = response.page.totalPages;
@@ -104,6 +106,23 @@ export class ProgramListComponent implements OnInit {
             this.loading = false;
           }
         });
+        break;
+      }
+      case "my-programs": {
+        this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1', this.searchInput).subscribe({
+          next: (response) => {
+            this.programs = response.content;
+            this.totalRecords = response.page.totalElements;
+            this.totalPages = response.page.totalPages;
+            this.loading = false;
+            this.programsType = "my-programs"
+            this.searchService.updateSearchTerm("");
+          },
+          error: (error) => {
+            console.error('Error loading programs:', error);
+            this.loading = false;
+          }
+        })
         break;
       }
       default:{
@@ -142,6 +161,23 @@ export class ProgramListComponent implements OnInit {
     });
   }
 
+  getProgramsCreatedByMe(size: number, page: number, title: string) {
+    this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1', title).subscribe({
+      next: (response) => {
+        this.programs = response.content;
+        this.totalRecords = response.page.totalElements;
+        this.totalPages = response.page.totalPages;
+        this.loading = false;
+        this.programsType = "my-programs"
+        console.log(response);
+      },
+      error: (error) => {
+        console.error('Error loading programs:', error);
+        this.loading = false;
+      }
+    })
+  }
+
   onPageChange(event: PageEvent) {
     this.first = event.first;
     this.rows = event.rows;
@@ -151,8 +187,8 @@ export class ProgramListComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if (this.searchSubscription) {
-      this.searchSubscription.unsubscribe();
+    if (this.searchAllSubscription) {
+      this.searchAllSubscription.unsubscribe();
     }
   }
 }
