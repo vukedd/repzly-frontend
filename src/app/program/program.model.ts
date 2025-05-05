@@ -6,6 +6,7 @@ export interface Program {
     reviews?: Review[];
     rating?: number;
     weeks: Week[];
+    createdByUser?:boolean;
   }
   
   export interface Week {

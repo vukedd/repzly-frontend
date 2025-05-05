@@ -161,4 +161,7 @@ export class ProgramService {
   getProgramHistory(startedProgramId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
   }
+  deleteProgram(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 }
