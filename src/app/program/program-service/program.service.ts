@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { PageResponse } from '../../common/page/page-response';
 import { Program } from '../program.model';
 import { API_URL } from '../../../globals';
+import { title } from 'process';
 
 @Injectable({
   providedIn: 'root'
@@ -79,6 +80,8 @@ export class ProgramService {
   private mapProgramForBackend(program: Program): any {
     return {
       name: program.name,
+      public:program.public,
+      description:program.description,
       weeks: program.weeks.map(week => ({
         workouts: week.workouts.map(workout => ({
           title: workout.title,
@@ -109,6 +112,8 @@ export class ProgramService {
     return {
       name: program.name,
       id: program.id,
+      public:program.public,
+      description:program.description,
       weeks: program.weeks.map(week => ({
         id:week.id,
         workouts: week.workouts.map(workout => ({

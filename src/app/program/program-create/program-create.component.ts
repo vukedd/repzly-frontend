@@ -26,6 +26,8 @@ import { Ripple } from 'primeng/ripple';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { SafePipe } from '../../workout/workout-tracker/safe-pipe';
 import { MenuModule } from 'primeng/menu';
+import { CheckboxModule } from 'primeng/checkbox';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
   selector: 'app-program-create',
@@ -49,7 +51,8 @@ import { MenuModule } from 'primeng/menu';
     DialogModule,
     ProgressSpinnerModule,
     SafePipe,
-    MenuModule
+    MenuModule,
+    SelectButtonModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -105,6 +108,9 @@ export class ProgramCreateComponent implements OnInit {
   showVideoDialog = false;
   currentVideoUrl: string | null = null;
 
+
+  publicOptions: any[];
+
   constructor(
     private fb: FormBuilder,
     private programService: ProgramService,
@@ -115,9 +121,15 @@ export class ProgramCreateComponent implements OnInit {
     private route: ActivatedRoute,
     private breakpointObserver: BreakpointObserver
   ) {
+    this.publicOptions = [
+      { label: 'Private', value: false },
+      { label: 'Public', value: true }
+    ];
     this.programForm = this.fb.group({
       id: [null],
       name: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      public: [false],
       weeks: this.fb.array([])
     });
   }
@@ -130,6 +142,7 @@ export class ProgramCreateComponent implements OnInit {
       .subscribe(result => {
         this.showInputButtons = result.matches;
       });
+
 
     // Check if we're in edit mode by looking for an ID in the route parameters
     this.route.paramMap.pipe(
@@ -225,6 +238,8 @@ export class ProgramCreateComponent implements OnInit {
     // Set program name
     this.programForm.get('name')?.setValue(program.name);
     this.programForm.get('id')?.setValue(program.id);
+    this.programForm.get('description')?.setValue(program.description);
+    this.programForm.get('public')?.setValue(program.public);
 
     // Set image
 
@@ -1112,7 +1127,7 @@ export class ProgramCreateComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
     }
-    
+
     let videoUrl = exercise.get('exercise')?.value.link;
     if (!videoUrl) {
       this.messageService.add({
@@ -1143,7 +1158,7 @@ export class ProgramCreateComponent implements OnInit {
   getExerciseMenuItems(formIndex: number, workoutIndex: number, exerciseIndex: number): MenuItem[] {
     const exercise = this.getExerciseControl(formIndex, workoutIndex, exerciseIndex);
     if (!exercise) return [];
-    
+
     return [
       {
         label: 'Watch Exercise Demo',
@@ -1181,7 +1196,7 @@ export class ProgramCreateComponent implements OnInit {
       }
     ];
   }
-  
+
   getExerciseControl(formIndex: number, workoutIndex: number, exerciseIndex: number): AbstractControl | null {
     const exercises = this.getWorkoutExercises(formIndex, workoutIndex);
     return exercises && exercises.length > exerciseIndex ? exercises.at(exerciseIndex) : null;

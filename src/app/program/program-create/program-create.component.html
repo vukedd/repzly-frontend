@@ -25,52 +25,74 @@
           <!-- Step 1: Program Info -->
           <p-step-panel [value]="1">
             <ng-template #content let-activateCallback="activateCallback">
-              <div class="surface-card p-3 border-round mb-3">
-                <div class="p-fluid grid">
-                  <div class="col-12 mb-3">
-                    <div class="field">
-                      <label for="name" class="font-bold mb-2 mr-2">Program Name</label>
-                      <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name">
-                      <small class="p-error"
-                        *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
-                        Program name is required (min 3 characters)
-                      </small>
-                    </div>
+              <div class="surface-card p-4 border-round shadow-2 mb-4">
+                <div class="p-fluid">
+                  <!-- Program Name -->
+                  <div class="field mb-4">
+                    <label for="name" class="text-900 font-medium mb-2 block">Program Name</label>
+                    <span class="p-input-icon-left w-full">
+                      <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name" class="w-full">
+                    </span>
+                    <small class="p-error block mt-1"
+                      *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
+                      Program name is required (min 3 characters)
+                    </small>
                   </div>
-
-                  <div class="col-12">
-                    <div class="field">
-                      <label for="programImage" class="font-bold mb-2">Program Image</label>
-                      <p-fileUpload id="programImage" mode="basic" chooseLabel="Select Image" accept="image/*"
-                        [auto]="true" [maxFileSize]="1000000" (onSelect)="onImageUpload($event)"
-                        [showCancelButton]="false"></p-fileUpload>
-
-                      <!-- Image Preview Section -->
-                      <!-- Image Preview Section - Only show when there's actually an image -->
-                      <div
-                        *ngIf="(imagePreviewUrl || existingImageUrl) && (uploadedImage || (existingImageUrl && !imageChanged))"
-                        class="mt-3">
-                        <div class="flex flex-column align-items-center">
-                          <div class="relative">
-                            <img [src]="imagePreviewUrl || existingImageUrl" class="shadow-2 border-round"
-                              style="max-width: 100%; max-height: 200px;">
-                            <button pButton type="button" icon="pi pi-times"
-                              class="p-button-rounded p-button-danger p-button-text absolute top-0 right-0"
-                              (click)="removeImage()"></button>
-                          </div>
-                          <small *ngIf="uploadedImage" class="mt-2 text-500">{{ uploadedImage.name }} ({{
-                            formatFileSize(uploadedImage.size || 0) }})</small>
-                          <small *ngIf="existingImageUrl && !imageChanged" class="mt-2 text-500">Current image</small>
+                  
+                  <!-- Program Description -->
+                  <div class="field mb-4">
+                    <label for="description" class="text-900 font-medium mb-2 block">Program Description</label>
+                    <span class="p-input-icon-left w-full">
+                      <textarea id="description" pTextarea formControlName="description" [rows]="3"
+                        placeholder="Enter program description" class="w-full"></textarea>
+                    </span>
+                  </div>
+                  
+                  <!-- Visibility Toggle -->
+                  <div class="field mb-4">
+                    <label class="text-900 font-medium mb-2 block">Visibility</label>
+                    <p-selectButton [options]="publicOptions" formControlName="public" 
+                      optionLabel="label" optionValue="value" styleClass="w-full md:w-auto">
+                    </p-selectButton>
+                  </div>
+          
+                  <!-- Program Image -->
+                  <div class="field">
+                    <div class="flex justify-content-center align-items-center">
+                      <p-fileUpload id="programImage" mode="basic" chooseLabel="Select Image" 
+                        accept="image/*" [auto]="true" [maxFileSize]="1000000" 
+                        (onSelect)="onImageUpload($event)" [showCancelButton]="false"
+                        styleClass="w-full"></p-fileUpload>
+                    </div>
+                    
+                    <!-- Image Preview Section -->
+                    <div *ngIf="(imagePreviewUrl || existingImageUrl) && (uploadedImage || (existingImageUrl && !imageChanged))"
+                      class="mt-4 flex justify-content-center">
+                      <div class="flex flex-column align-items-center">
+                        <div class="relative">
+                          <img [src]="imagePreviewUrl || existingImageUrl" 
+                            class="shadow-2 border-round" 
+                            style="max-width: 100%; max-height: 250px; object-fit: cover;">
+                          <button pButton type="button" icon="pi pi-times"
+                            class="p-button-rounded p-button-danger p-button-text absolute top-0 right-0"
+                            (click)="removeImage()"></button>
                         </div>
+                        <small *ngIf="uploadedImage" class="mt-2 text-600 text-center">
+                          {{ uploadedImage.name }} ({{ formatFileSize(uploadedImage.size || 0) }})
+                        </small>
+                        <small *ngIf="existingImageUrl && !imageChanged" class="mt-2 text-600 text-center">Current image</small>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
+              
+              <!-- Navigation Button -->
               <div class="flex justify-content-end mt-4">
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                  [disabled]="programForm.get('name')?.invalid" (onClick)="activateCallback(2)"></p-button>
+                  [disabled]="programForm.get('name')?.invalid" 
+                  (onClick)="activateCallback(2)"
+                  styleClass="p-button-raised"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -169,22 +191,25 @@
                                           styleClass="w-full h-full justify-content-center align-items-center"
                                           [virtualScroll]="true" [virtualScrollItemSize]="38"></p-select>
                                       </div>
-                                      <div class="exercise-controls flex justify-content-center align-items-center col-3 md:col-5">
+                                      <div
+                                        class="exercise-controls flex justify-content-center align-items-center col-3 md:col-5">
                                         <ng-container *ngIf="!showInputButtons; else desktopControls">
                                           <!-- Mobile Menu -->
                                           <button pButton icon="pi pi-bars" class="p-button-text p-button-rounded"
                                             (click)="menu.toggle($event)" pTooltip="Exercise Options" type="button">
                                           </button>
-                                          <p-menu #menu [popup]="true" [model]="getExerciseMenuItems(i, workoutIndex, exerciseIndex)"></p-menu>
+                                          <p-menu #menu [popup]="true"
+                                            [model]="getExerciseMenuItems(i, workoutIndex, exerciseIndex)"></p-menu>
                                         </ng-container>
-                                        
+
                                         <ng-template #desktopControls>
                                           <!-- Desktop Buttons Layout -->
                                           <div class="flex align-items-center justify-content-center">
-                                            <button pButton icon="pi pi-video" class="p-button-text p-button-rounded mr-2"
+                                            <button pButton icon="pi pi-video"
+                                              class="p-button-text p-button-rounded mr-2"
                                               (click)="showExerciseVideo(exercise, $event)"
-                                              [disabled]="!exercise.get('exercise')?.value" pTooltip="Watch Exercise Demo"
-                                              type="button">
+                                              [disabled]="!exercise.get('exercise')?.value"
+                                              pTooltip="Watch Exercise Demo" type="button">
                                             </button>
                                             <button pButton type="button" icon="pi pi-copy"
                                               class="p-button-rounded p-button-text mr-1"
@@ -197,8 +222,7 @@
                                             <button pButton type="button" icon="pi pi-arrow-up"
                                               class="p-button-rounded p-button-text mr-1"
                                               (click)="moveExerciseUp(i, workoutIndex, exerciseIndex)"
-                                              [disabled]="exerciseIndex === 0"
-                                              pTooltip="Move Up"></button>
+                                              [disabled]="exerciseIndex === 0" pTooltip="Move Up"></button>
                                             <button pButton type="button" icon="pi pi-arrow-down"
                                               class="p-button-rounded p-button-text mr-1"
                                               (click)="moveExerciseDown(i, workoutIndex, exerciseIndex)"
@@ -373,12 +397,13 @@
     <div class="p-fluid grid" *ngIf="selectedWeekIndex !== null && selectedWorkoutIndex !== null">
       <div class="field col-12 mb-3">
         <label for="editWorkoutTitle" class="font-bold mr-2">Workout Title</label>
-        <input id="editWorkoutTitle" type="text" pInputText [(ngModel)]="editWorkoutTitle" placeholder="Workout Title" class="w-full">
+        <input id="editWorkoutTitle" type="text" pInputText [(ngModel)]="editWorkoutTitle" placeholder="Workout Title"
+          class="w-full">
       </div>
       <div class="field col-12">
         <label for="editWorkoutDescription" class="font-bold mr-2">Description</label>
-        <textarea id="editWorkoutDescription" pTextarea [(ngModel)]="editWorkoutDescription" placeholder="Description" class="w-full"
-          rows="3"></textarea>
+        <textarea id="editWorkoutDescription" pTextarea [(ngModel)]="editWorkoutDescription" placeholder="Description"
+          class="w-full" rows="3"></textarea>
       </div>
     </div>
 

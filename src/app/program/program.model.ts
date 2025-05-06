@@ -7,6 +7,8 @@ export interface Program {
     rating?: number;
     weeks: Week[];
     createdByUser?:boolean;
+    public?:boolean;
+    description?:string;
   }
   
   export interface Week {
