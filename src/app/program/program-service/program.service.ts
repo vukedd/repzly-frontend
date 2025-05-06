@@ -83,7 +83,6 @@ export class ProgramService {
         workouts: week.workouts.map(workout => ({
           title: workout.title,
           description: workout.description,
-          number: workout.number,
           workoutExercises: workout.workoutExercises.map(exercise => ({
             exercise: exercise.exercise.id,
             minimumRestTime: exercise.minimumRestTime,
@@ -116,7 +115,6 @@ export class ProgramService {
           id:workout.id,
           title: workout.title,
           description: workout.description,
-          number: workout.number,
           workoutExercises: workout.workoutExercises.map(exercise => ({
             id:exercise.id,
             exercise: exercise.exercise.id,
@@ -162,6 +160,10 @@ export class ProgramService {
 
   getProgramHistory(startedProgramId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/history/${startedProgramId}`);
+  }
+
+  deleteProgram(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
   getProgramsCreatedByMe(size: number, page: number, refreshTokenId: string, title: string): Observable<any> {

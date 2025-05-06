@@ -66,6 +66,9 @@ export class ProgramDetailsComponent implements OnInit {
   activeWeekTab: string = '0';
   expandedExercises: Set<string> = new Set();
   expandedWorkouts: Set<string> = new Set();
+
+  isCreator:boolean = false;
+
   @ViewChild('tablist') tablistComponent!: TabList;
 
   // Dialog properties
@@ -104,6 +107,7 @@ export class ProgramDetailsComponent implements OnInit {
       next: (data) => {
         this.program = data;
         this.loading = false;
+        this.isCreator=this.program.createdByUser??false;
 
         if (this.program.weeks && this.program.weeks.length > 0) {
           this.activeWeekTab = '0';
@@ -277,7 +281,7 @@ export class ProgramDetailsComponent implements OnInit {
       week.workouts.forEach((workout, workoutIndex) => {
         // Add workout header
         const workoutRow = weekData.length;
-        weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${workout.number || `Day ${workoutIndex + 1}`})`]);
+        weekData.push([`${workout.title || 'Workout ' + (workoutIndex + 1)} (${`Workout ${workoutIndex + 1}`})`]);
         merges.push({ s: { r: workoutRow, c: 0 }, e: { r: workoutRow, c: 8 } }); // Extended to include new columns
 
         // Add workout description if available
@@ -486,28 +490,28 @@ export class ProgramDetailsComponent implements OnInit {
 
   deleteProgram(): void {
     // Implementation left as it was in the original code
-    // if (!this.program) return;
+    if (!this.program) return;
 
-    // this.loading = true;
-    // this.programService.deleteProgram(this.program.id).subscribe({
-    //   next: () => {
-    //     this.loading = false;
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Success',
-    //       detail: 'Program deleted successfully'
-    //     });
-    //     this.router.navigate(['/programs']);
-    //   },
-    //   error: (error) => {
-    //     this.loading = false;
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: 'Failed to delete program'
-    //     });
-    //     console.error('Error deleting program:', error);
-    //   }
-    // });
+    this.loading = true;
+    this.programService.deleteProgram(this.program.id!).subscribe({
+      next: () => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Program deleted successfully'
+        });
+        this.router.navigate(['']);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete program'
+        });
+        console.error('Error deleting program:', error);
+      }
+    });
   }
 }

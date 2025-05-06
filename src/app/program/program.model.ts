@@ -6,6 +6,7 @@ export interface Program {
     reviews?: Review[];
     rating?: number;
     weeks: Week[];
+    createdByUser?:boolean;
   }
   
   export interface Week {
@@ -17,7 +18,6 @@ export interface Program {
     id?: number;
     title: string;
     description?: string;
-    number?: string;
     workoutExercises: WorkoutExercise[];
   }
   
@@ -48,11 +48,13 @@ export interface Program {
     id: number;
     title: string;
     description?: string;
+    link?:string;
   }
 
   export interface ExerciseOverview {
     id: number;
     title: string;
+    link:string;
   }
   
   export interface VolumeMetric {

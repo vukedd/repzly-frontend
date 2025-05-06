@@ -10,7 +10,7 @@
     <div class="mb-3 flex justify-content-between align-items-center">
       <div class="text-2xl md:text-3xl font-bold">{{programHistory.title}}</div>
       <div class="flex flex-wrap justify-content-center sm:justify-content-end gap-2">
-        <button pButton icon="pi pi-file" label="View Program" class="p-button-outlined" 
+        <button *ngIf="this.programHistory.programId" pButton icon="pi pi-file" label="View Program" class="p-button-outlined" 
                 (click)="navigateToProgram()"></button>
         <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined" 
                 (click)="exportHistoryData()"></button>
@@ -113,7 +113,7 @@
               <div class="flex align-items-center">
                 <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
                 <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2">({{workout.number || 'Day ' + (workoutIndex + 1)}})</span>
+                <span class="ml-2">({{'Workout ' + (workoutIndex + 1)}})</span>
                 <p-tag [value]="workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'" 
                        [severity]="workout.isStarted ? (workout.finished ? 'success' : 'info') : 'warn'"
                        class="ml-2"></p-tag>
