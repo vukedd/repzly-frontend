@@ -11,7 +11,7 @@
       <div class="text-2xl md:text-3xl font-bold">{{ getPageTitle() }}</div>
     </div>
 
-    <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="programForm" (ngSubmit)="onSubmit()" (keydown.enter)="preventEnterKeySubmission($event)">
       <p-stepper [value]="activeStep" [linear]="true" class="w-full">
         <!-- Step List -->
         <p-step-list>

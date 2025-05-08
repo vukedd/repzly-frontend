@@ -26,6 +26,7 @@ import { RatingModule } from 'primeng/rating';
 import * as XLSX from 'xlsx';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-program-details',
@@ -52,7 +53,8 @@ import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
     SelectModule,
     FileUploadModule,
     DialogModule,
-    TagModule
+    TagModule,
+    AvatarModule
   ],
   templateUrl: './program-details.component.html',
   styleUrl: './program-details.component.css',

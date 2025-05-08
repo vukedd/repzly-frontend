@@ -28,7 +28,11 @@ import { SafePipe } from '../../workout/workout-tracker/safe-pipe';
 import { MenuModule } from 'primeng/menu';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectButtonModule } from 'primeng/selectbutton';
-
+import { TagModule } from 'primeng/tag';
+import { FieldsetModule } from 'primeng/fieldset';
+import { TooltipModule } from 'primeng/tooltip';
+import { OrderListModule } from 'primeng/orderlist';
+import { AvatarModule } from 'primeng/avatar';
 @Component({
   selector: 'app-program-create',
   standalone: true,
@@ -52,7 +56,12 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     ProgressSpinnerModule,
     SafePipe,
     MenuModule,
-    SelectButtonModule
+    SelectButtonModule,
+    TagModule,
+    FieldsetModule,
+    TooltipModule,
+    OrderListModule,
+    AvatarModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -1200,5 +1209,31 @@ export class ProgramCreateComponent implements OnInit {
   getExerciseControl(formIndex: number, workoutIndex: number, exerciseIndex: number): AbstractControl | null {
     const exercises = this.getWorkoutExercises(formIndex, workoutIndex);
     return exercises && exercises.length > exerciseIndex ? exercises.at(exerciseIndex) : null;
+  }
+
+  preventEnterKeySubmission(event: Event) {
+    const target = event.target as HTMLElement;
+
+    if (target.nodeName === 'TEXTAREA') {
+      return;
+    }
+    if (
+      target.nodeName === 'BUTTON' ||
+      (target.nodeName === 'INPUT' &&
+        ['submit', 'button', 'reset'].includes((target as HTMLInputElement).type.toLowerCase()))
+    ) {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  // In your ProgramCreateComponent
+  moveWorkoutInOrderList(weekIndex: number, event: any) {
+    // event.value contains the reordered array of workout controls
+    // event.dragIndex and event.dropIndex are the original and new positions
+    const workoutsArray = this.getWorkouts(weekIndex);
+    const movedItem = workoutsArray.at(event.dragIndex);
+    workoutsArray.removeAt(event.dragIndex);
+    workoutsArray.insert(event.dropIndex, movedItem);
   }
 }

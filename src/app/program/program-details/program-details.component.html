@@ -120,90 +120,108 @@
         }
       </p-tablist>
 
-      <p-tabpanels class="p-1">
+      <p-tabpanels class="p-0">
         @for (week of program.weeks; track $index) {
         <p-tabpanel [value]="$index.toString()">
 
           <!-- Workouts for this Week -->
           @for (workout of week.workouts; track workout; let workoutIndex = $index) {
-          <div class="surface-100 border-1 border-round surface-border mb-4">
-            <!-- Workout Header -->
-            <div class="flex justify-content-between align-items-center p-2">
-              <div class="flex align-items-center">
-                <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
-                <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2">({{'Workout ' + (workoutIndex + 1)}})</span>
-              </div>
-
-              <!-- Description button, only show if description exists -->
-              <div *ngIf="workout.description" class="flex-none">
-                <button pButton icon="pi pi-info-circle" class="p-button-text p-button-rounded"
-                  (click)="showDescription(workout)"></button>
-              </div>
-            </div>
-
-            <!-- Exercises Section -->
-            @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
-            <div class="surface-card mb-3 border-1 border-top-1 surface-border">
-              <div class="flex justify-content-between align-items-center p-2">
+            <div class="surface-card shadow-1 border-round mb-4 overflow-hidden mt-1"> <!-- Changed surface-0 to surface-card for better look, added shadow and overflow-hidden -->
+              <!-- Workout Header -->
+              <div class="flex justify-content-between align-items-center p-3 bg-primary-reverse border-bottom-1 surface-border"> <!-- Use a subtle background for header -->
                 <div class="flex align-items-center">
-                  <span class="font-bold mr-2">{{exerciseIndex + 1}}.</span>
-                  <span>{{exercise.exercise.title}}</span>
-
-                  <!-- Rest Time Display -->
-                  <p-tag class="ml-3" severity="info">
-                    Rest:
-                    <ng-container *ngIf="exercise.minimumRestTime > 0">
-                      {{exercise.minimumRestTime}}-{{exercise.maximumRestTime}}s
-                    </ng-container>
-                    <ng-container *ngIf="exercise.minimumRestTime <= 0">
-                      {{exercise.maximumRestTime}}s
-                    </ng-container>
-                  </p-tag>
+                  <p-avatar [label]="(workoutIndex + 1).toString()" styleClass="mr-2 bg-primary text-white" shape="circle"></p-avatar>
+                  <span class="text-lg font-semibold text-primary">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
+                  <!-- Optional: If you want to keep the generic workout number -->
+                  <!-- <span class="ml-2 text-sm text-500">({{'Workout ' + (workoutIndex + 1)}})</span> -->
+                </div>
+          
+                <!-- Description button, only show if description exists -->
+                <div *ngIf="workout.description" class="flex-none">
+                  <button pButton icon="pi pi-info-circle"
+                          class="p-button-text p-button-rounded p-button-secondary" 
+                          (click)="showDescription(workout)"
+                          pTooltip="View Workout Description"
+                          tooltipPosition="top">
+                  </button>
                 </div>
               </div>
-
-              <!-- Exercise Details -->
-              <div class="p-3 border-top-1 surface-border">
-                <!-- Sets Table - Updated to match create component -->
-                <p-divider class="mt-1 mb-1" align="left">
-                  <p-tag severity="success">Sets</p-tag>
-                </p-divider>
-
-                <!-- Sets header row -->
-                <div class="grid align-items-center mb-2 font-bold p-2">
-                  <div class="col-1 flex justify-content-center">#</div>
-                  <div class="col-5 flex justify-content-center">Volume</div>
-                  <div class="col-6 flex justify-content-center">Intensity</div>
-                </div>
-
-                @for (set of exercise.sets; track set; let setIndex = $index) {
-                <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
-                  <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
-                  <div class="col-5 flex justify-content-center">
-                    <ng-container *ngIf="isVolumeRange(set)">
-                      {{set.volume.minimumVolume}}-{{set.volume.maximumVolume}}
-                    </ng-container>
-                    <ng-container *ngIf="!isVolumeRange(set)">
-                      {{set.volume.maximumVolume}}
-                    </ng-container>
-                    <span class="ml-1">{{set.volumeMetric.metricSymbol}}</span>
+          
+              <!-- Exercises Section -->
+              <div class="p-0 md:p-1"> <!-- Add a little padding around exercises container -->
+                @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
+                <div class="border-1 surface-border border-round surface-100 mt-3"> <!-- Each exercise in a bordered container -->
+                  <!-- Exercise Header -->
+                  <div class="flex justify-content-between align-items-center p-3"> <!-- Slightly different bg for exercise header -->
+                    <div class="flex align-items-center"> 
+                      <span class="font-semibold text-md mr-2 text-700">{{exerciseIndex + 1}}.</span>
+                      <span class="font-medium text-md text-700">{{exercise.exercise.title}}</span>
+                    </div>
+                    <!-- Rest Time Display -->
+                    <p-tag styleClass="p-tag-sm" severity="info"> <!-- Use p-tag-sm for smaller tag -->
+                      <i class="pi pi-clock mr-1"></i> <!-- Icon for rest time -->
+                      Rest:
+                      <ng-container *ngIf="exercise.minimumRestTime > 0 && exercise.maximumRestTime > exercise.minimumRestTime">
+                        {{exercise.minimumRestTime}}-{{exercise.maximumRestTime}}s
+                      </ng-container>
+                      <ng-container *ngIf="!(exercise.minimumRestTime > 0 && exercise.maximumRestTime > exercise.minimumRestTime)">
+                        {{exercise.maximumRestTime}}s
+                      </ng-container>
+                    </p-tag>
                   </div>
-                  <div class="col-6 flex justify-content-center">
-                    <ng-container *ngIf="isIntensityRange(set)">
-                      {{set.intensity.minimumIntensity}}-{{set.intensity.maximumIntensity}}
-                    </ng-container>
-                    <ng-container *ngIf="!isIntensityRange(set)">
-                      {{set.intensity.maximumIntensity}}
-                    </ng-container>
-                    <span class="ml-1">{{set.intensityMetric.metricSymbol}}</span>
+          
+                  <!-- Exercise Sets Details -->
+                  <div class="p-3">
+                    <!-- Sets Table Header -->
+                    <div class="grid align-items-center mb-2 font-semibold text-sm text-600 border-bottom-1 surface-border pb-2">
+                      <div class="col-1 flex justify-content-center">#</div>
+                      <div class="col-5 flex justify-content-center">
+                        <i class="mr-1"></i>Volume <!-- Icon for Volume -->
+                      </div>
+                      <div class="col-6 flex justify-content-center">
+                        <i class="mr-1"></i>Intensity <!-- Icon for Intensity -->
+                      </div>
+                    </div>
+          
+                    <!-- Sets Rows -->
+                    @for (set of exercise.sets; track set; let setIndex = $index) {
+                    <div class="grid align-items-center py-2 mb-1 text-sm" [ngClass]="{'border-bottom-1 surface-border': setIndex < exercise.sets.length - 1}"> <!-- Conditional border -->
+                      <div class="col-1 flex justify-content-center text-600">{{setIndex + 1}}</div>
+                      <div class="col-5 flex justify-content-center text-700">
+                        <ng-container *ngIf="isVolumeRange(set)">
+                          {{set.volume.minimumVolume}} - {{set.volume.maximumVolume}}
+                        </ng-container>
+                        <ng-container *ngIf="!isVolumeRange(set)">
+                          {{set.volume.maximumVolume}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{set.volumeMetric.metricSymbol}}</span>
+                      </div>
+                      <div class="col-6 flex justify-content-center text-700">
+                        <ng-container *ngIf="isIntensityRange(set)">
+                          {{set.intensity.minimumIntensity}} - {{set.intensity.maximumIntensity}}
+                        </ng-container>
+                        <ng-container *ngIf="!isIntensityRange(set)">
+                          {{set.intensity.maximumIntensity}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{set.intensityMetric.metricSymbol}}</span>
+                      </div>
+                    </div>
+                    }
+                    @if (exercise.sets.length === 0) {
+                      <div class="text-center text-sm text-500 py-2">
+                          <i class="pi pi-info-circle mr-1"></i> No sets defined for this exercise.
+                      </div>
+                    }
                   </div>
                 </div>
                 }
+                @if (workout.workoutExercises.length === 0) {
+                  <div class="text-center text-500 p-3">
+                      <i class="pi pi-exclamation-circle mr-2"></i>No exercises in this workout.
+                  </div>
+                }
               </div>
             </div>
-            }
-          </div>
           }
         </p-tabpanel>
         }
