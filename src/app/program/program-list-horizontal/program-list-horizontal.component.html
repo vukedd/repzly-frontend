@@ -9,13 +9,14 @@
             </div>
             <!-- Program Carousel -->
             <div *ngIf="!loading" >
-                <p-carousel #programCarousel [value]="carouselItems" [numVisible]="2" [numScroll]="1" [circular]="false"
-                    [responsiveOptions]="responsiveOptions" [showNavigators]="true" [showIndicators]="true"
+                <p-carousel #programCarousel [value]="carouselItems" [circular]="false"
+                      [showIndicators]="true"
+                      [showNavigators]="showNavigatorButtons"
                      (onPage)="onCarouselPageChange($event)" styleClass="custom-carousel">
                     <ng-template let-item pTemplate="item">
                         <!-- Program Card -->
                         <div class="flex justify-content-center carousel-item-container pb-4">
-                            <div class="w-full px-2">
+                            <div class="px-2">
                                 <app-program-card [program]="item.program" programType="started"></app-program-card>
                             </div>
                         </div>

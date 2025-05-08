@@ -9,11 +9,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgramService } from '../program-service/program.service';
 import { response } from 'express';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-program-card',
-  imports: [CardModule, ButtonModule, RatingModule, CommonModule, FormsModule],
+  imports: [CardModule, ButtonModule, RatingModule, CommonModule, FormsModule,ToastModule],
   templateUrl: './program-card.component.html',
-  styleUrl: './program-card.component.css'
+  styleUrl: './program-card.component.css',
+  providers:[MessageService]
 })
 export class ProgramCardComponent implements OnInit {
   @Input() program!: ProgramOverviewDTO;
@@ -23,7 +26,8 @@ export class ProgramCardComponent implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
     private router: Router,
-    private programService: ProgramService
+    private programService: ProgramService,
+    private messageService: MessageService
   ) {
     this.apiUrl = programService.apiUrl;
   }
@@ -45,10 +49,14 @@ export class ProgramCardComponent implements OnInit {
 
   startProgram(event: Event): void {
     event.stopPropagation(); // Prevent card click when clicking like button
-    this.programService.startProgram(this.program.id).subscribe(
+    this.programService.startProgram(this.program.id!).subscribe(
       {
         next: (response) => {
-          console.log(this.program.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'You have successfully started the program!'
+          });
         }
       }
     );
@@ -64,6 +72,11 @@ export class ProgramCardComponent implements OnInit {
     event.stopPropagation(); // Prevent card click when clicking like button
     this.router.navigate(['/programs-history', this.program.startedProgramId]);
 
+  }
+  
+  handleImageError(event: any): void {
+    const target = event.target;
+    target.src = 'placeholder-program.png'; // Use your fallback image
   }
 
 

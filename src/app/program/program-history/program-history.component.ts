@@ -668,4 +668,9 @@ export class ProgramHistoryComponent implements OnInit {
       return 'info';
     }
   }
+
+  handleImageError(event: any): void {
+    const target = event.target;
+    target.src = 'placeholder-program.png'; // Use your fallback image
+  }
 }

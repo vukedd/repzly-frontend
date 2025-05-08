@@ -21,8 +21,9 @@
     <div class="surface-card p-3 border-round mb-3">
       <div class="grid">
         <div class="col-12 md:col-4 flex justify-content-center md:justify-content-start mb-3 md:mb-0">
-          <img [src]="programHistory.programId ? apiUrl + '/image/' + programHistory.programId : 'dinja.jpg'" 
-               alt="Program Image" class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round shadow-2 object-fit-cover">
+          <img [src]="programHistory.programId ? apiUrl + '/image/' + programHistory.programId : 'placeholder-program.png'" 
+               alt="Program Image" class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round shadow-2 object-fit-cover"
+               (error)="handleImageError($event)">
         </div>
         <div class="col-12 md:col-8">
           <div class="grid">
