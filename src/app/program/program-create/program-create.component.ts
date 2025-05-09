@@ -120,6 +120,8 @@ export class ProgramCreateComponent implements OnInit {
   showVideoDialog = false;
   currentVideoUrl: string | null = null;
 
+  activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
+
 
   publicOptions: any[];
 
@@ -421,10 +423,12 @@ export class ProgramCreateComponent implements OnInit {
       description: [''],
       workoutExercises: this.fb.array([])
     });
-    this.getWorkouts(weekIndex).push(workoutForm);
+    const workoutsArray = this.getWorkouts(weekIndex);
+    workoutsArray.push(workoutForm);
+    const newWorkoutIndex = workoutsArray.length - 1;
+    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
 
-    // Add initial exercise to the new workout
-    this.addWorkoutExercise(weekIndex, this.getWorkouts(weekIndex).length - 1);
+    this.addWorkoutExercise(weekIndex, newWorkoutIndex);
   }
 
   removeWorkout(weekIndex: number, workoutIndex: number): void {
@@ -486,26 +490,54 @@ export class ProgramCreateComponent implements OnInit {
       .at(exerciseIndex).get('sets') as FormArray;
   }
 
+  // Modify the addSet method in ProgramCreateComponent class
   addSet(weekIndex: number, workoutIndex: number, exerciseIndex: number): void {
-    // Get the parent exercise to access its selected metrics
-    const exercise = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
-    const volumeMetric = exercise.get('volumeMetric')?.value;
-    const intensityMetric = exercise.get('intensityMetric')?.value;
+    const setsArray = this.getSets(weekIndex, workoutIndex, exerciseIndex);
+    const exerciseControl = this.getWorkoutExercises(weekIndex, workoutIndex).at(exerciseIndex);
+    const currentVolumeMetric = exerciseControl.get('volumeMetric')?.value;
+    const currentIntensityMetric = exerciseControl.get('intensityMetric')?.value;
 
-    const setForm = this.fb.group({
-      volume: this.fb.group({
-        minimumVolume: [null],
-        maximumVolume: [null, Validators.required]
-      }),
-      intensity: this.fb.group({
-        minimumIntensity: [null],
-        maximumIntensity: [null, Validators.required]
-      }),
-      volumeMetric: [volumeMetric],
-      intensityMetric: [intensityMetric]
-    });
+    let newSetForm: FormGroup;
 
-    this.getSets(weekIndex, workoutIndex, exerciseIndex).push(setForm);
+    if (setsArray.length > 0) {
+      // Get the last set's values
+      const lastSet = setsArray.at(setsArray.length - 1) as FormGroup;
+      const lastSetValue = lastSet.getRawValue(); // Use getRawValue to include disabled controls
+
+      // Create the new set by copying values from the last set
+      // Ensure IDs are not copied if they exist, to treat it as a new entity
+      newSetForm = this.fb.group({
+        id: [null], // Explicitly set id to null for a new set
+        volume: this.fb.group({
+          minimumVolume: [lastSetValue.volume?.minimumVolume],
+          maximumVolume: [lastSetValue.volume?.maximumVolume, Validators.required]
+        }),
+        intensity: this.fb.group({
+          minimumIntensity: [lastSetValue.intensity?.minimumIntensity],
+          maximumIntensity: [lastSetValue.intensity?.maximumIntensity, Validators.required]
+        }),
+        // Use the metrics from the last set, or fallback to the current exercise's metrics
+        volumeMetric: [lastSetValue.volumeMetric || currentVolumeMetric],
+        intensityMetric: [lastSetValue.intensityMetric || currentIntensityMetric]
+      });
+    } else {
+      // If no existing sets, create a default new set with current exercise metrics
+      newSetForm = this.fb.group({
+        id: [null],
+        volume: this.fb.group({
+          minimumVolume: [null],
+          maximumVolume: [null, Validators.required]
+        }),
+        intensity: this.fb.group({
+          minimumIntensity: [null],
+          maximumIntensity: [null, Validators.required]
+        }),
+        volumeMetric: [currentVolumeMetric],
+        intensityMetric: [currentIntensityMetric]
+      });
+    }
+
+    setsArray.push(newSetForm);
   }
 
   removeSet(weekIndex: number, workoutIndex: number, exerciseIndex: number, setIndex: number): void {
@@ -961,17 +993,16 @@ export class ProgramCreateComponent implements OnInit {
       return;
     }
 
-    // Create a new workout with the copied data
     const workoutForm = this.fb.group({
       title: [this.copiedWorkout.title || ''],
       description: [this.copiedWorkout.description || ''],
       workoutExercises: this.fb.array([])
     });
-    this.getWorkouts(weekIndex).push(workoutForm);
+    const workoutsArray = this.getWorkouts(weekIndex);
+    workoutsArray.push(workoutForm);
+    const newWorkoutIndex = workoutsArray.length - 1;
+    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
 
-    const workoutIndex = this.getWorkouts(weekIndex).length - 1;
-
-    // Add exercises to the workout
     this.copiedWorkout.workoutExercises.forEach((exercise: any) => {
       const exerciseForm = this.fb.group({
         exercise: [this.findExerciseById(exercise.exercise?.id) || null, Validators.required],
@@ -983,11 +1014,10 @@ export class ProgramCreateComponent implements OnInit {
         restTimeMetric: [exercise.restTimeMetric || this.restTimeMetrics[0], Validators.required]
       });
 
-      this.getWorkoutExercises(weekIndex, workoutIndex).push(exerciseForm);
-      const exerciseIndex = this.getWorkoutExercises(weekIndex, workoutIndex).length - 1;
+      this.getWorkoutExercises(weekIndex, newWorkoutIndex).push(exerciseForm);
+      const exerciseIndex = this.getWorkoutExercises(weekIndex, newWorkoutIndex).length - 1;
 
-      // Update metric maps
-      const key = `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
+      const key = `${weekIndex}-${newWorkoutIndex}-${exerciseIndex}`;
       const volumeMetricValue = exerciseForm.get('volumeMetric')?.value;
       if (volumeMetricValue) {
         this.selectedVolumeMetrics.set(key, volumeMetricValue);
@@ -998,7 +1028,6 @@ export class ProgramCreateComponent implements OnInit {
       }
       this.selectedRestTime.set(key, exerciseForm.get('restTimeMetric')?.value);
 
-      // Add sets to the exercise
       exercise.sets.forEach((set: any) => {
         const setForm = this.fb.group({
           volume: this.fb.group({
@@ -1013,7 +1042,7 @@ export class ProgramCreateComponent implements OnInit {
           intensityMetric: [exerciseForm.get('intensityMetric')?.value]
         });
 
-        this.getSets(weekIndex, workoutIndex, exerciseIndex).push(setForm);
+        this.getSets(weekIndex, newWorkoutIndex, exerciseIndex).push(setForm);
       });
     });
 
@@ -1258,13 +1287,10 @@ export class ProgramCreateComponent implements OnInit {
     event.preventDefault();
   }
 
-  // In your ProgramCreateComponent
-  moveWorkoutInOrderList(weekIndex: number, event: any) {
-    // event.value contains the reordered array of workout controls
-    // event.dragIndex and event.dropIndex are the original and new positions
-    const workoutsArray = this.getWorkouts(weekIndex);
-    const movedItem = workoutsArray.at(event.dragIndex);
-    workoutsArray.removeAt(event.dragIndex);
-    workoutsArray.insert(event.dropIndex, movedItem);
+  getActiveWorkoutAccordionIndex(weekIndex: number): number {
+    return this.activeWorkoutAccordionIndices.get(weekIndex) ?? 0;
   }
+
+
+
 }

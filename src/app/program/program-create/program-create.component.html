@@ -132,7 +132,7 @@
                     <div [formGroupName]="i">
                       <!-- Workouts for this Week -->
                       <div formArrayName="workouts" class="w-full">
-                        <p-accordion [value]="0">
+                        <p-accordion [value]="getActiveWorkoutAccordionIndex(i)">
                           @for (workout of getWorkouts(i).controls; track workout; let workoutIndex = $index) {
                           <p-accordion-panel [value]="workoutIndex" styleClass="mb-4 z-0">
                             <p-accordion-header>
