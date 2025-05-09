@@ -15,7 +15,6 @@ import { DialogModule } from 'primeng/dialog';
 import { RegisterFormComponent } from "../../user/register/register-form/register-form.component";
 import { LoginFormComponent } from "../../user/login/login-form/login-form.component";
 import { ToastModule } from 'primeng/toast';
-import { SidebarModule } from 'primeng/sidebar';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuModule } from 'primeng/menu';
 import { RouterLink } from '@angular/router';
@@ -35,7 +34,6 @@ import { RouterLink } from '@angular/router';
     , RegisterFormComponent
     , LoginFormComponent
     , ToastModule
-    , SidebarModule
     , PanelMenuModule
     , MenuModule
     , RouterLink],
@@ -120,8 +118,7 @@ export class HeaderComponent implements OnInit{
                     label: 'Logout',
                     icon: PrimeIcons.SIGN_OUT,
                     command: () => {
-                      this.jwtService.logout()
-                      window.location.href = '';
+                      this.logout();
                     }
                   },
                 ],
@@ -135,6 +132,12 @@ export class HeaderComponent implements OnInit{
       )
     }
   }
+
+  logout(){
+    this.jwtService.logout()
+    window.location.href = '';
+  }
+
 
   toggleTheme() {
     this.themeService.toggleDarkMode();

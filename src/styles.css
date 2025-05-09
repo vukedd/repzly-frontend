@@ -1,3 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/primeflex/primeflex.css";
 @import "primeicons/primeicons.css";
+
+/* Atkinson Hyperlegible Regular */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  /* Path is relative to the application root */
+  src: url('/fonts/AtkinsonHyperlegibleRegular102.ttf') format('truetype');
+  font-weight: 400; /* or 'normal' */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Atkinson Hyperlegible Italic */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('/fonts/AtkinsonHyperlegibleItalic102.ttf') format('truetype');
+  font-weight: 400; /* or 'normal' */
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Atkinson Hyperlegible Bold */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('/fonts/AtkinsonHyperlegibleBold102.ttf') format('truetype');
+  font-weight: 700; /* or 'bold' */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Atkinson Hyperlegible Bold Italic */
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('/fonts/AtkinsonHyperlegibleBoldItalic102.ttf') format('truetype');
+  font-weight: 700; /* or 'bold' */
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Optional: Apply to body as a general rule */
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+}

@@ -18,6 +18,7 @@ const neutral = {
 
 const ModernDarkContrastTheme = definePreset(Material, {
     primitive: {
+
         // --- Keeping original definitions ---
         borderRadius: {
             none: '0',
@@ -48,6 +49,10 @@ const ModernDarkContrastTheme = definePreset(Material, {
         // --- Add the neutral grey palette ---
         neutral: neutral,
     },
+    font: {
+        family: '"Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+    },
+
     semantic: {
         // --- Keeping original semantic definitions ---
         transitionDuration: '0.15s', // Slightly faster transitions
