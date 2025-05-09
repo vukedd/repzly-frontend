@@ -33,6 +33,8 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { TooltipModule } from 'primeng/tooltip';
 import { OrderListModule } from 'primeng/orderlist';
 import { AvatarModule } from 'primeng/avatar';
+import { CardModule } from 'primeng/card';
+
 @Component({
   selector: 'app-program-create',
   standalone: true,
@@ -61,7 +63,8 @@ import { AvatarModule } from 'primeng/avatar';
     FieldsetModule,
     TooltipModule,
     OrderListModule,
-    AvatarModule
+    AvatarModule,
+    CardModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -1202,6 +1205,34 @@ export class ProgramCreateComponent implements OnInit {
         icon: 'pi pi-times',
         command: () => this.removeWorkoutExercise(formIndex, workoutIndex, exerciseIndex),
         disabled: this.getWorkoutExercises(formIndex, workoutIndex).length <= 1
+      }
+    ];
+  }
+
+  getWorkoutMenuItems(formIndex: number, workoutIndex: number): MenuItem[] {
+    return [
+      {
+        label: 'Copy Workout',
+        icon: 'pi pi-copy',
+        command: () => this.copyWorkout(formIndex, workoutIndex)
+      },
+      {
+        label: 'Move Up',
+        icon: 'pi pi-arrow-up',
+        command: () => this.moveWorkoutUp(formIndex, workoutIndex),
+        disabled: workoutIndex === 0
+      },
+      {
+        label: 'Move Down',
+        icon: 'pi pi-arrow-down',
+        command: () => this.moveWorkoutDown(formIndex, workoutIndex),
+        disabled: workoutIndex === this.getWorkouts(formIndex).length - 1
+      },
+      {
+        label: 'Remove Workout',
+        icon: 'pi pi-times',
+        command: () => this.removeWorkout(formIndex, workoutIndex),
+        disabled: this.getWorkouts(formIndex).length <= 1
       }
     ];
   }

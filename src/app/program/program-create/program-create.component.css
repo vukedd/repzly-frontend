@@ -1,5 +1,3 @@
-/* In your component's CSS/SCSS file */
-.no-ripple .p-ripple {
-    display: none !important;
-  }
-  
+.p-accordioncontent-content{
+  padding: 0rem;
+}
