@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TabsModule } from 'primeng/tabs';
+import { TabList, TabsModule } from 'primeng/tabs';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -22,6 +22,7 @@ import { TagModule } from 'primeng/tag';
 import { Workout, WorkoutExerciseSet } from '../program.model';
 import { DialogModule } from 'primeng/dialog';
 import * as XLSX from 'xlsx';
+import { AvatarModule } from 'primeng/avatar';
 
 
 @Component({
@@ -47,7 +48,8 @@ import * as XLSX from 'xlsx';
     CalendarModule,
     ChipModule,
     TagModule,
-    DialogModule
+    DialogModule,
+    AvatarModule
   ],
   templateUrl: './program-history.component.html',
   styleUrl: './program-history.component.css',
@@ -68,6 +70,8 @@ export class ProgramHistoryComponent implements OnInit {
 
   // New properties to store combined data
   allWeeks: any[] = [];
+
+  @ViewChild('tablist') tablistComponent!: TabList;
 
   constructor(
     private route: ActivatedRoute,
@@ -146,7 +150,10 @@ export class ProgramHistoryComponent implements OnInit {
           ...notStartedWeek,
           weekNumber: weekNumber,
           isStarted: false,
-          allWorkouts: notStartedWeek.workouts || []
+          allWorkouts: this.combineWorkouts(
+            notStartedWeek.workouts || [],
+            []
+          )
         });
       });
     }
@@ -672,5 +679,25 @@ export class ProgramHistoryComponent implements OnInit {
   handleImageError(event: any): void {
     const target = event.target;
     target.src = 'placeholder-program.png'; // Use your fallback image
+  }
+
+  onTabChange(event: any): void {
+    this.activeWeekTab = event.index.toString();
+    this.scrollToActiveTab();
+  }
+
+  scrollToActiveTab(): void {
+    if (this.tablistComponent) {
+      const element = this.findSingle(this.tablistComponent.content.nativeElement,
+        `[data-pc-name="tab"][data-p-active="true"]`);
+      if (element?.scrollIntoView) {
+        element.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  private findSingle(element: HTMLElement, selector: string): HTMLElement | null {
+    if (!element) return null;
+    return element.querySelector(selector);
   }
 }

@@ -1,5 +1,5 @@
-<!-- program-history.component.html (Updated with collapsible workouts) -->
-<div class="surface-ground px-2 py-2 md:px-4 md:py-5">
+<!-- program-history.component.html -->
+<div class="surface-50 px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center">
     <p-progressSpinner></p-progressSpinner>
@@ -7,31 +7,41 @@
 
   <ng-container *ngIf="!loading && programHistory">
     <!-- Header -->
-    <div class="mb-3 flex justify-content-between align-items-center">
-      <div class="text-2xl md:text-3xl font-bold">{{programHistory.title}}</div>
-      <div class="flex flex-wrap justify-content-center sm:justify-content-end gap-2">
-        <button *ngIf="this.programHistory.programId" pButton icon="pi pi-file" label="View Program" class="p-button-outlined" 
-                (click)="navigateToProgram()"></button>
-        <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined" 
-                (click)="exportHistoryData()"></button>
+    <div class="grid">
+      <div class="col-12 mb-3">
+        <div
+          class="flex flex-column sm:flex-row justify-content-between align-items-start sm:align-items-center white-space-normal">
+          <h2 class="text-2xl md:text-3xl font-bold m-0 mb-3 sm:mb-0 w-full sm:w-auto">{{programHistory.title}}</h2>
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-content-start sm:justify-content-end">
+            <button *ngIf="this.programHistory.programId" pButton icon="pi pi-file" label="View Program"
+              class="p-button-outlined" (click)="navigateToProgram()"></button>
+            <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined"
+              (click)="exportHistoryData()"></button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Program Overview Card -->
-    <div class="surface-card p-3 border-round mb-3">
+    <div class="surface-50 p-4 shadow-2 border-round mb-4">
       <div class="grid">
+        <!-- Program Image -->
         <div class="col-12 md:col-4 flex justify-content-center md:justify-content-start mb-3 md:mb-0">
-          <img [src]="programHistory.programId ? apiUrl + '/image/' + programHistory.programId : 'placeholder-program.png'" 
-               alt="Program Image" class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round shadow-2 object-fit-cover"
-               (error)="handleImageError($event)">
+          <img [src]="programHistory.programId ? apiUrl + '/image/' + programHistory.programId : 'placeholder-program.png'"
+            alt="Program Image"
+            class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round-lg shadow-3 object-fit-cover"
+            (error)="handleImageError($event)">
         </div>
+
+        <!-- Program Information -->
         <div class="col-12 md:col-8">
           <div class="grid">
             <div class="col-12">
-              <div class="flex justify-content-center md:justify-content-start align-items-center">
-                <span class="">Started Program</span>
+              <div class="flex justify-content-center md:justify-content-start align-items-center mb-2">
+                <i class="pi pi-calendar-check mr-2 text-primary"></i>
+                <span class="text-600 font-medium">Program Started</span>
               </div>
-              <div class="mt-2 flex justify-content-center md:justify-content-start align-items-center">
+              <div class="flex justify-content-center md:justify-content-start align-items-center">
                 <p-tag [value]="getCompletionPercentage() + '% Completed'"
                   [severity]="getCompletionPercentage() === 100 ? 'success' : 'info'"></p-tag>
               </div>
@@ -40,23 +50,31 @@
             <!-- Program Stats -->
             <div class="col-12 mt-3">
               <div class="grid">
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Duration</div>
-                  <div class="text-lg md:text-xl font-bold">{{programHistory.weeks?.length || 0}} Weeks</div>
-                </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Completed Sets</div>
-                  <div class="text-lg md:text-xl font-bold">
-                    {{getTotalCompletedSets()}} / {{getTotalPlannedSets()}}
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Duration</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{programHistory.weeks?.length || 0}} Weeks</div>
                   </div>
                 </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Total Weight Lifted</div>
-                  <div class="text-lg md:text-xl font-bold">{{getTotalWeightLifted()}} kg</div>
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Total Workouts</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+                  </div>
                 </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Total Workouts</div>
-                  <div class="text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Completed Sets</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">
+                      {{getTotalCompletedSets()}} / {{getTotalPlannedSets()}}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Total Weight</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalWeightLifted()}} kg</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -67,171 +85,182 @@
 
 
     <!-- Weeks Section with Tabs -->
-    <p-tabs [value]="activeWeekTab" scrollable>
+    <p-tabs [value]="activeWeekTab" scrollable (onChange)="onTabChange($event)">
       <p-tablist #tablist>
         @for (week of getAllWeeks(); track $index) {
         <p-tab [value]="$index.toString()">
           <div class="flex justify-content-between align-items-center">
             <h4 class="m-0">Week {{ $index + 1 }}</h4>
-            <p-tag [value]="getWeekStatus(week)" [severity]="getStatusSeverity(getWeekStatus(week))" class="ml-2"></p-tag>
+            <p-tag [value]="getWeekStatus(week)" [severity]="getStatusSeverity(getWeekStatus(week))"
+              class="ml-2"></p-tag>
           </div>
         </p-tab>
         }
       </p-tablist>
 
-      <p-tabpanels class="p-1">
+      <p-tabpanels class="p-0">
         @for (week of getAllWeeks(); track $index) {
         <p-tabpanel [value]="$index.toString()">
-          
-          <!-- Week Status Information -->
-          <div class="grid mb-3">
-            <div class="col-12 md:col-4">
-              <div class="surface-100 p-3 border-round">
-                <h4 class="mt-0 mb-2">Status</h4>
-                <p-tag [value]="getWeekStatus(week)" [severity]="getStatusSeverity(getWeekStatus(week))"></p-tag>
+
+          <div class="grid my-3">
+            <div class="col-12 sm:col-6 md:col-4 p-2" *ngIf="week.startDate">
+              <div class="surface-100 border-round-lg p-3">
+                <div class="text-600 text-sm font-medium mb-1">Start Date</div>
+                <div class="text-900 text-md font-semibold">{{formatDate(week.startDate)}}</div>
               </div>
             </div>
-            <div class="col-12 md:col-4">
-              <div class="surface-100 p-3 border-round">
-                <h4 class="mt-0 mb-2">Start Date</h4>
-                <span>{{formatDate(week.startDate)}}</span>
-              </div>
-            </div>
-            <div class="col-12 md:col-4">
-              <div class="surface-100 p-3 border-round">
-                <h4 class="mt-0 mb-2">Completion Date</h4>
-                <span>{{formatDate(week.doneDate)}}</span>
+            <div class="col-12 sm:col-6 md:col-4 p-2" *ngIf="week.doneDate">
+              <div class="surface-100 border-round-lg p-3">
+                <div class="text-600 text-sm font-medium mb-1">Completion Date</div>
+                <div class="text-900 text-md font-semibold">{{formatDate(week.doneDate)}}</div>
               </div>
             </div>
           </div>
 
+
           <!-- Workouts for this Week -->
           @for (workout of week.allWorkouts; track workout; let workoutIndex = $index) {
-          <div class="surface-100 border-1 border-round surface-border mb-4">
+          <div class="surface-card shadow-1 border-round mb-4 overflow-hidden mt-1">
             <!-- Workout Header (Clickable) -->
-            <div class="flex justify-content-between align-items-center p-2 cursor-pointer"
-                 (click)="toggleWorkoutDetails(workout.id)">
+            <div
+              class="flex justify-content-between align-items-center p-3 bg-primary-reverse border-bottom-1 surface-border cursor-pointer"
+              (click)="toggleWorkoutDetails(workout.id)">
               <div class="flex align-items-center">
-                <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
-                <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2">({{'Workout ' + (workoutIndex + 1)}})</span>
-                <p-tag [value]="workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'" 
-                       [severity]="workout.isStarted ? (workout.finished ? 'success' : 'info') : 'warn'"
-                       class="ml-2"></p-tag>
+                <p-avatar [label]="(workoutIndex + 1).toString()" styleClass="mr-2 bg-primary text-white"
+                  shape="circle"></p-avatar>
+                <span class="text-lg font-semibold text-primary">{{workout.title || 'Workout ' + (workoutIndex +
+                  1)}}</span>
+                <p-tag [value]="workout.isStarted ? (workout.finished ? 'Completed' : 'In Progress') : 'Not Started'"
+                  [severity]="workout.isStarted ? (workout.finished ? 'success' : 'info') : 'warn'"
+                  class="ml-3"></p-tag>
               </div>
-              
               <div class="flex align-items-center">
-                <!-- Description button, only show if description exists -->
-                <button *ngIf="workout.description" pButton icon="pi pi-info-circle" class="p-button-text p-button-rounded mr-2" 
-                      (click)="showDescription(workout); $event.stopPropagation()"></button>
-                <!-- Expand/Collapse Button -->
-                <i [class]="isWorkoutExpanded(workout.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" class="text-xl px-3"></i>
+                <button *ngIf="workout.description" pButton icon="pi pi-info-circle"
+                  class="p-button-text p-button-rounded p-button-secondary mr-1"
+                  (click)="showDescription(workout); $event.stopPropagation()" pTooltip="View Workout Description"
+                  tooltipPosition="top">
+                </button>
+                <i [class]="isWorkoutExpanded(workout.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                  class="text-xl text-primary"></i>
               </div>
             </div>
 
             <!-- Workout Details - Only show when expanded -->
-            <div *ngIf="isWorkoutExpanded(workout.id)">
-              <!-- Exercises Section - Always Visible when workout is expanded -->
+            <div *ngIf="isWorkoutExpanded(workout.id)" class="p-0 md:p-1">
               @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
-              <div class="surface-card mb-3 border-1 border-top-1 surface-border">
-                <div class="flex justify-content-between align-items-center p-2">
+              <div class="border-1 surface-border border-round surface-100 mt-3">
+                <!-- Exercise Header -->
+                <div class="flex justify-content-between align-items-center p-3">
                   <div class="flex align-items-center">
-                    <span class="font-bold mr-2">{{exerciseIndex + 1}}.</span>
-                    <span>{{exercise.title || exercise.exercise.title || 'Exercise ' + (exerciseIndex + 1)}}</span>
-                    <p-tag [value]="getExerciseStatus(exercise)" [severity]="getExerciseSeverity(exercise)" class="ml-2"></p-tag>
+                    <span class="font-semibold text-md mr-2 text-700">{{exerciseIndex + 1}}.</span>
+                    <span
+                      class="font-medium text-md text-700">{{exercise.title || exercise.exercise.title || 'Exercise ' + (exerciseIndex + 1)}}</span>
                   </div>
+                  <p-tag [value]="getExerciseStatus(exercise)" [severity]="getExerciseSeverity(exercise)"
+                    styleClass="p-tag-sm"></p-tag>
                 </div>
 
-                <!-- Exercise Details -->
-                <div class="p-3 border-top-1 surface-border">
+                <!-- Exercise Sets Details -->
+                <div class="p-3">
                   <!-- Completed Sets Section -->
-                  <p-divider class="mt-1 mb-1" align="left">
-                    <p-tag severity="success">Completed Sets</p-tag>
-                  </p-divider>
+                  <div class="mb-3" *ngIf="exercise.doneSets && exercise.doneSets.length > 0">
+                    <h5 class="text-sm font-semibold text-600 mt-0 mb-2">COMPLETED SETS</h5>
+                    <!-- Completed Sets Table Header -->
+                    <div
+                      class="grid align-items-center mb-2 font-semibold text-xs text-600 border-bottom-1 surface-border pb-2">
+                      <div class="col-1 flex justify-content-center">#</div>
+                      <div class="col-3 flex justify-content-center">Volume</div>
+                      <div class="col-3 flex justify-content-center">Intensity</div>
+                      <div class="col-2 flex justify-content-center">Weight</div>
+                      <div class="col-3 flex justify-content-center">Date</div>
+                    </div>
+                    <!-- Completed Sets Rows -->
+                    @for (doneSet of exercise.doneSets; track doneSet; let setIndex = $index) {
+                    <div class="grid align-items-center py-2 text-sm"
+                      [ngClass]="{'border-bottom-1 surface-border': setIndex < exercise.doneSets.length - 1}">
+                      <div class="col-1 flex justify-content-center text-600">{{setIndex + 1}}</div>
+                      <div class="col-3 flex justify-content-center text-700">
+                        {{doneSet.volume}}
+                        <span
+                          class="ml-1 text-500">{{doneSet.setDetails?.volumeMetric?.metricSymbol || ''}}</span>
+                      </div>
+                      <div class="col-3 flex justify-content-center text-700">
+                        {{doneSet.intensity}}
+                        <span
+                          class="ml-1 text-500">{{doneSet.setDetails?.intensityMetric?.metricSymbol || ''}}</span>
+                      </div>
+                      <div class="col-2 flex justify-content-center text-700">
+                        {{doneSet.weightLifted || 'N/A'}} kg
+                      </div>
+                      <div class="col-3 flex justify-content-center text-700">
+                        {{formatDate(doneSet.date)}}
+                      </div>
+                    </div>
+                    }
+                  </div>
+                  <div *ngIf="!exercise.doneSets || exercise.doneSets.length === 0"
+                    class="text-center text-sm text-500 py-2 mb-3">
+                    <i class="pi pi-info-circle mr-1"></i> No sets completed for this exercise yet.
+                  </div>
 
-                  <!-- Completed Sets Table Header -->
-                  <div *ngIf="exercise.doneSets && exercise.doneSets.length > 0" class="grid align-items-center mb-2 font-bold p-2">
-                    <div class="col-1 flex justify-content-center">#</div>
-                    <div class="col-3 flex justify-content-center">Volume</div>
-                    <div class="col-3 flex justify-content-center">Intensity</div>
-                    <div class="col-2 flex justify-content-center">Weight</div>
-                    <div class="col-3 flex justify-content-center">Date</div>
-                  </div>
-                  
-                  @for (doneSet of exercise.doneSets; track doneSet; let setIndex = $index) {
-                  <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
-                    <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
-                    <div class="col-3 flex justify-content-center">
-                      {{doneSet.volume}} {{doneSet.setDetails?.volumeMetric?.metricSymbol}}
-                    </div>
-                    <div class="col-3 flex justify-content-center">
-                      {{doneSet.intensity}} {{doneSet.setDetails?.intensityMetric?.metricSymbol}}
-                    </div>
-                    <div class="col-2 flex justify-content-center">
-                      {{doneSet.weightLifted || 'N/A'}} kg
-                    </div>
-                    <div class="col-3 flex justify-content-center">
-                      {{formatDate(doneSet.date)}}
-                    </div>
-                  </div>
-                  }
-                  
-                  <!-- Show message if no completed sets -->
-                  <div *ngIf="!exercise.doneSets || exercise.doneSets.length === 0" class="p-3 text-center">
-                    <p class="">No sets completed for this exercise yet.</p>
-                  </div>
 
                   <!-- Remaining Planned Sets Section -->
-                  <p-divider class="mt-3 mb-1" align="left">
-                    <p-tag severity="warn">Planned Sets</p-tag>
-                  </p-divider>
-
-                  <!-- Planned Sets header row -->
-                  <div *ngIf="getRemainingPlannedSets(exercise).length > 0" class="grid align-items-center mb-2 font-bold p-2">
-                    <div class="col-1 flex justify-content-center">#</div>
-                    <div class="col-5 flex justify-content-center">Volume</div>
-                    <div class="col-6 flex justify-content-center">Intensity</div>
-                  </div>
-                  
-                  @for (plannedSet of getRemainingPlannedSets(exercise); track plannedSet; let setIndex = $index) {
-                  <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
-                    <div class="col-1 flex justify-content-center">{{setIndex + (exercise.doneSets?.length || 0) + 1}}</div>
-                    <div class="col-5 flex justify-content-center">
-                      <ng-container *ngIf="isVolumeRange(plannedSet)">
-                        {{plannedSet.volume.minimumVolume}}-{{plannedSet.volume.maximumVolume}}
-                      </ng-container>
-                      <ng-container *ngIf="!isVolumeRange(plannedSet)">
-                        {{plannedSet.volume.maximumVolume}}
-                      </ng-container>
-                      <span class="ml-1">{{plannedSet.volumeMetric.metricSymbol}}</span>
+                  <div *ngIf="getRemainingPlannedSets(exercise).length > 0">
+                    <h5 class="text-sm font-semibold text-600 mt-0 mb-2">PLANNED SETS</h5>
+                    <!-- Planned Sets Table Header -->
+                    <div
+                      class="grid align-items-center mb-2 font-semibold text-xs text-600 border-bottom-1 surface-border pb-2">
+                      <div class="col-1 flex justify-content-center">#</div>
+                      <div class="col-5 flex justify-content-center">Volume</div>
+                      <div class="col-6 flex justify-content-center">Intensity</div>
                     </div>
-                    <div class="col-6 flex justify-content-center">
-                      <ng-container *ngIf="isIntensityRange(plannedSet)">
-                        {{plannedSet.intensity.minimumIntensity}}-{{plannedSet.intensity.maximumIntensity}}
-                      </ng-container>
-                      <ng-container *ngIf="!isIntensityRange(plannedSet)">
-                        {{plannedSet.intensity.maximumIntensity}}
-                      </ng-container>
-                      <span class="ml-1">{{plannedSet.intensityMetric.metricSymbol}}</span>
+                    <!-- Planned Sets Rows -->
+                    @for (plannedSet of getRemainingPlannedSets(exercise); track plannedSet; let setIndex = $index) {
+                    <div class="grid align-items-center py-2 text-sm"
+                      [ngClass]="{'border-bottom-1 surface-border': setIndex < getRemainingPlannedSets(exercise).length - 1}">
+                      <div class="col-1 flex justify-content-center text-600">{{setIndex + (exercise.doneSets?.length
+                        || 0) + 1}}</div>
+                      <div class="col-5 flex justify-content-center text-700">
+                        <ng-container *ngIf="isVolumeRange(plannedSet)">
+                          {{plannedSet.volume.minimumVolume}}-{{plannedSet.volume.maximumVolume}}
+                        </ng-container>
+                        <ng-container *ngIf="!isVolumeRange(plannedSet)">
+                          {{plannedSet.volume.maximumVolume}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{plannedSet.volumeMetric.metricSymbol}}</span>
+                      </div>
+                      <div class="col-6 flex justify-content-center text-700">
+                        <ng-container *ngIf="isIntensityRange(plannedSet)">
+                          {{plannedSet.intensity.minimumIntensity}}-{{plannedSet.intensity.maximumIntensity}}
+                        </ng-container>
+                        <ng-container *ngIf="!isIntensityRange(plannedSet)">
+                          {{plannedSet.intensity.maximumIntensity}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{plannedSet.intensityMetric.metricSymbol}}</span>
+                      </div>
                     </div>
+                    }
                   </div>
-                  }
-                  
-                  <!-- Show message if all sets are completed -->
-                  <div *ngIf="getRemainingPlannedSets(exercise).length === 0" class="p-3 text-center">
-                    <p class="">All planned sets have been completed!</p>
+                  <div *ngIf="getRemainingPlannedSets(exercise).length === 0 && exercise.doneSets && exercise.doneSets.length > 0"
+                    class="text-center text-sm text-500 py-2">
+                    <i class="pi pi-check-circle mr-1 text-green-500"></i> All planned sets have been completed!
                   </div>
                 </div>
+              </div>
+              }
+              @if (workout.workoutExercises.length === 0) {
+              <div class="text-center text-500 p-3">
+                <i class="pi pi-exclamation-circle mr-2"></i>No exercises in this workout.
               </div>
               }
             </div>
           </div>
           }
-          
-          <!-- No workouts message -->
-          <div *ngIf="!hasAnyWorkoutsForWeek(week)" class="p-3 text-center">
-            <p class="">No workouts defined for this week.</p>
+          @if (!hasAnyWorkoutsForWeek(week)) {
+          <div class="text-center text-500 p-3 surface-100 border-round">
+            <i class="pi pi-info-circle mr-2"></i>No workouts defined or tracked for this week.
           </div>
+          }
         </p-tabpanel>
         }
       </p-tabpanels>
@@ -244,23 +273,22 @@
       <i class="pi pi-exclamation-triangle text-4xl md:text-5xl text-yellow-500 mb-3"></i>
       <h2 class="text-xl md:text-2xl">Program History Not Found</h2>
       <p>The requested program history could not be found or you don't have permission to view it.</p>
-      <button pButton label="Back to Programs" icon="pi pi-arrow-left" class="p-button-outlined mt-3" routerLink="/programs"></button>
+      <button pButton label="Back to Programs" icon="pi pi-arrow-left" class="p-button-outlined mt-3"
+        routerLink="/programs"></button>
     </div>
   </div>
-  <p-dialog [(visible)]="displayDescriptionDialog" 
-            [header]="selectedWorkoutTitle" 
-            [style]="{width: '90%', maxWidth: '600px'}" 
-            [modal]="true" 
-            [draggable]="false" 
-            [resizable]="false">
+
+  <!-- Description Dialog -->
+  <p-dialog [(visible)]="displayDescriptionDialog" [header]="selectedWorkoutTitle"
+    [style]="{width: '90%', maxWidth: '600px'}" [modal]="true" [draggable]="false" [resizable]="false">
     <div class="p-3">
-      <p>{{selectedWorkoutDescription}}</p>
+      <p class="text-700 line-height-3 m-0">{{selectedWorkoutDescription}}</p>
     </div>
     <ng-template pTemplate="footer">
-      <button pButton icon="pi pi-times" label="Close" class="p-button-outlined" (click)="displayDescriptionDialog=false"></button>
+      <button pButton icon="pi pi-times" label="Close" class="p-button-text"
+        (click)="displayDescriptionDialog=false"></button>
     </ng-template>
   </p-dialog>
 
   <p-toast></p-toast>
-  
 </div>
