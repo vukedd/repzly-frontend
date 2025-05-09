@@ -115,11 +115,11 @@
                       <h4 class="m-0">Week {{ i + 1 }}</h4>
                       <div>
                         <!-- In your template -->
-                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text"
+                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week"
                           (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
 
                         <button pButton type="button" icon="pi pi-times"
-                          class="p-button-rounded p-button-danger p-button-text"
+                          class="p-button-rounded p-button-danger p-button-text" pTooltip="Remove Week"
                           (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
                           [disabled]="weeks.length <= 1"></button>
                       </div>
@@ -147,7 +147,7 @@
                                 <div class="flex align-items-center">
                                   <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
                                   <span class="text-xl">{{ workout.get('title')?.value || 'Workout' }}</span>
-                                  <button pButton type="button" icon="pi pi-pencil"
+                                  <button pButton type="button" icon="pi pi-pencil" pTooltip="Edit Workout"
                                     class="p-button-rounded p-button-text ml-2"
                                     (click)="$event.stopPropagation(); openWorkoutEditDialog(i, workoutIndex)"></button>
                                 </div>
@@ -166,17 +166,17 @@
                                   <div class="flex">
                                     <button pButton type="button" icon="pi pi-copy"
                                       class="p-button-rounded p-button-text mr-1"
-                                      (click)="$event.stopPropagation(); copyWorkout(i, workoutIndex)"></button>
-                                    <button pButton type="button" icon="pi pi-arrow-up"
+                                      (click)="$event.stopPropagation(); copyWorkout(i, workoutIndex)" pTooltip="Copy Workout"></button>
+                                    <button pButton type="button" icon="pi pi-arrow-up" pTooltip="Move Workout Up"
                                       class="p-button-rounded p-button-text mr-1"
                                       (click)="$event.stopPropagation(); moveWorkoutUp(i, workoutIndex)"
                                       [disabled]="workoutIndex === 0"></button>
-                                    <button pButton type="button" icon="pi pi-arrow-down"
+                                    <button pButton type="button" icon="pi pi-arrow-down"  pTooltip="Move Workout Down"
                                       class="p-button-rounded p-button-text mr-1"
                                       (click)="$event.stopPropagation(); moveWorkoutDown(i, workoutIndex)"
                                       [disabled]="workoutIndex === getWorkouts(i).length - 1"></button>
                                     <button pButton type="button" icon="pi pi-times"
-                                      class="p-button-rounded p-button-danger p-button-text"
+                                      class="p-button-rounded p-button-danger p-button-text" pTooltip="Remove Workout"
                                       (click)="$event.stopPropagation(); removeWorkout(i, workoutIndex)"
                                       [disabled]="getWorkouts(i).length <= 1"></button>
                                   </div>
