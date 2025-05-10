@@ -181,8 +181,7 @@ export class MuscleTrackerComponent implements OnInit {
         next: (data) => {
           const processedData = this.processMuscleData(data);
           this.highlightData = [...processedData]; // Force new reference
-          this.totalSets=this.getTotalSets(data);
-          
+          this.totalSets = this.getTotalSets(data);
           
           // Process data for the muscle sets display
           this.generateMuscleSetsDisplay(data);
@@ -224,7 +223,8 @@ export class MuscleTrackerComponent implements OnInit {
     this.muscleSetsData = Object.entries(rawData)
       .map(([muscleName, sets]) => ({
         muscleName,
-        sets,
+        // Round the sets to 2 decimal places for display
+        sets: Number(sets.toFixed(2)),
         colorHex: this.getColorForValue(sets, maxValue)
       }))
       .sort((a, b) => b.sets - a.sets);
@@ -243,18 +243,21 @@ export class MuscleTrackerComponent implements OnInit {
   
     for (const [muscleName, value] of Object.entries(rawData)) {
       const slugOrSlugs = this.muscleNameToSlugMap[muscleName];
+      
+      // Round the intensity value to 2 decimal places
+      const roundedIntensity = Number(value.toFixed(2));
   
       if (slugOrSlugs) {
-        // Pass the raw value as the intensity, not normalized
+        // Pass the rounded intensity value, not normalized
         // Let the highlighter handle the range-based color mapping
         
         // Handle array of slugs or single slug
         if (Array.isArray(slugOrSlugs)) {
           slugOrSlugs.forEach(slug => {
-            processed.push({ slug: slug, intensity: value });
+            processed.push({ slug: slug, intensity: roundedIntensity });
           });
         } else {
-          processed.push({ slug: slugOrSlugs, intensity: value });
+          processed.push({ slug: slugOrSlugs, intensity: roundedIntensity });
         }
       } else {
         console.warn(`No slug mapping found for muscle name: "${muscleName}"`);
@@ -265,6 +268,8 @@ export class MuscleTrackerComponent implements OnInit {
   }
  
   private getTotalSets(muscleData: Record<string, number>): number {
-    return Object.values(muscleData).reduce((total, sets) => total + sets, 0);
+    // Calculate the total and round to 2 decimal places at the end
+    const total = Object.values(muscleData).reduce((total, sets) => total + sets, 0);
+    return Number(total.toFixed(2));
   }
 }

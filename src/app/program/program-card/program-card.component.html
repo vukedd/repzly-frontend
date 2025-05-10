@@ -1,42 +1,67 @@
-<div class="h-full w-full">
-    <p-card styleClass="h-full border-round-lg cursor-pointer" (click)="navigateToDetails()">
-      <ng-template pTemplate="header">
-        <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'dinja.jpg'"
+<div class="h-full w-full p-2 cursor-pointer">
+  <p-card styleClass="h-full border-round-lg shadow-4 transform transition-duration-300 hover:shadow-6" (click)="navigateToDetails()">
+    <ng-template pTemplate="header">
+      <div class="relative">
+        <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'placeholder-program.png'"
              alt="{{program.name}}"
-             class="w-full h-12rem border-round-top-lg"/>
-      </ng-template>
-     
-      <div class="flex flex-column gap-3">
-        <div class="text-xl font-bold text-overflow-ellipsis overflow-hidden white-space-nowrap">
-          {{program.name}}
-        </div>
-         
-        <div class="flex align-items-center gap-2">
-          <i class="pi pi-user"></i>
-          <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
-            {{program.creatorUsername}}
-          </span>
-        </div>
-        <div class="flex align-items-center gap-2">
-            <i class="pi pi-users"></i>
-            <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
-                {{program.followersNumber}} followers
-            </span>
-          </div>
-          <div class="flex align-items-center gap-2">
-            <p-rating [ngModel]="program.rating" [readonly]="true" [readonly]="true"></p-rating>
-            <span>{{program.rating}}</span>
-          </div>
+             class="w-full h-16rem object-cover border-round-top-lg"
+             (error)="handleImageError($event)"/>
       </div>
-     
-      <ng-template pTemplate="footer">
-        <div class="flex justify-content-between">
-          <p-button label="Start program" (click)="startProgram($event)" *ngIf="programType=='not-started'"/>
-          <p-button label="Start next workout" (click)="startWorkout($event)" *ngIf="programType=='started'"/>
-          <p-button label="See History" (click)="seeHistory($event)" *ngIf="programType=='started'"/>
-
-
-        </div>
-      </ng-template>
-    </p-card>
-  </div>
+    </ng-template>
+    
+    <div class="flex flex-column gap-3 p-3">
+      <div class="text-xl font-bold text-overflow-ellipsis overflow-hidden white-space-nowrap text-primary">
+        {{program.name}}
+      </div>
+        
+      <div class="flex align-items-center gap-2 text-700">
+        <i class="pi pi-user text-primary"></i>
+        <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
+          {{program.creatorUsername}}
+        </span>
+      </div>
+      
+      <!-- <div class="flex align-items-center gap-2 text-700">
+        <i class="pi pi-users text-primary"></i>
+        <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
+          <strong>{{program.followersNumber}}</strong> followers
+        </span>
+      </div> -->
+      
+      <!-- <div class="flex align-items-center gap-2 mt-1">
+        <p-rating [ngModel]="program.rating" [readonly]="true" [stars]="5" styleClass="text-warning"></p-rating>
+        <span class="font-semibold">{{program.rating}}</span>
+      </div> -->
+      
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <div class="flex justify-content-between border-top-1 surface-border pt-3">
+        <p-button 
+          *ngIf="programType=='not-started'"
+          label="Start program" 
+          icon="pi pi-play" 
+          styleClass="p-button-rounded p-button-primary w-full"
+          (click)="startProgram($event)">
+        </p-button>
+        
+        <p-button 
+          *ngIf="programType=='started'"
+          label="Start next workout" 
+          icon="pi pi-play" 
+          styleClass="p-button-rounded p-button-primary" 
+          (click)="startWorkout($event)">
+        </p-button>
+        
+        <p-button 
+          *ngIf="programType=='started'"
+          label="See History" 
+          icon="pi pi-calendar" 
+          styleClass="p-button-rounded p-button-outlined p-button-secondary ml-3" 
+          (click)="seeHistory($event)">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>
+<p-toast></p-toast>

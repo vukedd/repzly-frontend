@@ -25,6 +25,8 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RatingModule } from 'primeng/rating';
 import * as XLSX from 'xlsx';
 import { TagModule } from 'primeng/tag';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-program-details',
@@ -41,7 +43,7 @@ import { TagModule } from 'primeng/tag';
     TableModule,
     ButtonModule,
     AccordionModule,
-    ConfirmPopupModule,
+    ConfirmDialogModule,
     ToastModule,
     RatingModule,
     DividerModule,
@@ -51,7 +53,8 @@ import { TagModule } from 'primeng/tag';
     SelectModule,
     FileUploadModule,
     DialogModule,
-    TagModule
+    TagModule,
+    AvatarModule
   ],
   templateUrl: './program-details.component.html',
   styleUrl: './program-details.component.css',
@@ -79,6 +82,8 @@ export class ProgramDetailsComponent implements OnInit {
   // Data for exercise information
   volumeMetrics: VolumeMetric[] = [];
   intensityMetrics: IntensityMetric[] = [];
+
+  showFullDescription:boolean=true;
 
   constructor(
     private route: ActivatedRoute,
@@ -182,11 +187,12 @@ export class ProgramDetailsComponent implements OnInit {
     }
   }
 
-  confirmDelete(event: Event): void {
+  confirmDelete(): void {
     this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Are you sure you want to delete this program?',
+      message: 'Are you sure you want to delete this program? This action cannot be undone.',
+      header: 'Delete Confirmation',
       icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-outlined',
       accept: () => {
         this.deleteProgram();
       }
@@ -513,5 +519,25 @@ export class ProgramDetailsComponent implements OnInit {
         console.error('Error deleting program:', error);
       }
     });
+  }
+
+  startProgram(): void {
+    if (!this.program) return;
+    this.programService.startProgram(this.program.id!).subscribe(
+      {
+        next: (response) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'You have successfully started the program!'
+          });
+        }
+      }
+    );
+  }
+
+  handleImageError(event: any): void {
+    const target = event.target;
+    target.src = 'placeholder-program.png'; // Use your fallback image
   }
 }

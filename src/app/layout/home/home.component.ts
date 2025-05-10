@@ -7,6 +7,7 @@ import { ProgramListComponent } from "../../program/program-list/program-list.co
 import { ButtonModule } from 'primeng/button';
 import { WorkoutDurationGraphComponent } from "../../workout-duration-graph/workout-duration-graph.component";
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -15,13 +16,14 @@ import { RouterLink } from '@angular/router';
     ProgramListHorizontalComponent,
     ButtonModule,
     WorkoutDurationGraphComponent,
-    RouterLink],
+    RouterLink,
+    CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  constructor(private jwtService: JwtService) { }
-  
+  constructor(public jwtService: JwtService) { }
+
 
   isLoggedIn(): boolean {
     return this.jwtService.isLoggedIn()

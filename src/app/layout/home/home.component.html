@@ -1,44 +1,28 @@
+<!-- Top section - Program list and muscle tracker (reordered for mobile) -->
 <div class="grid">
-    <div class="col-7">
-        <app-muscle-tracker></app-muscle-tracker>
-    </div>
-    <div class="col-5">
+    <!-- Program list - Now first on small screens but stays 5/12 on medium+ screens -->
+    <div class="col-12 md:col-5 lg:col-5 flex-order-0 md:flex-order-1">
         <app-program-list-horizontal></app-program-list-horizontal>
     </div>
+    <!-- Muscle tracker - Now second on small screens but stays 7/12 on medium+ screens -->
+    <div class="col-12 md:col-7 lg:col-7 flex-order-1 md:flex-order-0">
+        <app-muscle-tracker></app-muscle-tracker>
+    </div>
 </div>
-<div class="grid mt-3">
-    <div class="col-4 surface-card shadow-1 p-2">
+
+<!-- Bottom section - Graphs and action buttons -->
+<div class="grid mt-3" *ngIf="isLoggedIn()">
+    <!-- Graphs - Full width on small screens, 4/12 on medium+ screens -->
+    <div class="col-12 sm:col-6 md:col-4 surface-card shadow-1 p-2 mb-3 md:mb-0">
         <app-volume-graph></app-volume-graph>
     </div>
-    <div class="col-4 surface-card shadow-1 p-2">
+    <div class="col-12 sm:col-6 md:col-4 surface-card shadow-1 p-2 mb-3 md:mb-0">
         <app-workout-duration-graph></app-workout-duration-graph>
     </div>
-    <div class="col-4 p-2">
-        <div class="flex flex-column align-items-center justify-content-center h-full">
-            <div class="mb-3 text-center">
-                <a [routerLink]="'search'">
-                    <button pButton class="p-0 p-button-text border-primary-50">
-                        <div class="surface-card p-3 border-roundshadow-2 flex align-items-center">
-                            <div class="bg-primary-50 border-round-xl p-2 mr-3">
-                                <i class="pi pi-search text-primary text-xl"></i>
-                            </div>
-                            <span class="font-medium uppercase">FIND A PROGRAM</span>
-                        </div>
-                    </button>
-                </a>
-            </div>
-            <div class="text-center">
-                <button pButton class="p-0 p-button-text border-primary-50">
-                    <div class="surface-card p-3 border-round shadow-2 flex align-items-center">
-                        <div class="bg-primary-50 border-round-xl p-2 mr-3">
-                            <i class="pi pi-plus text-primary text-xl"></i>
-                        </div>
-                        <span class="font-medium uppercase">CREATE PROGRAM</span>
-                    </div>
-                </button>
-            </div>
-        </div>
-    </div>
+
+   
 </div>
-<div class="m-8 pt-8">
+
+<!-- Bottom spacing -->
+<div class="m-4 md:m-8 pt-4 md:pt-8">
 </div>

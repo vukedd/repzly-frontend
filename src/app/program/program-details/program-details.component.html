@@ -1,5 +1,5 @@
 <!-- program-details.component.html (Updated with Dialog) -->
-<div class="surface-0 px-2 py-2 md:px-4 md:py-5">
+<div class="surface-50 px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center">
     <p-progressSpinner></p-progressSpinner>
@@ -7,63 +7,106 @@
 
   <ng-container *ngIf="!loading && program">
     <!-- Header -->
-    <div class="mb-3 flex justify-content-between align-items-center">
-      <div class="text-2xl md:text-3xl font-bold">{{program.name}}</div>
-      <div class="flex flex-wrap justify-content-center sm:justify-content-end gap-2">
-        <button *ngIf="isCreator" pButton icon="pi pi-pencil" label="Edit" class="p-button-outlined" 
-                (click)="editProgram()"></button>
-        <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined" 
-                (click)="exportProgramData()"></button>
-        <p-confirmPopup></p-confirmPopup>
-        <button *ngIf="isCreator" pButton icon="pi pi-trash" label="Delete" class="p-button-outlined p-button-danger" 
-                (click)="confirmDelete($event)"></button>
+    <div class="grid">
+      <div class="col-12 mb-3">
+        <div
+          class="flex flex-column sm:flex-row justify-content-between align-items-start sm:align-items-center white-space-normal">
+          <!-- Program Title - Full width on small screens, normal on medium+ -->
+          <h2 class="text-2xl md:text-3xl font-bold m-0 mb-3 sm:mb-0 w-full sm:w-auto">{{program.name}}</h2>
+
+          <!-- Action Buttons - Stacked on small screens, row on medium+ -->
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-content-start sm:justify-content-end">
+            <button *ngIf="isCreator" pButton icon="pi pi-pencil" label="Edit" class="p-button-outlined"
+              (click)="editProgram()">
+            </button>
+            <button pButton icon="pi pi-file-export" label="Export" class="p-button-outlined"
+              (click)="exportProgramData()">
+            </button>
+            <button pButton icon="pi pi-play" label="Start Program" class="p-button-outlined" (click)="startProgram()">
+            </button>
+            <button *ngIf="isCreator" pButton icon="pi pi-trash" label="Delete"
+              class="p-button-outlined p-button-danger" (click)="confirmDelete()">
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Program Overview Card -->
-    <div class="surface-card p-3 border-round mb-3">
+    <p-confirmDialog></p-confirmDialog>
+
+
+    <div class="surface-50 p-4 shadow-2 border-round mb-4">
       <div class="grid">
+        <!-- Program Image -->
         <div class="col-12 md:col-4 flex justify-content-center md:justify-content-start mb-3 md:mb-0">
-          <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'dinja.jpg'" 
-               alt="Program Image" class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round shadow-2 object-fit-cover">
+          <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'placeholder-program.png'" alt="Program Image"
+            class="w-full max-w-16rem md:max-w-20rem h-10rem md:h-12rem border-round-lg shadow-3 object-fit-cover"
+            (error)="handleImageError($event)">
         </div>
+
+        <!-- Program Information -->
         <div class="col-12 md:col-8">
+          <!-- Creator Information -->
           <div class="grid">
             <div class="col-12">
               <div class="flex justify-content-center md:justify-content-start align-items-center">
-                <span class="">Created by: {{program.creator?.username || 'Unknown'}}</span>
-              </div>
-              <div class="mt-2 flex justify-content-center md:justify-content-start align-items-center">
-                <p-rating [ngModel]="program.rating" [readonly]="true"></p-rating>
-                <span class="ml-2">{{program.rating || 'Not rated'}}</span>
+                <i class="pi pi-user mr-2 text-primary"></i>
+                <span class="text-600 font-medium">Created by: <span class="text-900">{{program.creator?.username ||
+                    'Unknown'}}</span></span>
               </div>
             </div>
 
             <!-- Program Stats -->
             <div class="col-12 mt-3">
               <div class="grid">
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Duration</div>
-                  <div class="text-lg md:text-xl font-bold">{{program.weeks.length || 0}} Weeks</div>
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Duration</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{program.weeks.length || 0}} Weeks</div>
+                  </div>
                 </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Workouts</div>
-                  <div class="text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Workouts</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+                  </div>
                 </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Total Exercises</div>
-                  <div class="text-lg md:text-xl font-bold">{{getTotalExercises()}} Exercises</div>
+
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Exercises</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalExercises()}}</div>
+                  </div>
                 </div>
-                <div class="col-6 sm:col-3">
-                  <div class="text-base md:text-lg font-medium">Total Sets</div>
-                  <div class="text-lg md:text-xl font-bold">{{getTotalSets()}} Sets</div>
+
+                <div class="col-6 sm:col-3 p-2">
+                  <div class="surface-100 border-round-lg p-3 text-center">
+                    <div class="text-600 text-base md:text-lg font-medium mb-2">Sets</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalSets()}}</div>
+                  </div>
                 </div>
               </div>
             </div>
+
+
           </div>
         </div>
+        <p-accordion value="100" styleClass="col-12 mt-3">      
+          <p-accordion-panel value="0" >
+              <p-accordion-header>Description</p-accordion-header>
+              <p-accordion-content>
+                <div>
+                  <div class="p-2 border-left-2 border-primary">
+                    <p class="text-900 line-height-3 m-0">{{program.description}}</p>
+                  </div>
+                </div>
+              </p-accordion-content>
+          </p-accordion-panel>
+      </p-accordion>
       </div>
     </div>
+
 
     <!-- Weeks Section with Tabs -->
     <p-tabs [value]="activeWeekTab" scrollable (onChange)="onTabChange($event)">
@@ -77,90 +120,108 @@
         }
       </p-tablist>
 
-      <p-tabpanels class="p-1">
+      <p-tabpanels class="p-0">
         @for (week of program.weeks; track $index) {
         <p-tabpanel [value]="$index.toString()">
 
           <!-- Workouts for this Week -->
           @for (workout of week.workouts; track workout; let workoutIndex = $index) {
-          <div class="surface-100 border-1 border-round surface-border mb-4">
-            <!-- Workout Header -->
-            <div class="flex justify-content-between align-items-center p-2">
-              <div class="flex align-items-center">
-                <span class="font-bold text-xl mr-2">{{workoutIndex + 1}}</span>
-                <span class="text-xl">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
-                <span class="ml-2">({{'Workout ' + (workoutIndex + 1)}})</span>
-              </div>
-              
-              <!-- Description button, only show if description exists -->
-              <div *ngIf="workout.description" class="flex-none">
-                <button pButton icon="pi pi-info-circle" class="p-button-text p-button-rounded" 
-                  (click)="showDescription(workout)"></button>
-              </div>
-            </div>
-
-            <!-- Exercises Section -->
-            @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
-            <div class="surface-card mb-3 border-1 border-top-1 surface-border">
-              <div class="flex justify-content-between align-items-center p-2">
+            <div class="surface-card shadow-1 border-round mb-4 overflow-hidden mt-1"> <!-- Changed surface-0 to surface-card for better look, added shadow and overflow-hidden -->
+              <!-- Workout Header -->
+              <div class="flex justify-content-between align-items-center p-3 bg-primary-reverse border-bottom-1 surface-border"> <!-- Use a subtle background for header -->
                 <div class="flex align-items-center">
-                  <span class="font-bold mr-2">{{exerciseIndex + 1}}.</span>
-                  <span>{{exercise.exercise.title}}</span>
-                  
-                  <!-- Rest Time Display -->
-                  <p-tag class="ml-3" severity="info">
-                    Rest: 
-                    <ng-container *ngIf="exercise.minimumRestTime > 0">
-                      {{exercise.minimumRestTime}}-{{exercise.maximumRestTime}}s
-                    </ng-container>
-                    <ng-container *ngIf="exercise.minimumRestTime <= 0">
-                      {{exercise.maximumRestTime}}s
-                    </ng-container>
-                  </p-tag>
+                  <p-avatar [label]="(workoutIndex + 1).toString()" styleClass="mr-2 bg-primary text-white" shape="circle"></p-avatar>
+                  <span class="text-lg font-semibold text-primary">{{workout.title || 'Workout ' + (workoutIndex + 1)}}</span>
+                  <!-- Optional: If you want to keep the generic workout number -->
+                  <!-- <span class="ml-2 text-sm text-500">({{'Workout ' + (workoutIndex + 1)}})</span> -->
+                </div>
+          
+                <!-- Description button, only show if description exists -->
+                <div *ngIf="workout.description" class="flex-none">
+                  <button pButton icon="pi pi-info-circle"
+                          class="p-button-text p-button-rounded p-button-secondary" 
+                          (click)="showDescription(workout)"
+                          pTooltip="View Workout Description"
+                          tooltipPosition="top">
+                  </button>
                 </div>
               </div>
-
-              <!-- Exercise Details -->
-              <div class="p-3 border-top-1 surface-border">
-                <!-- Sets Table - Updated to match create component -->
-                <p-divider class="mt-1 mb-1" align="left">
-                  <p-tag severity="success">Sets</p-tag>
-                </p-divider>
-
-                <!-- Sets header row -->
-                <div class="grid align-items-center mb-2 font-bold p-2">
-                  <div class="col-1 flex justify-content-center">#</div>
-                  <div class="col-5 flex justify-content-center">Volume</div>
-                  <div class="col-6 flex justify-content-center">Intensity</div>
-                </div>
-                
-                @for (set of exercise.sets; track set; let setIndex = $index) {
-                <div class="grid align-items-center p-2 mb-1 border-bottom-1 border-300">
-                  <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
-                  <div class="col-5 flex justify-content-center">
-                    <ng-container *ngIf="isVolumeRange(set)">
-                      {{set.volume.minimumVolume}}-{{set.volume.maximumVolume}}
-                    </ng-container>
-                    <ng-container *ngIf="!isVolumeRange(set)">
-                      {{set.volume.maximumVolume}}
-                    </ng-container>
-                    <span class="ml-1">{{set.volumeMetric.metricSymbol}}</span>
+          
+              <!-- Exercises Section -->
+              <div class="p-0 md:p-1"> <!-- Add a little padding around exercises container -->
+                @for (exercise of workout.workoutExercises; track exercise; let exerciseIndex = $index) {
+                <div class="border-1 surface-border border-round surface-100 mt-3"> <!-- Each exercise in a bordered container -->
+                  <!-- Exercise Header -->
+                  <div class="flex justify-content-between align-items-center p-3"> <!-- Slightly different bg for exercise header -->
+                    <div class="flex align-items-center"> 
+                      <span class="font-semibold text-md mr-2 text-700">{{exerciseIndex + 1}}.</span>
+                      <span class="font-medium text-md text-700">{{exercise.exercise.title}}</span>
+                    </div>
+                    <!-- Rest Time Display -->
+                    <p-tag styleClass="p-tag-sm" severity="info"> <!-- Use p-tag-sm for smaller tag -->
+                      <i class="pi pi-clock mr-1"></i> <!-- Icon for rest time -->
+                      Rest:
+                      <ng-container *ngIf="exercise.minimumRestTime > 0 && exercise.maximumRestTime > exercise.minimumRestTime">
+                        {{exercise.minimumRestTime}}-{{exercise.maximumRestTime}}s
+                      </ng-container>
+                      <ng-container *ngIf="!(exercise.minimumRestTime > 0 && exercise.maximumRestTime > exercise.minimumRestTime)">
+                        {{exercise.maximumRestTime}}s
+                      </ng-container>
+                    </p-tag>
                   </div>
-                  <div class="col-6 flex justify-content-center">
-                    <ng-container *ngIf="isIntensityRange(set)">
-                      {{set.intensity.minimumIntensity}}-{{set.intensity.maximumIntensity}}
-                    </ng-container>
-                    <ng-container *ngIf="!isIntensityRange(set)">
-                      {{set.intensity.maximumIntensity}}
-                    </ng-container>
-                    <span class="ml-1">{{set.intensityMetric.metricSymbol}}</span>
+          
+                  <!-- Exercise Sets Details -->
+                  <div class="p-3">
+                    <!-- Sets Table Header -->
+                    <div class="grid align-items-center mb-2 font-semibold text-sm text-600 border-bottom-1 surface-border pb-2">
+                      <div class="col-1 flex justify-content-center">#</div>
+                      <div class="col-5 flex justify-content-center">
+                        <i class="mr-1"></i>Volume <!-- Icon for Volume -->
+                      </div>
+                      <div class="col-6 flex justify-content-center">
+                        <i class="mr-1"></i>Intensity <!-- Icon for Intensity -->
+                      </div>
+                    </div>
+          
+                    <!-- Sets Rows -->
+                    @for (set of exercise.sets; track set; let setIndex = $index) {
+                    <div class="grid align-items-center py-2 mb-1 text-sm" [ngClass]="{'border-bottom-1 surface-border': setIndex < exercise.sets.length - 1}"> <!-- Conditional border -->
+                      <div class="col-1 flex justify-content-center text-600">{{setIndex + 1}}</div>
+                      <div class="col-5 flex justify-content-center text-700">
+                        <ng-container *ngIf="isVolumeRange(set)">
+                          {{set.volume.minimumVolume}} - {{set.volume.maximumVolume}}
+                        </ng-container>
+                        <ng-container *ngIf="!isVolumeRange(set)">
+                          {{set.volume.maximumVolume}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{set.volumeMetric.metricSymbol}}</span>
+                      </div>
+                      <div class="col-6 flex justify-content-center text-700">
+                        <ng-container *ngIf="isIntensityRange(set)">
+                          {{set.intensity.minimumIntensity}} - {{set.intensity.maximumIntensity}}
+                        </ng-container>
+                        <ng-container *ngIf="!isIntensityRange(set)">
+                          {{set.intensity.maximumIntensity}}
+                        </ng-container>
+                        <span class="ml-1 text-500">{{set.intensityMetric.metricSymbol}}</span>
+                      </div>
+                    </div>
+                    }
+                    @if (exercise.sets.length === 0) {
+                      <div class="text-center text-sm text-500 py-2">
+                          <i class="pi pi-info-circle mr-1"></i> No sets defined for this exercise.
+                      </div>
+                    }
                   </div>
                 </div>
                 }
+                @if (workout.workoutExercises.length === 0) {
+                  <div class="text-center text-500 p-3">
+                      <i class="pi pi-exclamation-circle mr-2"></i>No exercises in this workout.
+                  </div>
+                }
               </div>
             </div>
-            }
-          </div>
           }
         </p-tabpanel>
         }
@@ -174,22 +235,20 @@
       <i class="pi pi-exclamation-triangle text-4xl md:text-5xl text-yellow-500 mb-3"></i>
       <h2 class="text-xl md:text-2xl">Program Not Found</h2>
       <p>The requested program could not be found or you don't have permission to view it.</p>
-      <button pButton label="Back to Programs" icon="pi pi-arrow-left" class="p-button-outlined mt-3" routerLink="/programs"></button>
+      <button pButton label="Back to Programs" icon="pi pi-arrow-left" class="p-button-outlined mt-3"
+        routerLink="/programs"></button>
     </div>
   </div>
 
   <!-- Description Dialog -->
-  <p-dialog [(visible)]="displayDescriptionDialog" 
-            [header]="selectedWorkoutTitle" 
-            [style]="{width: '90%', maxWidth: '600px'}" 
-            [modal]="true" 
-            [draggable]="false" 
-            [resizable]="false">
+  <p-dialog [(visible)]="displayDescriptionDialog" [header]="selectedWorkoutTitle"
+    [style]="{width: '90%', maxWidth: '600px'}" [modal]="true" [draggable]="false" [resizable]="false">
     <div class="p-3">
       <p>{{selectedWorkoutDescription}}</p>
     </div>
     <ng-template pTemplate="footer">
-      <button pButton icon="pi pi-times" label="Close" class="p-button-outlined" (click)="displayDescriptionDialog=false"></button>
+      <button pButton icon="pi pi-times" label="Close" class="p-button-outlined"
+        (click)="displayDescriptionDialog=false"></button>
     </ng-template>
   </p-dialog>
 
