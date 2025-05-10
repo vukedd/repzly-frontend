@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MuscleTrackerComponent } from "../../body-highlighter/muscle-tracker/muscle-tracker.component";
 import { VolumeGraphComponent } from "../../volume-graph/volume-graph.component";
 import { JwtService } from '../../auth/jwt/jwt.service';
@@ -18,10 +18,9 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent{
   constructor(public jwtService: JwtService) { }
-
-
+  
   isLoggedIn(): boolean {
     return this.jwtService.isLoggedIn()
   }

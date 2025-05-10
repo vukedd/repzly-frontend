@@ -23,6 +23,7 @@ import { Workout, WorkoutExerciseSet } from '../program.model';
 import { DialogModule } from 'primeng/dialog';
 import * as XLSX from 'xlsx';
 import { AvatarModule } from 'primeng/avatar';
+import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 
 
 @Component({
@@ -77,7 +78,8 @@ export class ProgramHistoryComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private programService: ProgramService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public toastsPositionService: ToastsPositionService
   ) {
     this.apiUrl = programService.apiUrl;
   }

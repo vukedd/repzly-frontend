@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, HostListener, OnInit, ViewEncapsulation } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ThemeService } from '../../theme.service';
@@ -18,6 +18,7 @@ import { ToastModule } from 'primeng/toast';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuModule } from 'primeng/menu';
 import { RouterLink } from '@angular/router';
+import { ToastsPositionService } from '../toasts/toasts-position.service';
 
 @Component({
   selector: 'app-header',
@@ -92,7 +93,7 @@ export class HeaderComponent implements OnInit{
     }
   }
 
-  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService) {
+  constructor(private themeService: ThemeService, private jwtService: JwtService, private messageService: MessageService, public toastsPositionService: ToastsPositionService) {
     this.themeService.darkMode$.subscribe(
         isDark => this.isDarkMode = isDark
     );

@@ -27,6 +27,7 @@ import * as XLSX from 'xlsx';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AvatarModule } from 'primeng/avatar';
+import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 
 @Component({
   selector: 'app-program-details',
@@ -90,7 +91,8 @@ export class ProgramDetailsComponent implements OnInit {
     private router: Router,
     private programService: ProgramService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    public toastsPositionService: ToastsPositionService
   ) {
     this.apiUrl = programService.apiUrl;
   }
