@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet,RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from "./layout/header/header.component";
@@ -9,7 +9,8 @@ import { InputGroupModule } from 'primeng/inputgroup';
   selector: 'app-root',
   imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, AvatarModule, InputGroupModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  encapsulation:ViewEncapsulation.None
 })
 export class AppComponent {
   
