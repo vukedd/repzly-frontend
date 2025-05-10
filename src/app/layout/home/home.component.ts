@@ -3,10 +3,8 @@ import { MuscleTrackerComponent } from "../../body-highlighter/muscle-tracker/mu
 import { VolumeGraphComponent } from "../../volume-graph/volume-graph.component";
 import { JwtService } from '../../auth/jwt/jwt.service';
 import { ProgramListHorizontalComponent } from "../../program/program-list-horizontal/program-list-horizontal.component";
-import { ProgramListComponent } from "../../program/program-list/program-list.component";
 import { ButtonModule } from 'primeng/button';
 import { WorkoutDurationGraphComponent } from "../../workout-duration-graph/workout-duration-graph.component";
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,7 +14,6 @@ import { CommonModule } from '@angular/common';
     ProgramListHorizontalComponent,
     ButtonModule,
     WorkoutDurationGraphComponent,
-    RouterLink,
     CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

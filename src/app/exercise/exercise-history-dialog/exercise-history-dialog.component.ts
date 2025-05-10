@@ -160,7 +160,7 @@ export class ExerciseHistoryDialogComponent implements OnInit {
           label: 'Weight',
           data: weights,
           fill: false,
-          borderColor: '#42A5F5',
+          borderColor: '#10b981',
           tension: 0.4
         }
       ]
