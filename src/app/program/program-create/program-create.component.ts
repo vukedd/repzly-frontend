@@ -34,6 +34,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { OrderListModule } from 'primeng/orderlist';
 import { AvatarModule } from 'primeng/avatar';
 import { CardModule } from 'primeng/card';
+import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 
 @Component({
   selector: 'app-program-create',
@@ -133,7 +134,8 @@ export class ProgramCreateComponent implements OnInit {
     private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public toastsPositionService: ToastsPositionService
   ) {
     this.publicOptions = [
       { label: 'Private', value: false },

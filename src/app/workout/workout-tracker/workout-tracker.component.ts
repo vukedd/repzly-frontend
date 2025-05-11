@@ -26,6 +26,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { SafePipe } from './safe-pipe';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
+import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 
 
 @Component({
@@ -100,7 +101,8 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService,
     private dialogService: DialogService,
     private exerciseService: ExerciseService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public toastsPositionService: ToastsPositionService
   ) {
     this.workoutForm = this.fb.group({
       exercises: this.fb.array([])
@@ -857,7 +859,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           detail: response?.message || 'Workout saved successfully.',
           life: 3000
         });
-        setTimeout(() => this.router.navigate(['']), 1500);
+        setTimeout(() => this.router.navigate(['dashboard']), 1500);
       },
       error: (error) => {
         this.submitting = false;
