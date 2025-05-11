@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -51,7 +51,8 @@ import { ToastsPositionService } from '../../layout/toasts/toasts-position.servi
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
-  styleUrls: ['./workout-tracker.component.css']
+  styleUrls: ['./workout-tracker.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   // Core workout data
@@ -394,7 +395,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
         setControl.get('actualIntensity')?.disable();
 
         this.updateProgress();
-        this.messageService.add({ severity: 'success', summary: 'Set Completed', life: 1500 });
 
         if (this.currentWorkout?.nextWorkoutDetails) {
           this.currentWorkout.nextWorkoutDetails.doneSets = [
@@ -483,12 +483,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
 
             this.updateProgress();
 
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Set Undone',
-              detail: response?.message || 'Set completion reverted.',
-              life: 2000
-            });
           },
           error: (error) => {
             const detail = error?.error?.message || 'Failed to undo set.';
@@ -579,13 +573,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
         // Update totals
         this.totalSets++;
         this.updateProgress();
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'New Set Added',
-          detail: 'Added set to exercise',
-          life: 2000
-        });
       },
       error: (error) => {
         const detail = error?.error?.message || 'Failed to add new set.';
@@ -686,12 +673,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             exerciseLink: newExercise.link
           });
 
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Exercise Changed',
-            detail: response || 'Exercise changed successfully',
-            life: 2000
-          });
         }
 
         this.showExerciseChangeDialog = false;
@@ -721,10 +702,12 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
 
     this.ref = this.dialogService.open(ExerciseOrderDialogComponent, {
       header: 'Reorder Exercises',
-      width: '450px',
       data: {
         exercises: exercises
-      }
+      },
+      modal:true,
+      position:this.showInputButtons?"center":"bottom",
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl"
     });
 
     this.ref.onClose.subscribe((result) => {
@@ -1019,20 +1002,18 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   showHistoryDialog(exerciseIdControl: AbstractControl | null): void {
     const exerciseId = exerciseIdControl?.value;
 
-    const isMobile = window.innerWidth < 768;
+
     if (this.ref) { this.ref.close(); }
 
     this.ref = this.dialogService.open(ExerciseHistoryDialogComponent, {
       header: 'Exercise History',
-      width: isMobile ? '95%' : '70%',
-      height: isMobile ? '85vh' : undefined,
-      contentStyle: { "max-height": "80vh", "overflow-y": "auto" },
-      maximizable: !isMobile,
       modal: true,
       closeOnEscape: true,
+      closable: true,
       dismissableMask: true,
       data: { exerciseId: exerciseId },
-      baseZIndex: 10001
+      position:this.showInputButtons?"center":"bottom",
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl"
     });
   }
 
