@@ -509,7 +509,7 @@ export class ProgramDetailsComponent implements OnInit {
           summary: 'Success',
           detail: 'Program deleted successfully'
         });
-        this.router.navigate(['']);
+        this.router.navigate(['dashboard']);
       },
       error: (error) => {
         this.loading = false;

@@ -2,3 +2,7 @@
     z-index: 1001;
     width: 100%;
 }
+
+.active {
+    text-decoration: underline #10b981 3px;
+}

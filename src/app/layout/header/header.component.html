@@ -13,19 +13,19 @@
       </ng-template>
       <ul class="list-none px-0">
         <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
-          <p-button [link]="true" [routerLink]="''" (click)="sidemenuVisible = false"
+          <p-button [link]="true" [routerLink]="'dashboard'" (click)="sidemenuVisible = false"
             class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full"><span
-              class="font-bold text-3xl">Dashboard</span></p-button>
+              class="font-bold text-3xl" routerLinkActive="active">Dashboard</span></p-button>
         </li>
         <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
           <p-button [link]="true" [routerLink]="'search'" (click)="sidemenuVisible = false"
             class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
-              class="font-bold text-3xl">Explore</span></p-button>
+              class="font-bold text-3xl" routerLinkActive="active">Explore</span></p-button>
         </li>
         <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
           <p-button [link]="true" [routerLink]="'my-programs'" (click)="sidemenuVisible = false"
             class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
-              class="font-bold text-3xl">My programs</span></p-button>
+              class="font-bold text-3xl" routerLinkActive="active">My programs</span></p-button>
         </li>
       </ul>
       <ng-template #footer>
@@ -38,20 +38,20 @@
   </div>
   <div class="flex justify-content-center" *ngIf="items != undefined">
     <ul class="hidden lg:flex align-content-around w-full list-none my-0">
-      <li class="mx-4">
-        <p-button [link]="true" [routerLink]="''" 
+      <li class="mx-4" >
+        <p-button [link]="true" [routerLink]="'dashboard'"
           class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer"><span
-            class="font-bold text-xl">Dashboard</span></p-button>
+            class="font-bold text-xl" routerLinkActive="active">Dashboard</span></p-button>
       </li>
       <li class="mx-4">
         <p-button [link]="true" [routerLink]="'search'"
           class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer"><span
-            class="font-bold text-xl">Explore</span></p-button>
+            class="font-bold text-xl" routerLinkActive="active">Explore</span></p-button>
       </li>
       <li class="mx-4">
         <p-button [link]="true" [routerLink]="'my-programs'"
           class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer font-bold"><span
-            class="font-bold text-xl">My programs</span></p-button>
+            class="font-bold text-xl" routerLinkActive="active">My programs</span></p-button>
       </li>
     </ul>
     <span class="flex lg:hidden text-3xl font-bold font-italic">REPZLY</span>

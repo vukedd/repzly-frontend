@@ -17,7 +17,7 @@ import { LoginFormComponent } from "../../user/login/login-form/login-form.compo
 import { ToastModule } from 'primeng/toast';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuModule } from 'primeng/menu';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterModule } from '@angular/router';
 import { ToastsPositionService } from '../toasts/toasts-position.service';
 
 @Component({
@@ -37,7 +37,8 @@ import { ToastsPositionService } from '../toasts/toasts-position.service';
     , ToastModule
     , PanelMenuModule
     , MenuModule
-    , RouterLink],
+    , RouterLink
+    , RouterModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   providers:  [MessageService],

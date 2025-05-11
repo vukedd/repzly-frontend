@@ -13,9 +13,9 @@ import { MyProgramsPageComponent } from './layout/my-programs-page/my-programs-p
 
 export const routes: Routes = [
     {
-        path: '',
+        path: 'dashboard',
         component: HomeComponent,
-        title: 'Home'
+        title: 'Dashboard'
     },
     {
         path:'me',
