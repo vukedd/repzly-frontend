@@ -9,6 +9,7 @@ import { MessageService } from 'primeng/api';
 import { UserService } from '../../user.service';
 import { JwtService } from '../../../auth/jwt/jwt.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastsPositionService } from '../../../layout/toasts/toasts-position.service';
 
 @Component({
   selector: 'app-change-password-section',
@@ -28,7 +29,7 @@ export class ChangePasswordSectionComponent {
     this.errorOccurred.emit(errorMessage);
   }
 
-  constructor(private messageService: MessageService, private userService: UserService, private jwtService: JwtService) {}
+  constructor(private messageService: MessageService, private userService: UserService, private jwtService: JwtService, public toastsPositionService:  ToastsPositionService) {}
 
   changePasswordForm = new FormGroup({
     oldPassword: new FormControl('',  [Validators.pattern("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"), Validators.required]),

@@ -11,6 +11,7 @@ import { ProgramService } from '../program-service/program.service';
 import { response } from 'express';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 @Component({
   selector: 'app-program-card',
   imports: [CardModule, ButtonModule, RatingModule, CommonModule, FormsModule,ToastModule],
@@ -27,7 +28,8 @@ export class ProgramCardComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private router: Router,
     private programService: ProgramService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public toastsPositionService: ToastsPositionService
   ) {
     this.apiUrl = programService.apiUrl;
   }

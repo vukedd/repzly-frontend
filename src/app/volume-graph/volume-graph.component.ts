@@ -40,9 +40,9 @@ export class VolumeGraphComponent {
               {
                 label: 'Sets Per Day',
                 data: data,
-                borderColor: '#42A5F5',
+                borderColor: '#10b981',
                 fill: false,
-                pointBackgroundColor: '#42A5F5',
+                pointBackgroundColor: '#10b981',
                 tension: 0.4
               }
             ]
