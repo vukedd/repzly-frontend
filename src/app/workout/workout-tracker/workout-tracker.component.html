@@ -45,12 +45,12 @@
               <div class="exercise-controls">
                 <ng-container *ngIf="!showInputButtons; else desktopButtons">
                   <!-- Mobile Menu -->
-                  <button pButton icon="pi pi-bars" class="p-button-text p-button-rounded" 
-                    (click)="menu.toggle($event)" pTooltip="Exercise Options">
+                  <button pButton icon="pi pi-bars" class="p-button-text p-button-rounded" (click)="menu.toggle($event)"
+                    pTooltip="Exercise Options">
                   </button>
                   <p-menu #menu [popup]="true" [model]="getExerciseMenuItems(exerciseIndex, exerciseControl)"></p-menu>
                 </ng-container>
-              
+
                 <ng-template #desktopButtons>
                   <!-- Original Desktop Buttons -->
                   <div class="flex">
@@ -157,77 +157,105 @@
     </p-dialog>
 
     <!-- Summary Dialog -->
-    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true"
-      [style]="{width: '90vw', maxWidth: '700px'}" [modal]="true">
-      <div class="p-2">
-        <p-divider align="left">
-          <span class="p-tag p-tag-info">Duration</span>
-        </p-divider>
-        <div class="mb-4 text-center text-xl">
-          Total Time: {{ workoutDurationDisplay }}
-        </div>
+    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true" 
+       [modal]="true" styleClass="workout-summary-dialog" styleClass="m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-auto" [position]="showInputButtons?'center':'bottom'">
+      <div class="p-0 surface-ground"> <!-- Added surface-ground for consistent background if needed -->
 
-        <p-divider align="left">
-          <span class="p-tag p-tag-info">Progress</span>
-        </p-divider>
-        <div class="mb-4">
-          <p-progressBar [value]="progress" [showValue]="true"></p-progressBar>
-          <div class="text-sm text-right mt-1">{{progress.toFixed(0)}}% Complete</div>
-        </div>
-
-        <p-divider align="left">
-          <span class="p-tag p-tag-info">Exercises</span>
-        </p-divider>
-        <!-- Exercise summary section -->
-        <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index" class="mb-4">
+        <!-- Duration Section -->
+        <div class="surface-card p-3 shadow-1 border-round mb-4">
           <div class="flex justify-content-between align-items-center mb-2">
-            <h4 class="m-0">{{exerciseControl.get('exerciseTitle')?.value}}</h4>
+            <h3 class="m-0 text-lg font-semibold text-primary">Duration</h3>
+          </div>
+          <div class="text-center">
+            <div class="text-600 font-medium mb-1">Total Time</div>
+            <div class="text-xl font-bold text-900">{{ workoutDurationDisplay }}</div>
+          </div>
+        </div>
 
-            <div *ngIf="isExerciseCompleted(exerciseIndex); else incomplete" class="p-tag p-tag-success">
-              Complete
+        <!-- Progress Section -->
+        <div class="surface-card p-3 shadow-1 border-round mb-4">
+          <div class="flex justify-content-between align-items-center mb-2">
+            <h3 class="m-0 text-lg font-semibold text-primary">Progress</h3>
+          </div>
+          <p-progressBar [value]="progress" [showValue]="true" styleClass="mb-2"></p-progressBar>
+          <div class="text-sm text-right text-600">{{progress.toFixed(0)}}% Complete</div>
+        </div>
+
+        <!-- Exercises Section Header -->
+        <div class="mb-3">
+          <h3 class="m-0 text-lg font-semibold text-primary">Exercises</h3>
+        </div>
+
+        <!-- Exercise Summary Loop -->
+        <div *ngFor="let exerciseControl of exercises.controls; let exerciseIndex = index"
+          class="surface-card shadow-1 border-round mb-4 overflow-hidden">
+
+          <!-- Exercise Header -->
+          <div class="flex justify-content-between align-items-center p-3 surface-50 border-bottom-1 surface-border">
+            <h4 class="m-0 font-medium text-700">{{exerciseControl.get('exerciseTitle')?.value}}</h4>
+            <div *ngIf="isExerciseCompleted(exerciseIndex); else incompleteExercise"
+              class="p-tag p-tag-success p-tag-sm">
+              <i class="pi pi-check-circle mr-1 ml-2"></i>Complete
             </div>
-            <ng-template #incomplete>
-              <div class="p-tag p-tag-warning">
-                In Progress
+            <ng-template #incompleteExercise>
+              <div class="p-tag p-tag-warning p-tag-sm">
+                <i class="pi pi-hourglass mr-1 ml-2"></i>In Progress
               </div>
             </ng-template>
           </div>
 
-          <div class="surface-card p-3 border-round">
-            <div class="grid">
-              <div class="col-8 font-bold">Set</div>
-              <div class="col-4 font-bold text-right">Status</div>
+          <!-- Sets Details -->
+          <div class="p-3">
+            <!-- Sets Table Header -->
+            <div
+              class="grid align-items-center mb-2 font-semibold text-sm text-600 border-bottom-1 surface-border pb-2">
+              <div class="col-2 flex justify-content-start">Set</div>
+              <div class="col-7 flex justify-content-start">Details</div>
+              <div class="col-3 flex justify-content-end">Status</div>
             </div>
 
-            <p-divider></p-divider>
-
-            <div *ngFor="let setControl of getExerciseSets(exerciseIndex)?.controls; let setIndex = index" class="grid">
-              <div class="col-8">
-                Set {{setIndex + 1}}
-                <span *ngIf="setControl.get('completed')?.value">
-                  ({{setControl.get('weightLifted')?.value || 0}}kg, {{setControl.get('actualVolume')?.value}}
-                  {{setControl.get('volumeMetric')?.value?.metricSymbol || ''}},
-                  {{setControl.get('actualIntensity')?.value}} {{setControl.get('intensityMetric')?.value?.metricSymbol
-                  || ''}})
-                </span>
-              </div>
-              <div class="col-4 text-right">
-                <span *ngIf="setControl.get('completed')?.value" class="text-green-500">
-                  <i class="pi pi-check mr-1"></i>Done
-                </span>
-                <span *ngIf="!setControl.get('completed')?.value" class="text-orange-500">
-                  <i class="pi pi-times mr-1"></i>Pending
-                </span>
+            <!-- Sets Rows -->
+            <div *ngIf="getExerciseSets(exerciseIndex)?.controls!.length > 0; else noSets">
+              <div *ngFor="let setControl of getExerciseSets(exerciseIndex)?.controls; let setIndex = index"
+                class="grid align-items-center py-2 text-sm"
+                [ngClass]="{'border-bottom-1 surface-border light-border': setIndex < getExerciseSets(exerciseIndex)?.controls!.length - 1}">
+                <div class="col-2 flex justify-content-start text-600">{{setIndex + 1}}</div>
+                <div class="col-7 text-700">
+                  <ng-container *ngIf="setControl.get('completed')?.value; else pendingSetDetails">
+                    <span class="font-medium">{{setControl.get('weightLifted')?.value || 0}}kg</span>,
+                    {{setControl.get('actualVolume')?.value}} {{setControl.get('volumeMetric')?.value?.metricSymbol ||
+                    ''}},
+                    {{setControl.get('actualIntensity')?.value}}
+                    {{setControl.get('intensityMetric')?.value?.metricSymbol || ''}}
+                  </ng-container>
+                  <ng-template #pendingSetDetails>
+                    <span class="text-500 italic">Pending...</span>
+                  </ng-template>
+                </div>
+                <div class="col-3 flex justify-content-end">
+                  <span *ngIf="setControl.get('completed')?.value" class="text-green-500 font-medium">
+                    Done
+                  </span>
+                  <span *ngIf="!setControl.get('completed')?.value" class="text-orange-500 font-medium">
+                    Pending
+                  </span>
+                </div>
               </div>
             </div>
+            <ng-template #noSets>
+              <div class="text-center text-sm text-500 py-2">
+                <i class="pi pi-info-circle mr-1"></i> No sets recorded for this exercise.
+              </div>
+            </ng-template>
           </div>
         </div>
-        <!-- Submit button inside Summary Dialog -->
-        <div class="flex justify-content-end mt-4">
+
+        <!-- Submit/Close Buttons -->
+        <div class="flex justify-content-end mt-5">
           <button pButton label="Close" icon="pi pi-times" (click)="showSummary = false"
             class="p-button-text mr-2"></button>
-          <button pButton label="Submit Workout" icon="pi pi-check" (click)="submitWorkout()"
-            [disabled]="countCompletedSets() === 0" [loading]="submitting" class="p-button-success">
+          <button pButton label="Finish Workout" icon="pi pi-flag-fill" (click)="submitWorkout()" [loading]="submitting"
+        class="p-button-primary">
           </button>
         </div>
       </div>
@@ -237,10 +265,11 @@
     <p-dialog header="Change Exercise" [(visible)]="showExerciseChangeDialog" [style]="{width: '850px'}" [modal]="true">
       <div class="p-fluid">
         <div class="field">
-          <label for="exerciseSelect" class="font-bold">Select Exercise</label>
+          <label for="exerciseSelect" class="font-bold w-full">Select Exercise</label>
           <p-select id="exerciseSelect" [options]="availableExercises" [(ngModel)]="selectedExerciseId"
             optionLabel="title" optionValue="id" [filter]="true" filterBy="title" placeholder="Select an exercise"
-            appendTo="body" styleClass="w-full" [virtualScroll]="true" [virtualScrollItemSize]="38">
+            appendTo="body" styleClass="w-17rem lg:w-full" [virtualScroll]="true" [virtualScrollItemSize]="38"
+            panelStyleClass="lg:w-full w-screen">
           </p-select>
         </div>
 
@@ -280,4 +309,4 @@
 </div>
 
 <p-confirmDialog></p-confirmDialog>
-<p-toast [position]="toastsPositionService.getPosition()"></p-toast>
+<p-toast [position]="toastsPositionService.getPosition()" sticky="true"></p-toast>

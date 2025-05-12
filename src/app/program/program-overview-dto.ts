@@ -6,4 +6,5 @@ export interface ProgramOverviewDTO {
     followersNumber:number;
     rating:number;
     startedProgramId:number;
+    finished?:boolean;
 }

@@ -1,6 +1,7 @@
 <p-toast [position]="toastsPositionService.getPosition()"></p-toast>
 <p-toolbar
   styleClass="fixed surface-50 justify-content-between top-0 right-0 left-0 border-noround border-none headercomponent p-2">
+
   <div class="p-toolbar-group-start flex align-items-center">
     <span class="hidden lg:flex mx-3 text-3xl font-bold font-italic">REPZLY</span>
     <p-button icon="pi pi-align-justify" styleClass="lg:hidden p-ripple p-button p-component p-button-icon-only p-button-rounded p-button-text" severity="secondary"
@@ -66,28 +67,8 @@
 
     <p-menu #menu [model]="items" [popup]="true">
     </p-menu>
-    <p-button label="Log in" *ngIf="items == undefined" (click)="showDialog()" />
+    <p-button label="Log in" *ngIf="items == undefined" (click)="showAuthDialog()" /> <!-- Updated click handler -->
 
-    <p-dialog maskStyleClass="backdrop-blur-sm" [(visible)]="visible" [modal]="true">
-      <ng-template #header>
-        <div class="inline-flex items-center justify-center gap-2" *ngIf="isLoginMode">
-          <h2 class="font-bold whitespace-nowrap">Sign in</h2>
-        </div>
-        <div class="inline-flex items-center justify-center gap-2" *ngIf="!isLoginMode">
-          <h2 class="font-bold whitespace-nowrap">Sign up</h2>
-        </div>
-      </ng-template>
-      <app-login-form *ngIf="isLoginMode" (modeChanged)="handleModeChange($event)"
-        (errorOccurred)="handleLoginError($event)" (successfullLogin)="handleLoginSuccess($event)"></app-login-form>
-      <app-register-form *ngIf="!isLoginMode" (modeChanged)="handleModeChange($event)"
-        (errorOccurred)="handleRegisterError($event)"
-        (successfullRegistration)="handleRegisterSuccess($event)"></app-register-form>
-      <ng-template #footer>
-        <div class="inline-flex items-center justify-center gap-2">
-
-        </div>
-      </ng-template>
-    </p-dialog>
-
+    <!-- REMOVED p-dialog -->
   </div>
 </p-toolbar>

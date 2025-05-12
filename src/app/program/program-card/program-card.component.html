@@ -46,7 +46,7 @@
         </p-button>
         
         <p-button 
-          *ngIf="programType=='started'"
+          *ngIf="programType=='started' && !program.finished"
           label="Start next workout" 
           icon="pi pi-play" 
           styleClass="p-button-rounded p-button-primary" 

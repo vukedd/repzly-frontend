@@ -1,18 +1,72 @@
-<div class="flex justify-content-center align-items-center flex-column p-2 ">
-    <form class="flex justify-content-center align-items-center flex-column" [formGroup]="loginForm" (submit)="sendLoginRequest()">
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
-            <p-floatlabel variant="in">
-                <input id="username" pInputText formControlName="username" type="text" formControlName="username" pTooltip="This field can't be empty!"/>
-                <label for="username">Username:</label>
-            </p-floatlabel>
-        </div>
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
-            <p-floatlabel variant="in">
-                <input id="password" pInputText formControlName="password" type="password" formControlName="password" pTooltip="This field can't be empty!"/>
-                <label for="password">Password:</label>
-            </p-floatlabel>
-        </div>
-        <small class="my-3">You don't have an account? <a href="#" (click)="changeToRegisterMode(false)">Sign up here</a></small>
-        <p-button severity="contrast" [disabled]="!loginForm.valid" type="submit">Sign in</p-button>
-    </form>
+<!-- login-form.html -->
+<div pFocusTrap class="flex justify-content-center align-items-center flex-column p-2 ">
+
+  <!-- Top-level message for API errors / General Validation Fail -->
+  <p-message
+    *ngIf="showMessage"
+    [severity]="messageSeverity"
+    [text]="messageText"
+    [closable]="true"
+    (onClose)="onMessageClose()"
+    styleClass="mb-3 w-full">
+  </p-message>
+
+  <form class="flex justify-content-center align-items-center flex-column w-full" [formGroup]="loginForm" (submit)="sendLoginRequest()" novalidate> <!-- Added novalidate -->
+    <!-- Username Field + Validation -->
+    <div class="field w-full mb-3"> <!-- Use align-items-stretch -->
+      <p-floatlabel variant="in">
+        <!-- Add aria-invalid for accessibility -->
+        <input
+          id="username"
+          pInputText
+          formControlName="username"
+          type="text"
+          pTooltip="Enter your username"
+          [pAutoFocus]="true"
+          [attr.aria-invalid]="username?.invalid && submitted"
+          class="w-full"
+          />
+        <label for="username">Username:</label>
+      </p-floatlabel>
+      <!-- Per-field validation message -->
+      <p-message
+        *ngIf="username?.invalid && submitted"
+        severity="error"
+        variant="simple"
+        size="small"
+        text="Username is required"
+        styleClass="mt-2 w-full">
+      </p-message>
+    </div>
+
+    <!-- Password Field + Validation -->
+    <div class="field w-full mb-3"> <!-- Use align-items-stretch -->
+      <p-floatlabel variant="in">
+         <!-- Add aria-invalid for accessibility -->
+        <input
+          id="password"
+          pInputText
+          formControlName="password"
+          type="password"
+          pTooltip="Enter your password"
+          [attr.aria-invalid]="password?.invalid && submitted"
+          class="w-full"
+          />
+        <label for="password">Password:</label>
+      </p-floatlabel>
+      <!-- Per-field validation message -->
+      <p-message
+        *ngIf="password?.invalid && submitted"
+        severity="error"
+        variant="simple"
+        size="small"
+        text="Password is required"
+        styleClass="mt-2 w-full">
+      </p-message>
+    </div>
+
+    <small class="my-3">You don't have an account? <a href="javascript:void(0)" (click)="changeToRegisterMode()">Sign up here</a></small>
+    <!-- Remove [disabled] binding -->
+    <p-button severity="contrast" type="submit">Sign in</p-button>
+  </form>
 </div>
