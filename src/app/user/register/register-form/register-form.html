@@ -1,36 +1,85 @@
+<!-- register-form.html -->
 <div class="flex justify-content-center align-items-center flex-column p-2 ">
-        <form class="flex justify-content-center align-items-center flex-column" [formGroup]="registerForm" (submit)="sendRegisterRequest()">
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
+
+    <!-- Top-level message for API errors / General Validation Fail -->
+    <p-message
+      *ngIf="showMessage"
+      [severity]="messageSeverity"
+      [text]="messageText"
+      [closable]="true"
+      (onClose)="onMessageClose()"
+      styleClass="mb-3 w-full">
+    </p-message>
+
+    <form class="flex justify-content-center align-items-center flex-column w-full" [formGroup]="registerForm" (submit)="sendRegisterRequest()" novalidate> <!-- Added novalidate -->
+
+        <!-- First Name + Validation -->
+        <div class="field w-full mb-3">
             <p-floatlabel variant="in">
-                <input id="firstName" pInputText formControlName="firstName" pTooltip="First name must contain textual characters without spaces (2-20 characters)"/>
+                <input id="firstName" pInputText formControlName="firstName" pTooltip="First name: letters, hyphens, apostrophes (2-20 chars)" [attr.aria-invalid]="firstName?.invalid && submitted" class="w-full"/>
                 <label for="firstName">First name:</label>
             </p-floatlabel>
+            <p-message
+              *ngIf="firstName?.invalid && submitted"
+              severity="error" variant="simple" size="small"
+              [text]="getErrorMessage(firstName, 'firstName')"  styleClass="mt-2 w-full">
+            </p-message>
         </div>
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
+
+        <!-- Last Name + Validation -->
+        <div class="field w-full mb-3">
             <p-floatlabel variant="in">
-                <input id="lastName" pInputText formControlName="lastName" pTooltip="Last name must contain textual characters without spaces (2-20 characters)"/>
+                <input id="lastName" pInputText formControlName="lastName" pTooltip="Last name: letters, hyphens, apostrophes (2-20 chars)" [attr.aria-invalid]="lastName?.invalid && submitted" class="w-full"/>
                 <label for="lastName">Last name:</label>
             </p-floatlabel>
+             <p-message
+              *ngIf="lastName?.invalid && submitted"
+              severity="error" variant="simple" size="small"
+              [text]="getErrorMessage(lastName, 'lastName')"  styleClass="mt-2 w-full">
+            </p-message>
         </div>
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
+
+        <!-- Email + Validation -->
+        <div class="field w-full mb-3">
             <p-floatlabel variant="in">
-                <input id="email" pInputText formControlName="email" type="email" pTooltip="Please enter a valid e-mail address"/>
+                <input id="email" pInputText formControlName="email" type="email" pTooltip="Please enter a valid e-mail address" [attr.aria-invalid]="email?.invalid && submitted" class="w-full"/>
                 <label for="email">E-mail:</label>
             </p-floatlabel>
+             <p-message
+              *ngIf="email?.invalid && submitted"
+              severity="error" variant="simple" size="small"
+              [text]="getErrorMessage(email, 'email')"  styleClass="mt-2 w-full">
+            </p-message>
         </div>
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
+
+        <!-- Username + Validation -->
+        <div class="field w-full mb-3">
             <p-floatlabel variant="in">
-                <input id="username" pInputText formControlName="username" pTooltip="Username must contain a combination of textual and numerical characters (5-15 characters)"/>
+                <input id="username" pInputText formControlName="username" pTooltip="Username: letters/numbers (5-15 chars)" [attr.aria-invalid]="username?.invalid && submitted" class="w-full"/>
                 <label for="username">Username:</label>
             </p-floatlabel>
+             <p-message
+              *ngIf="username?.invalid && submitted"
+              severity="error" variant="simple" size="small"
+              [text]="getErrorMessage(username, 'username')"  styleClass="mt-2 w-full">
+            </p-message>
         </div>
-        <div class="flex flex-col align-items-center justify-content-center mt-1">
+
+        <!-- Password + Validation -->
+        <div class="field w-full mb-3">
             <p-floatlabel variant="in">
-                <input id="password" pInputText formControlName="password" type="password" pTooltip="Password must contain minimum eight characters, at least one letter and one numbers"/>
+                <input id="password" pInputText formControlName="password" type="password" pTooltip="Password: min 8 chars, at least one letter & one number" [attr.aria-invalid]="password?.invalid && submitted" class="w-full"/>
                 <label for="password">Password:</label>
             </p-floatlabel>
+             <p-message
+              *ngIf="password?.invalid && submitted"
+              severity="error" variant="simple" size="small"
+              [text]="getErrorMessage(password, 'password')"  styleClass="mt-2 w-full">
+            </p-message>
         </div>
-        <small class="my-3">You already have an account? <a href="#" (click)="changeToLoginMode(true)">Sign in here</a></small>
-        <p-button label="Sign up" type="submit" severity="contrast" [disabled]="!registerForm.valid"/>
+
+        <small class="my-3">You already have an account? <a href="javascript:void(0)" (click)="changeToLoginMode()">Sign in here</a></small>
+        <!-- Remove [disabled] binding -->
+        <p-button label="Sign up" type="submit" severity="contrast"/>
     </form>
 </div>
