@@ -1,15 +1,17 @@
-import { Component, Output, EventEmitter} from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { JwtService } from '../../../auth/jwt/jwt.service';
 import { Router } from '@angular/router';
+import { FocusTrapModule } from 'primeng/focustrap';
+import { AutoFocusModule } from 'primeng/autofocus';
 
 @Component({
   selector: 'app-login-form',
-  imports: [InputTextModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, TooltipModule],
+  imports: [InputTextModule, ReactiveFormsModule, ButtonModule, FloatLabelModule, TooltipModule, FocusTrapModule, AutoFocusModule],
   templateUrl: './login-form.html',
   styleUrl: './login-form.component.css'
 })
@@ -21,7 +23,7 @@ export class LoginFormComponent {
   changeToRegisterMode(value: boolean) {
     this.modeChanged.emit(value);
   }
-  
+
   loginErrorOccurred(status: number) {
     this.errorOccurred.emit(status);
   }
@@ -30,12 +32,12 @@ export class LoginFormComponent {
     this.errorOccurred.emit(status);
   }
 
-  loginForm = new FormGroup ({
+  loginForm = new FormGroup({
     username: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required)
   });
 
-  constructor(private jwtService: JwtService, private router: Router) {}
+  constructor(private jwtService: JwtService, private router: Router) { }
 
   // sendLoginRequest() {
   //   this.loginService.sendLoginRequest({
@@ -51,9 +53,10 @@ export class LoginFormComponent {
       username: this.loginForm.value.username ?? '',
       password: this.loginForm.value.password ?? ''
     }).subscribe({
-      next:(response) => {
-        this.jwtService.setTokens({accessToken: response.token, refreshToken: response.refreshTokenId, username: response.username})
-        window.location.reload()
+      next: (response) => {
+        this.jwtService.setTokens({ accessToken: response.token, refreshToken: response.refreshTokenId, username: response.username });
+        this.router.navigate(['/dashboard']);
+        this.successfullLogin.emit(200);
       }, error: (error) => {
         this.loginErrorOccurred(error.status);
       }

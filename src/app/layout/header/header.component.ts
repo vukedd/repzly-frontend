@@ -90,7 +90,10 @@ export class HeaderComponent implements OnInit{
 
   handleLoginSuccess(statusCode: number) {
     if (statusCode == 200) {
-      this.messageService.add({severity: 'success', summary: "Success", detail: "You have successfully logged in!"})
+      this.messageService.add({severity: 'success', summary: "Success", detail: "You have successfully logged in!"});
+      this.visible=false;
+      this.setupControls();
+
     }
   }
 
@@ -101,6 +104,10 @@ export class HeaderComponent implements OnInit{
   } 
   
   ngOnInit(): void {
+    this.setupControls();
+  }
+
+  setupControls():void{
     if (this.jwtService.isLoggedIn()){
       let email:string = "starting"
       this.jwtService.getLoggedInUser().subscribe(
