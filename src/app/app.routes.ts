@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { RegisterComponent } from './user/register/register.component';
-import { LoginComponent } from './user/login/login.component';
 import { ProgramCreateComponent } from './program/program-create/program-create.component';
 import { ProgramDetailsComponent } from './program/program-details/program-details.component';
 import { WorkoutTrackerComponent } from './workout/workout-tracker/workout-tracker.component';
@@ -26,16 +24,6 @@ export const routes: Routes = [
         path: 'my-programs',
         component: MyProgramsPageComponent,
         title: 'My programs'
-    },
-    {
-        path: 'register',
-        component: RegisterComponent,
-        title: 'Register'
-    }, 
-    {
-        path: 'login',
-        component: LoginComponent,
-        title: 'Log in'
     },
     {
         path: 'update-program/:id',

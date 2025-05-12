@@ -707,7 +707,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       },
       modal:true,
       position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-auto"
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
     });
 
     this.ref.onClose.subscribe((result) => {
@@ -737,7 +737,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
             this.messageService.add({
               severity: 'success',
               summary: 'Order Updated',
-              detail: response || 'Exercise order updated successfully',
+              detail: 'Exercise order updated successfully',
               life: 2000
             });
           },
@@ -1013,7 +1013,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       dismissableMask: true,
       data: { exerciseId: exerciseId },
       position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-auto"
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
     });
   }
 
