@@ -707,7 +707,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       },
       modal:true,
       position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl"
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-auto"
     });
 
     this.ref.onClose.subscribe((result) => {
@@ -1013,7 +1013,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       dismissableMask: true,
       data: { exerciseId: exerciseId },
       position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl"
+      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-auto"
     });
   }
 
