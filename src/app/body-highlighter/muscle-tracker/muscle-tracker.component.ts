@@ -19,6 +19,7 @@ import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { BadgeModule } from 'primeng/badge';
 import { JwtService } from '../../auth/jwt/jwt.service';
+import { Carousel, CarouselModule } from 'primeng/carousel';
 // New interface for muscle sets data
 interface MuscleSetItem {
   muscleName: string;
@@ -43,17 +44,18 @@ interface MuscleSetItem {
     DatePickerModule,
     ButtonModule,
     ProgressSpinnerModule,
-    MessageModule  ],
+    MessageModule,
+    CarouselModule],
   templateUrl: './muscle-tracker.component.html',
   styleUrls: ['./muscle-tracker.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers:[MessageService]
+  providers: [MessageService]
 })
 export class MuscleTrackerComponent implements OnInit {
   highlightData: BodyPartHighlight[] = [];
   customColors = ['#FFFACD', '#FFEB3B', '#FFC107', '#FFA000', '#FF6F00'];
-  totalSets:number = 0;
-  
+  totalSets: number = 0;
+
   // New property to store muscle sets data for display
   muscleSetsData: MuscleSetItem[] = [];
 
@@ -67,6 +69,11 @@ export class MuscleTrackerComponent implements OnInit {
 
   // The inverse mapping from slug to muscle name
   private slugToMuscleNameMap: Record<string, string> = {};
+
+  bodyViews = [
+    { view: 'front', title: 'Front View' },
+    { view: 'back', title: 'Back View' }
+  ];
 
   // In muscle-tracker.component.ts
   // Change the type signature to allow string or array of strings
@@ -108,6 +115,7 @@ export class MuscleTrackerComponent implements OnInit {
     private jwtService: JwtService
   ) {
     // Initialize the inverse mapping
+    Carousel.prototype.onTouchMove = () => { };
     this.initSlugToMuscleNameMap();
   }
 
@@ -127,7 +135,7 @@ export class MuscleTrackerComponent implements OnInit {
   ngOnInit(): void {
     // Fetch data for the default range when the component initializes
     if (this.isLoggedIn()) {
-    this.fetchMuscleUsage();
+      this.fetchMuscleUsage();
     }
   }
 
@@ -148,14 +156,14 @@ export class MuscleTrackerComponent implements OnInit {
   // Helper function to get color for a value based on intensity
   private getColorForValue(value: number, maxValue: number): string {
     if (maxValue <= 0) return this.customColors[0];
-    
+
     // Calculate index into color array
     const normalizedValue = value / maxValue;
     const index = Math.min(
       Math.floor(normalizedValue * this.customColors.length),
       this.customColors.length - 1
     );
-    
+
     return this.customColors[index];
   }
 
@@ -182,7 +190,7 @@ export class MuscleTrackerComponent implements OnInit {
           const processedData = this.processMuscleData(data);
           this.highlightData = [...processedData]; // Force new reference
           this.totalSets = this.getTotalSets(data);
-          
+
           // Process data for the muscle sets display
           this.generateMuscleSetsDisplay(data);
 
@@ -211,14 +219,14 @@ export class MuscleTrackerComponent implements OnInit {
   private generateMuscleSetsDisplay(rawData: Record<string, number>): void {
     // Clear previous data
     this.muscleSetsData = [];
-    
+
     // Calculate max value for color intensity
     const values = Object.values(rawData);
     if (values.length === 0) return;
-    
+
     const maxValue = Math.max(...values);
     if (maxValue <= 0) return;
-    
+
     // Create formatted display data and sort by number of sets (descending)
     this.muscleSetsData = Object.entries(rawData)
       .map(([muscleName, sets]) => ({
@@ -228,29 +236,29 @@ export class MuscleTrackerComponent implements OnInit {
         colorHex: this.getColorForValue(sets, maxValue)
       }))
       .sort((a, b) => b.sets - a.sets);
-      
+
     this.cdr.markForCheck();
   }
 
   private processMuscleData(rawData: Record<string, number>): BodyPartHighlight[] {
     const processed: BodyPartHighlight[] = [];
     const values = Object.values(rawData);
-  
+
     if (values.length === 0) return [];
-  
+
     const maxValue = Math.max(...values);
     if (maxValue <= 0) return [];
-  
+
     for (const [muscleName, value] of Object.entries(rawData)) {
       const slugOrSlugs = this.muscleNameToSlugMap[muscleName];
-      
+
       // Round the intensity value to 2 decimal places
       const roundedIntensity = Number(value.toFixed(2));
-  
+
       if (slugOrSlugs) {
         // Pass the rounded intensity value, not normalized
         // Let the highlighter handle the range-based color mapping
-        
+
         // Handle array of slugs or single slug
         if (Array.isArray(slugOrSlugs)) {
           slugOrSlugs.forEach(slug => {
@@ -263,10 +271,10 @@ export class MuscleTrackerComponent implements OnInit {
         console.warn(`No slug mapping found for muscle name: "${muscleName}"`);
       }
     }
-  
+
     return processed;
   }
- 
+
   private getTotalSets(muscleData: Record<string, number>): number {
     // Calculate the total and round to 2 decimal places at the end
     const total = Object.values(muscleData).reduce((total, sets) => total + sets, 0);

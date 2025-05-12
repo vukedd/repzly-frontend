@@ -66,6 +66,8 @@ export class ProgramListHorizontalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    Carousel.prototype.onTouchMove = () => { };
+
     if (this.isLoggedIn()) {
 
       // Initial load of started programs

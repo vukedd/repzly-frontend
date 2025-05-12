@@ -1,28 +1,35 @@
 <!-- Top section - Program list and muscle tracker (reordered for mobile) -->
-<div class="grid">
+<div class="flex flex-wrap justify-content-center gap-3">
     <!-- Program list - Now first on small screens but stays 5/12 on medium+ screens -->
-    <div class="col-12 md:col-5 lg:col-5 flex-order-0 md:flex-order-1">
+    <div class="flex-order-0 md:flex-order-1 surface-50 lg:w-4 w-full">
+        <span class="flex justify-content-center align-items-center text-2xl font-bold p-3">Started Programs</span>
         <app-program-list-horizontal></app-program-list-horizontal>
     </div>
     <!-- Muscle tracker - Now second on small screens but stays 7/12 on medium+ screens -->
-    <div class="col-12 md:col-7 lg:col-7 flex-order-1 md:flex-order-0">
+    <div class="flex-order-1 md:flex-order-0 surface-50 lg:w-7 w-full">
+        <span class="flex justify-content-center align-items-center text-2xl font-bold p-3">Muscle Engagement</span>
         <app-muscle-tracker></app-muscle-tracker>
     </div>
 </div>
 
 <!-- Bottom section - Graphs and action buttons -->
-<div class="grid mt-3" *ngIf="isLoggedIn()">
-    <!-- Graphs - Full width on small screens, 4/12 on medium+ screens -->
-    <div class="col-12 sm:col-6 md:col-4 surface-card shadow-1 p-2 mb-3 md:mb-0">
-        <app-volume-graph></app-volume-graph>
-    </div>
-    <div class="col-12 sm:col-6 md:col-4 surface-card shadow-1 p-2 mb-3 md:mb-0">
-        <app-workout-duration-graph></app-workout-duration-graph>
-    </div>
+<div class="flex justify-content-center flex-column">
+    <span class="flex justify-content-center align-items-center text-2xl font-bold w-full my-3">Weekly Statistics</span>
 
-   
+    <div class="flex flex-wrap justify-content-center" *ngIf="isLoggedIn()">
+
+
+        <!-- Graphs - Full width on small screens, 4/12 on medium+ screens -->
+        <div class="surface-50 w-full md:w-5 my-1 ml-2 mr-2">
+            <app-volume-graph></app-volume-graph>
+        </div>
+        <div class="surface-50 w-full md:w-5 my-1 ml-2 mr-2">
+            <app-workout-duration-graph></app-workout-duration-graph>
+        </div>
+
+
+    </div>
 </div>
-
 <!-- Bottom spacing -->
 <div class="m-4 md:m-8 pt-4 md:pt-8">
 </div>

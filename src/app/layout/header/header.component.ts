@@ -80,13 +80,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.ref = this.dialogService.open(componentToShow as any, {
         header: headerText,
          // Responsive width
-        contentStyle: { "max-height": "90vh", "overflow-y": "auto" },
         baseZIndex: 10000,
         modal:true,
         maskStyleClass: 'backdrop-blur-sm',
         styleClass:'md:w-auto w-full',
         dismissableMask: true,
-        closable: false
+        closable: true
+
     });
 
     this.ref.onClose.subscribe((result: any) => {

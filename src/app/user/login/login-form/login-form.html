@@ -1,5 +1,5 @@
 <!-- login-form.html -->
-<div pFocusTrap class="flex justify-content-center align-items-center flex-column p-2 ">
+<div class="flex justify-content-center align-items-center flex-column p-2 ">
 
   <!-- Top-level message for API errors / General Validation Fail -->
   <p-message
@@ -8,7 +8,7 @@
     [text]="messageText"
     [closable]="true"
     (onClose)="onMessageClose()"
-    styleClass="mb-3 w-full">
+    styleClass="mb-3 w-15rem">
   </p-message>
 
   <form class="flex justify-content-center align-items-center flex-column w-full" [formGroup]="loginForm" (submit)="sendLoginRequest()" novalidate> <!-- Added novalidate -->
@@ -25,6 +25,7 @@
           [pAutoFocus]="true"
           [attr.aria-invalid]="username?.invalid && submitted"
           class="w-full"
+          [pAutoFocus]="true"
           />
         <label for="username">Username:</label>
       </p-floatlabel>
