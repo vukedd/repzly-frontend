@@ -1,110 +1,135 @@
-<!-- Outer wrapper for centering and width control -->
-<div class="flex w-full pt-2 px-1" *ngIf="isLoggedIn()"> <!-- Added padding -->
-  <!-- Main content container with PrimeNG Card -->
-  <div styleClass=""> <!-- Removed specific width constraints to be fully responsive -->
-    <!-- Date Selection and Fetch Button -->
-    <div class="grid align-items-center">
-      <div class="col-12 md:col-4">
-        <span class="p-float-label"> <!-- Added floating label -->
-          <p-datepicker inputId="startDate" [(ngModel)]="startDate" [showIcon]="true" iconDisplay="input"
-            dateFormat="yy-mm-dd" [maxDate]="maxDate" styleClass="w-full">
-          </p-datepicker>
-        </span>
-      </div>
-      <div class="col-12 md:col-1 flex align-items-center justify-content-center">
-        <p-divider layout="vertical" styleClass="hidden md:flex"></p-divider> <!-- Vertical divider for md+ -->
-        <p-divider layout="horizontal" styleClass="flex md:hidden"></p-divider> <!-- Horizontal divider for mobile -->
-      </div>
-      <div class="col-12 md:col-4">
-        <span class="p-float-label">
-          <p-datepicker inputId="endDate" [(ngModel)]="endDate" [showIcon]="true" iconDisplay="input"
-            dateFormat="yy-mm-dd" [maxDate]="maxDate" styleClass="w-full">
-          </p-datepicker>
-        </span>
-      </div>
-      <div class="col-12 md:col-3">
-        <p-button label="Fetch Usage" icon="pi pi-search" styleClass="w-full p-button-raised"
-          (click)="fetchMuscleUsage()">
-        </p-button>
-      </div>
-    </div>
 
-    <!-- Body Highlighters and Muscle Sets Data with fixed grid layout -->
-    <div class="grid gap-0">
-      <!-- Body Visualizers - fixed width regardless of data state -->
-      <div class="col-12 lg:col-8">
-        <div class="panel">
-          <div class="panel-content">
-            <div class="grid justify-content-center align-items-start">
-              <div class="col-12 md:col-6 text-center p-0">
-                <div class="text-lg font-medium text-primary p-2">Front View</div>
-                <div class="body-highlighter-container">
-                  <app-body-highlighter [side]="'front'" [data]="highlightData" [colors]="customColors">
-                  </app-body-highlighter>
+
+
+
+  <!-- Outer wrapper for centering and width control -->
+  <div class="flex w-full pt-2 px-1" *ngIf="isLoggedIn()"> <!-- Added padding -->
+    <!-- Main content container with PrimeNG Card -->
+    <div styleClass=""> <!-- Removed specific width constraints to be fully responsive -->
+      <!-- Date Selection and Fetch Button -->
+      <div class="grid align-items-center">
+        <div class="col-12 md:col-4">
+          <span class="p-float-label"> <!-- Added floating label -->
+            <p-datepicker inputId="startDate" [(ngModel)]="startDate" [showIcon]="true" iconDisplay="input"
+              dateFormat="yy-mm-dd" [maxDate]="maxDate" styleClass="w-full">
+            </p-datepicker>
+          </span>
+        </div>
+        <div class="col-12 md:col-1 flex align-items-center justify-content-center">
+          <p-divider layout="vertical" styleClass="hidden md:flex"></p-divider> <!-- Vertical divider for md+ -->
+          <p-divider layout="horizontal" styleClass="flex md:hidden"></p-divider> <!-- Horizontal divider for mobile -->
+        </div>
+        <div class="col-12 md:col-4">
+          <span class="p-float-label">
+            <p-datepicker inputId="endDate" [(ngModel)]="endDate" [showIcon]="true" iconDisplay="input"
+              dateFormat="yy-mm-dd" [maxDate]="maxDate" styleClass="w-full">
+            </p-datepicker>
+          </span>
+        </div>
+        <div class="col-12 md:col-3">
+          <p-button label="Fetch Usage" icon="pi pi-search" styleClass="w-full p-button-raised"
+            (click)="fetchMuscleUsage()">
+          </p-button>
+        </div>
+      </div>
+      <div class="block md:hidden">
+              <p-carousel [value]="bodyViews" [numVisible]="1" [numScroll]="1" [showIndicators]="true"
+                [showNavigators]="false">
+                <ng-template pTemplate="item" let-bodyView>
+                  <div class="text-center p-1"> <!-- Added padding -->
+                    <div class="text-lg font-medium text-primary p-2">{{ bodyView.title }}</div>
+                    <div class="body-highlighter-container">
+                      <!-- Render the correct highlighter based on the carousel item -->
+                      <app-body-highlighter *ngIf="bodyView.view === 'front'" [side]="'front'" [data]="highlightData"
+                        [colors]="customColors">
+                      </app-body-highlighter>
+                      <app-body-highlighter *ngIf="bodyView.view === 'back'" [side]="'back'" [data]="highlightData"
+                        [colors]="customColors">
+                      </app-body-highlighter>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-carousel>
+            </div>
+
+
+      <!-- Body Highlighters and Muscle Sets Data with fixed grid layout -->
+      <div class="grid gap-0">
+        <!-- Body Visualizers - fixed width regardless of data state -->
+        <div class="col-12 lg:col-8 md:block hidden">
+          <div class="panel">
+            <div class="panel-content">
+              <div class="grid justify-content-center align-items-start">
+                <div class="col-12 md:col-6 text-center p-0">
+                  <div class="text-lg font-medium text-primary p-2">Front View</div>
+                  <div class="body-highlighter-container">
+                    <app-body-highlighter [side]="'front'" [data]="highlightData" [colors]="customColors">
+                    </app-body-highlighter>
+                  </div>
                 </div>
-              </div>
-              <div class="col-12 md:col-6 text-center p-0">
-                <div class="text-lg font-medium text-primary p-2">Back View</div>
-                <div class="body-highlighter-container">
-                  <app-body-highlighter [side]="'back'" [data]="highlightData" [colors]="customColors">
-                  </app-body-highlighter>
+                <div class="col-12 md:col-6 text-center p-0">
+                  <div class="text-lg font-medium text-primary p-2">Back View</div>
+                  <div class="body-highlighter-container">
+                    <app-body-highlighter [side]="'back'" [data]="highlightData" [colors]="customColors">
+                    </app-body-highlighter>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Muscle Sets Data - Fixed to prevent horizontal scrolling -->
-      <div class="col-12 lg:col-4">
-        <div class="panel mb-3">
-          <div class="panel-content">
-            <!-- Show only if we have data -->
-            <ng-container *ngIf="muscleSetsData.length > 0; else noData">
-              <!-- Modified table to ensure responsive behavior -->
-              <p-table [scrollable]="true" scrollHeight="250px" [value]="muscleSetsData">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th style="width: 2rem"></th>
-                    <th>Muscle</th>
-                    <th style="width: 3.5rem">Sets</th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-item>
-                  <tr>
-                    <td>
-                      <div class="border-circle border-1 border-primary" [style.background-color]="item.colorHex"
-                        style="width: 1rem; height: 1rem;"></div>
-                    </td>
-                    <td>{{item.muscleName}}</td>
-                    <td class="text-center font-bold">
-                      <p-chip [label]="item.sets.toString()"></p-chip>
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            </ng-container>
-            <ng-template #noData>
-              <div class="flex flex-column align-items-center justify-content-center p-5" style="min-height: 200px">
-                <!-- Added min-height to maintain consistent panel size -->
-                <i class="pi pi-info-circle text-6xl text-color-secondary mb-3"></i>
-                <p class="text-color-secondary">No muscle data available</p>
-                <small class="text-color-secondary">Select a date range and click "Fetch Usage"</small>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-
-        <!-- Added summary section -->
-        <p-card *ngIf="muscleSetsData.length > 0" styleClass="mt-3">
-          <div class="flex flex-column gap-2">
-            <div class="flex justify-content-between align-items-center">
-              <span>Total Sets:</span>
-              <span class="font-bold">{{totalSets}}</span>
+        <!-- Muscle Sets Data - Fixed to prevent horizontal scrolling -->
+        <div class="col-12 lg:col-4">
+          <div class="panel mb-3">
+            <div class="panel-content">
+              <!-- Show only if we have data -->
+              <ng-container *ngIf="muscleSetsData.length > 0; else noData">
+                <!-- Modified table to ensure responsive behavior -->
+                <p-table [scrollable]="true" scrollHeight="250px" [value]="muscleSetsData">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 2rem"></th>
+                      <th>Muscle</th>
+                      <th style="width: 3.5rem">Sets</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>
+                        <div class="border-circle border-1 border-primary" [style.background-color]="item.colorHex"
+                          style="width: 1rem; height: 1rem;"></div>
+                      </td>
+                      <td>{{item.muscleName}}</td>
+                      <td class="text-center font-bold">
+                        <p-chip [label]="item.sets.toString()"></p-chip>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </ng-container>
+              <ng-template #noData>
+                <div class="flex flex-column align-items-center justify-content-center p-5" style="min-height: 200px">
+                  <!-- Added min-height to maintain consistent panel size -->
+                  <i class="pi pi-info-circle text-6xl text-color-secondary mb-3"></i>
+                  <p class="text-color-secondary">No muscle data available</p>
+                  <small class="text-color-secondary">Select a date range and click "Fetch Usage"</small>
+                </div>
+              </ng-template>
             </div>
           </div>
-        </p-card>
+
+          <!-- Added summary section -->
+          <p-card *ngIf="muscleSetsData.length > 0" styleClass="mt-3">
+            <div class="flex flex-column gap-2">
+              <div class="flex justify-content-between align-items-center">
+                <span>Total Sets:</span>
+                <span class="font-bold">{{totalSets}}</span>
+              </div>
+            </div>
+          </p-card>
+        </div>
       </div>
+
     </div>
   </div>
-</div>

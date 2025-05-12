@@ -1,12 +1,12 @@
 <!-- Top section - Program list and muscle tracker (reordered for mobile) -->
 <div class="flex flex-wrap justify-content-center gap-3">
     <!-- Program list - Now first on small screens but stays 5/12 on medium+ screens -->
-    <div class="flex-order-0 md:flex-order-1 surface-50">
+    <div class="flex-order-0 md:flex-order-1 surface-50 lg:w-4 w-full">
         <span class="flex justify-content-center align-items-center text-2xl font-bold p-3">Started Programs</span>
         <app-program-list-horizontal></app-program-list-horizontal>
     </div>
     <!-- Muscle tracker - Now second on small screens but stays 7/12 on medium+ screens -->
-    <div class="flex-order-1 md:flex-order-0 surface-50">
+    <div class="flex-order-1 md:flex-order-0 surface-50 lg:w-7 w-full">
         <span class="flex justify-content-center align-items-center text-2xl font-bold p-3">Muscle Engagement</span>
         <app-muscle-tracker></app-muscle-tracker>
     </div>
@@ -14,7 +14,7 @@
 
 <!-- Bottom section - Graphs and action buttons -->
 <div class="flex justify-content-center flex-column">
-    <span class="flex justify-content-center align-items-center text-2xl font-bold w-full my-3 p-3">Weekly Statistics</span>
+    <span class="flex justify-content-center align-items-center text-2xl font-bold w-full my-3">Weekly Statistics</span>
 
     <div class="flex flex-wrap justify-content-center" *ngIf="isLoggedIn()">
 
