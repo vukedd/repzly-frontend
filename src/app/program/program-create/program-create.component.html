@@ -92,7 +92,7 @@
               <div class="flex justify-content-end mt-4">
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
                   [disabled]="programForm.get('name')?.invalid" (onClick)="activateCallback(2)"
-                  styleClass="p-button-raised"></p-button>
+                  styleClass="p-button-raised mr-2"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -363,9 +363,9 @@
               </p-tabs>
 
               <div class="flex justify-content-between mt-4">
-                <p-button label="Back" icon="pi pi-arrow-left" severity="secondary"
+                <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" styleClass="ml-2"
                   (onClick)="activateCallback(1)"></p-button>
-                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" styleClass="mr-2"
                   (onClick)="activateCallback(3)"></p-button>
               </div>
             </ng-template>
@@ -462,9 +462,9 @@
                 <!-- Navigation Buttons -->
                 <div class="flex justify-content-between mt-5">
                   <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)"
-                    styleClass="p-button-outlined"></p-button>
+                    styleClass="p-button-outlined ml-2"></p-button>
                   <p-button type="submit" [label]="getSubmitButtonText()" icon="pi pi-check" [loading]="loading"
-                    styleClass="p-button-raised"></p-button>
+                    styleClass="p-button-raised mr-2"></p-button>
                 </div>
               </div>
             </ng-template>

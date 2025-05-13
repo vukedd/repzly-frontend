@@ -16,7 +16,7 @@ const neutral = {
     950: '#0a0a0a',
 };
 
-const ModernDarkContrastTheme = definePreset(Material, {
+const CustomMaterialTheme = definePreset(Material, {
     primitive: {
 
         // --- Keeping original definitions ---
@@ -236,116 +236,9 @@ const ModernDarkContrastTheme = definePreset(Material, {
                         activeColor: '{primary.color}'  // Unchanged
                     }
                 }
-            },
-            // --- Dark theme definition (PROPERLY REVERSED) ---
-            dark: {
-                // PROPERLY REVERSED: Now surface-0 will be the darkest color
-                surface: {
-                    0: '{neutral.50}',    // Darkest (#0a0a0a)
-                    50: '{neutral.50}',   // (#171717)
-                    100: '{neutral.100}',  // (#262626)
-                    200: '{neutral.200}',  // (#404040)
-                    300: '{neutral.300}',  // (#525252)
-                    400: '{neutral.400}',  // (#737373)
-                    500: '{neutral.500}',  // (#a3a3a3)
-                    600: '{neutral.600}',  // (#d4d4d4)
-                    700: '{neutral.700}',  // (#e5e5e5)
-                    800: '{neutral.800}',  // (#f5f5f5)
-                    900: '{neutral.900}',   // Lightest (#fafafa)
-                    950: '{neutral.950}'    // Lightest (#fafafa)
-                },
-
-                primary: {
-                    color: '{primary.400}', // Bright emerald #34d399
-                    contrastColor: '{neutral.950}', // Very dark text #0a0a0a
-                    hoverColor: '{primary.300}',
-                    activeColor: '{primary.200}'
-                },
-
-                highlight: {
-                    background: 'color-mix(in srgb, {primary.color} 50%, transparent)',
-                    focusBackground: 'color-mix(in srgb, {primary.color} 35%, transparent)',
-                    color: '{neutral.950}', // Dark text on highlight background
-                    focusColor: '{neutral.950}' // Darker text on focused highlight
-                },
-
-                mask: {
-                    background: 'rgba(0,0,0,0.8)',
-                    color: '{surface.500}' // Text on mask (#a3a3a3)
-                },
-
-                formField: {
-                    background: '{surface.900}', // Main component bg (#262626)
-                    disabledBackground: '{surface.950}', // Darker disabled bg (#171717)
-                    filledBackground: '{surface.950}', // Darker filled bg (#171717)
-                    filledHoverBackground: 'color-mix(in srgb, {primary.color} 8%, {surface.950})',
-                    filledFocusBackground: 'color-mix(in srgb, {primary.color} 12%, {surface.950})',
-                    borderColor: '{surface.700}', // Border (#525252)
-                    hoverBorderColor: '{surface.600}', // Hover border (#737373)
-                    focusBorderColor: '{primary.color}',
-                    invalidBorderColor: '#f87171',
-                    color: '{surface.100}', // Main text (#f5f5f5)
-                    disabledColor: '{surface.500}', // Muted disabled (#a3a3a3)
-                    placeholderColor: '{surface.500}', // Muted placeholder (#a3a3a3)
-                    invalidPlaceholderColor: '#fb923c',
-                    floatLabelColor: '{surface.500}',
-                    floatLabelFocusColor: '{primary.color}',
-                    floatLabelActiveColor: '{surface.400}', // Brighter active label (#d4d4d4)
-                    floatLabelInvalidColor: '#f87171',
-                    iconColor: '{surface.500}', // Icon color (#a3a3a3)
-                    shadow: 'none'
-                },
-
-                text: {
-                    color: '{surface.100}', // Main text (#f5f5f5)
-                    hoverColor: '{surface.900}', // Hover text (#fafafa)
-                    mutedColor: '{surface.500}', // Muted text (#a3a3a3)
-                    hoverMutedColor: '{surface.400}' // Brighter muted hover (#d4d4d4)
-                },
-
-                content: {
-                    background: '{surface.900}', // Component bg (#262626)
-                    hoverBackground: '{surface.800}', // Hover bg (#404040)
-                    borderColor: '{surface.700}', // Border (#525252)
-                    color: '{text.color}',
-                    hoverColor: '{text.hoverColor}'
-                },
-
-                overlay: {
-                    select: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' },
-                    popover: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' },
-                    modal: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' }
-                },
-
-                list: {
-                    option: {
-                        focusBackground: '{highlight.focusBackground}',
-                        selectedBackground: '{highlight.background}',
-                        selectedFocusBackground: 'color-mix(in srgb, {primary.color} 40%, transparent)',
-                        color: '{text.color}', // Using text.color (#f5f5f5)
-                        focusColor: '{surface.100}', // Brightest grey for focused option text (#fafafa)
-                        selectedColor: '{highlight.color}', // Dark text on selected item bg
-                        selectedFocusColor: '{highlight.focusColor}', // Darker text on selected focus item bg
-                        icon: { color: '{surface.500}', focusColor: '{primary.color}' }
-                    },
-                    optionGroup: { background: 'transparent', color: '{text.mutedColor}' } // (#a3a3a3)
-                },
-
-                navigation: {
-                    item: {
-                        focusBackground: '{highlight.focusBackground}',
-                        activeBackground: '{highlight.background}',
-                        color: '{text.mutedColor}', // (#a3a3a3)
-                        focusColor: '{primary.color}',
-                        activeColor: '{primary.color}',
-                        icon: { color: '{text.mutedColor}', focusColor: '{primary.color}', activeColor: '{primary.color}' }
-                    },
-                    submenuLabel: { background: 'transparent', color: '{text.mutedColor}' },
-                    submenuIcon: { color: '{text.mutedColor}', focusColor: '{primary.color}', activeColor: '{primary.color}' }
-                }
             }
         }
     }
 });
 
-export default ModernDarkContrastTheme;
+export default CustomMaterialTheme;
