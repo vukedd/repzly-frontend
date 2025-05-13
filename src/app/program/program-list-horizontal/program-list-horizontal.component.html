@@ -1,32 +1,84 @@
+<!-- program-list-horizontal.component.html -->
+
 <div class="pt-2" *ngIf="isLoggedIn()">
     <div class="flex justify-content-center">
         <div class="w-full m-0">
             <!-- Loading Spinner -->
-            <div *ngIf="loading" class="flex justify-content-center">
+            <div *ngIf="loading" class="flex justify-content-center align-items-center" style="min-height: 300px;"> <!-- Adjusted min-height -->
                 <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)"
                     animationDuration=".5s">
                 </p-progressSpinner>
             </div>
-            <!-- Program Carousel -->
-            <div *ngIf="!loading" >
-                <p-carousel #programCarousel [value]="carouselItems" [circular]="false"
-                      [showIndicators]="true"
-                      [showNavigators]="showNavigatorButtons"
-                     (onPage)="onCarouselPageChange($event)" styleClass="custom-carousel">
-                    <ng-template let-item pTemplate="item">
-                        <!-- Program Card -->
-                        <div class="flex justify-content-center carousel-item-container pb-4">
-                            <div class="px-2">
-                                <app-program-card [program]="item.program" programType="started"></app-program-card>
+
+            <!-- Content when not loading -->
+            <ng-container *ngIf="!loading">
+                <!-- Program Carousel if programs exist -->
+                <div *ngIf="programs && programs.length > 0">
+                    <p-carousel #programCarousel [value]="carouselItems" [numVisible]="1" [numScroll]="1" [circular]="false"
+                                  [showIndicators]="true"
+                                  [showNavigators]="showNavigatorButtons"
+                                 (onPage)="onCarouselPageChange($event)" styleClass="custom-carousel">
+                        <ng-template let-item pTemplate="item">
+                            <!-- This is the wrapper for each item in the carousel -->
+                            <div class="flex justify-content-center carousel-item-container pb-4">
+                                <!-- This div controls the width of the card within the carousel -->
+                                <div class="px-2" style="width: 100%; max-width: 400px;"> <!-- Adjust max-width to match your program card's typical width -->
+                                    <app-program-card [program]="item.program" programType="started"></app-program-card>
+                                </div>
                             </div>
+                        </ng-template>
+                    </p-carousel>
+                </div>
+
+                <!-- No Started Programs Card if no programs exist -->
+                <div *ngIf="programs && programs.length === 0" 
+                     class="flex justify-content-center w-full pb-6"> <!-- Outer container for centering and vertical padding -->
+                    
+                    <!-- This div constrains the width of the "No Programs" card, similar to carousel items -->
+                    <div class="px-2" style="width: 100%; max-width: 400px;"> <!-- Adjust max-width to match your program card's typical width -->
+                    
+                        <!-- This div is analogous to app-program-card's root element (<div class="h-full w-full p-2 cursor-pointer">).
+                             It defines the card's outer box, overall minimum height, padding, and clickability. -->
+                        <div class="w-full p-2 cursor-pointer"  
+                             style="min-height: 25rem; display: flex; flex-direction: column;" 
+                             (click)="navigateToExplorePage()" (keydown.enter)="navigateToExplorePage()" tabindex="0"
+                             aria-label="No started programs, click to explore programs">
+                            
+                            <!-- The p-card itself, takes full height of its parent, with styling to match app-program-card -->
+                            <p-card styleClass="h-full border-round-lg shadow-4 flex flex-column transform transition-duration-300 hover:shadow-6">
+                                
+                                <ng-template pTemplate="header">
+                                    <!-- Fixed height header, mimics program card image space. -->
+                                    <div class="relative flex justify-content-center align-items-center surface-100 border-round-top-lg" 
+                                         style="height: 16rem;"> <!-- This matches your program.card img h-16rem -->
+                                        <i class="pi pi-compass" style="font-size: 4rem; color: var(--primary-color)"></i>
+                                    </div>
+                                </ng-template>
+
+                                <!-- Content area, takes remaining space, with padding similar to app-program-card -->
+                                <div class="flex flex-column align-items-center justify-content-center text-center gap-3 p-3 flex-grow-1">
+                                    <div class="text-xl font-bold text-primary">No Started Programs Yet</div> <!-- Style to match program.name -->
+                                    <p class="m-0 text-color-secondary">
+                                        Your fitness journey awaits! <br> Tap here to explore programs and get started.
+                                    </p>
+                                </div>
+
+                                <!-- Footer area, with padding and border similar to app-program-card -->
+                                <ng-template pTemplate="footer">
+                                    <div class="flex justify-content-center border-top-1 surface-border pt-3 p-3"> <!-- Added p-3 for overall padding, pt-3 already there -->
+                                        <p-button label="Explore Programs Now" icon="pi pi-search" styleClass="p-button-primary p-button-raised w-full"></p-button>
+                                    </div>
+                                </ng-template>
+                            </p-card>
                         </div>
-                    </ng-template>
-                </p-carousel>
-            </div>
+                    </div>
+                </div>
+            </ng-container>
         </div>
     </div>
-    <!-- Hidden Paginator - Used only for loading more data -->
-    <div class="hidden">
+
+    <!-- Hidden Paginator - Conditionally rendered -->
+    <div class="hidden" *ngIf="!loading && programs && programs.length > 0 && totalRecords > rows">
         <p-paginator [first]="first" [rows]="rows" [totalRecords]="totalRecords" [rowsPerPageOptions]="[10, 20, 30]"
             (onPageChange)="onPageChange($any($event))">
         </p-paginator>
