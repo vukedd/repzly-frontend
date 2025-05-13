@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router'; // Import Router
 import { ProgramOverviewDTO } from '../program-overview-dto';
 import { ProgramService } from '../program-service/program.service';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -14,6 +15,7 @@ import { CarouselModule, Carousel } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { CardModule } from 'primeng/card'; // Import CardModule
 
 interface PageEvent {
   first: number;
@@ -35,7 +37,8 @@ interface PageEvent {
     ChartModule,
     CarouselModule,
     TagModule,
-    RippleModule
+    RippleModule,
+    CardModule // Add CardModule here
   ],
   templateUrl: './program-list-horizontal.component.html',
   styleUrl: './program-list-horizontal.component.css',
@@ -62,22 +65,24 @@ export class ProgramListHorizontalComponent implements OnInit {
   constructor(
     private programService: ProgramService,
     private jwtService: JwtService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private router: Router // Inject Router
   ) { }
 
   ngOnInit() {
     Carousel.prototype.onTouchMove = () => { };
 
     if (this.isLoggedIn()) {
-
       // Initial load of started programs
-      this.loadStartedPrograms(0, 10);
+      this.loadStartedPrograms(0, 10); // Assuming default rows is 10
       this.breakpointObserver
             .observe(['(min-width: 768px)'])
             .pipe(takeUntil(this.destroy$))
             .subscribe(result => {
               this.showNavigatorButtons = result.matches;
             });
+    } else {
+      this.loading = false; // If not logged in, set loading to false
     }
   }
 
@@ -85,7 +90,6 @@ export class ProgramListHorizontalComponent implements OnInit {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 
   public isLoggedIn(): boolean {
     return this.jwtService.isLoggedIn();
@@ -95,7 +99,6 @@ export class ProgramListHorizontalComponent implements OnInit {
     this.loading = true;
     this.programService.getStartedProgramsOverview(size, page).subscribe({
       next: (response) => {
-        // Add new programs to the allLoadedPrograms array without duplicates
         const newPrograms = response.content.filter(newProgram =>
           !this.allLoadedPrograms.some(existingProgram =>
             existingProgram.id === newProgram.id
@@ -103,35 +106,35 @@ export class ProgramListHorizontalComponent implements OnInit {
         );
 
         this.allLoadedPrograms = [...this.allLoadedPrograms, ...newPrograms];
-        this.programs = this.allLoadedPrograms;
+        this.programs = this.allLoadedPrograms; // Or just response.content if you're replacing
         this.totalRecords = response.page.totalElements;
         this.totalPages = response.page.totalPages;
+        
+        // Update carousel items only if there are programs
+        if (this.programs.length > 0) {
+          this.updateCarouselItems();
+        } else {
+          this.carouselItems = []; // Ensure carouselItems is empty if no programs
+        }
         this.loading = false;
-
-        // Create carousel items
-        this.updateCarouselItems();
         this.isLoadingMore = false;
       },
       error: (error) => {
         console.error('Error loading started programs:', error);
+        this.programs = []; // Ensure programs is empty on error
+        this.carouselItems = [];
         this.loading = false;
         this.isLoadingMore = false;
       }
     });
   }
 
-  // Update carousel items array with program cards
   updateCarouselItems() {
-    // Save current items length to compare
     const previousLength = this.carouselItems.length;
-
     this.carouselItems = this.programs.map(program => ({ type: 'program-card', program }));
 
-    // If we're loading more items (not initial load), preserve carousel position
     if (this.isLoadingMore && previousLength > 0) {
-      // We need to set the carousel position after the view updates
       setTimeout(() => {
-        // If we have access to the carousel directly via ViewChild
         if (this.carousel) {
           this.carousel.page = this.currentCarouselPage;
         }
@@ -144,7 +147,6 @@ export class ProgramListHorizontalComponent implements OnInit {
     this.rows = event.rows;
     this.page = event.page;
 
-    // Check if we need to load more programs
     const totalLoadedItems = this.allLoadedPrograms.length;
     const requestedItems = (this.page + 1) * this.rows;
 
@@ -153,21 +155,20 @@ export class ProgramListHorizontalComponent implements OnInit {
     }
   }
 
-  // Called when carousel page changes to potentially load more data
   onCarouselPageChange(event: any) {
-    // Store the current page position
     this.currentCarouselPage = event.page;
+    const numVisible = this.carousel && this.carousel.numVisible ? this.carousel.numVisible : 1; // Adjust based on actual numVisible if needed
 
-    // When approaching the end of loaded items, load more data
-    if (event.page >= this.carouselItems.length - 3 &&
+    if (event.page >= (this.carouselItems.length - numVisible - 1) && // Check if near the end
       this.allLoadedPrograms.length < this.totalRecords &&
       !this.isLoadingMore) {
-
       this.isLoadingMore = true;
-      this.page++;
+      this.page++; // This might need adjustment; ensure page corresponds to backend pagination
       this.loadStartedPrograms(this.page, this.rows);
     }
   }
 
-
+  navigateToExplorePage(): void {
+    this.router.navigate(['/search']); // Adjust '/explore' to your actual explore page route
+  }
 }
