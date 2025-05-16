@@ -1,4 +1,4 @@
-<div class="surface-50 px-2 py-2 md:px-4 md:py-5">
+<div class="surface-50 px-1 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
     <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
@@ -74,16 +74,16 @@
           </div>
 
           <!-- Sets Table -->
-          <div class="surface-card p-3 border-round">
+          <div class="surface-card p-1 border-round">
             <!-- Table Header -->
-            <div class="grid mb-2 border-bottom-1 surface-border pb-2">
-              <div class="col-1 flex justify-content-center">#</div>
-              <div class="col-3 flex justify-content-center">Weight</div>
-              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl,
-                0)?.get('volumeMetric')?.value?.title ||
+            <div class="grid mb-2 border-bottom-1 surface-border pb-2 grid-nogutter">
+              <div class="col-1 flex justify-content-center pt-1">#</div>
+              <div class="col-3 flex justify-content-center p-1">Weight</div>
+              <div class="col-3 flex justify-content-center p-1">{{getExerciseSetsAt(exerciseControl,
+                0)?.get('volumeMetric')?.value?.metricSymbol ||
                 'Volume'}}</div>
-              <div class="col-3 flex justify-content-center">{{getExerciseSetsAt(exerciseControl,
-                0)?.get('intensityMetric')?.value?.title ||
+              <div class="col-3 flex justify-content-center p-1">{{getExerciseSetsAt(exerciseControl,
+                0)?.get('intensityMetric')?.value?.metricSymbol ||
                 'Intensity'}}</div>
               <div class="col-2 flex justify-content-center"></div>
             </div>
@@ -91,23 +91,23 @@
             <!-- Sets -->
             <div formArrayName="sets">
               <div *ngFor="let setControl of getExerciseSets(exerciseIndex)?.controls; let setIndex = index"
-                [formGroupName]="setIndex" class="grid align-items-center mb-3"
+                [formGroupName]="setIndex" class="grid align-items-center mb-3 grid-nogutter"
                 [ngClass]="setControl.get('completed')?.value?'surface-100':''">
 
-                <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
+                <div class="col-1 flex justify-content-center ">{{setIndex + 1}}</div>
 
-                <div class="col-3 flex justify-content-center">
+                <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber type="number" formControlName="weightLifted" [style]="{'width':'5rem'}"
                     [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" [min]="0" [max]="100000" />
                 </div>
 
-                <div class="col-3 flex justify-content-center">
+                <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualVolume" [placeholder]="getVolumePlaceholder(setControl)"
                     [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
                     [min]="0" [max]="100000" />
                 </div>
 
-                <div class="col-3 flex justify-content-center">
+                <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualIntensity" [placeholder]="getIntensityPlaceholder(setControl)"
                     [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
                     [min]="setControl.get('intensityMetric')?.value?.minimumIntensity || 0"
@@ -159,7 +159,7 @@
     <!-- Summary Dialog -->
     <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true" 
        [modal]="true" styleClass="workout-summary-dialog" styleClass="m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7" [position]="showInputButtons?'center':'bottom'">
-      <div class="p-0 surface-ground"> <!-- Added surface-ground for consistent background if needed -->
+      <div class="p-0 surface-0"> <!-- Added surface-ground for consistent background if needed -->
 
         <!-- Duration Section -->
         <div class="surface-card p-3 shadow-1 border-round mb-4">

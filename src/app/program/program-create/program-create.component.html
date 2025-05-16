@@ -92,7 +92,7 @@
               <div class="flex justify-content-end mt-4">
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
                   [disabled]="programForm.get('name')?.invalid" (onClick)="activateCallback(2)"
-                  styleClass="p-button-raised"></p-button>
+                  styleClass="p-button-raised mr-2"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -115,11 +115,11 @@
                       <h4 class="m-0">Week {{ i + 1 }}</h4>
                       <div>
                         <!-- In your template -->
-                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week"
+                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
 
                         <button pButton type="button" icon="pi pi-times"
-                          class="p-button-rounded p-button-danger p-button-text" pTooltip="Remove Week"
+                          class="p-button-rounded p-button-text" pTooltip="Remove Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
                           [disabled]="weeks.length <= 1"></button>
                       </div>
@@ -199,7 +199,7 @@
                                   <!-- Exercise Cards -->
                                   <div
                                     *ngFor="let exercise of getWorkoutExercises(i, workoutIndex).controls; let exerciseIndex = index"
-                                    class="surface-200 mb-3 border-bottom-1 surface-border">
+                                    class="surface-50 mb-3 border-bottom-1 surface-border">
                                     <div [formGroupName]="exerciseIndex">
                                       <!-- Exercise Details Card -->
                                       <div class="p-1">
@@ -363,9 +363,9 @@
               </p-tabs>
 
               <div class="flex justify-content-between mt-4">
-                <p-button label="Back" icon="pi pi-arrow-left" severity="secondary"
+                <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" styleClass="ml-2"
                   (onClick)="activateCallback(1)"></p-button>
-                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" styleClass="mr-2"
                   (onClick)="activateCallback(3)"></p-button>
               </div>
             </ng-template>
@@ -396,7 +396,7 @@
                       </div>
                       <div *ngIf="programForm.get('description')?.value">
                         <span class="text-sm text-600">Description</span>
-                        <p class="text-md text-700 mt-1 white-space-pre-line">{{ programForm.get('description')?.value
+                        <p class="text-md text-700 mt-1 preserve-whitespace">{{ programForm.get('description')?.value
                           }}</p>
                       </div>
                       <div class="mt-2">
@@ -429,7 +429,6 @@
                               <li
                                 *ngFor="let exercise of getWorkoutExercises(weekIndex, workoutIndex).controls; let exerciseIndex = index"
                                 class="flex align-items-center py-2 border-bottom-1 surface-border last:border-bottom-none">
-                                <i class="pi pi-bolt mr-2 text-primary"></i>
                                 <span class="text-sm text-700 flex-1">{{ getExerciseTitle(weekIndex, workoutIndex,
                                   exerciseIndex) }}</span>
                                 <span class="text-sm text-500">({{ getSets(weekIndex, workoutIndex,
@@ -462,9 +461,9 @@
                 <!-- Navigation Buttons -->
                 <div class="flex justify-content-between mt-5">
                   <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)"
-                    styleClass="p-button-outlined"></p-button>
+                    styleClass="p-button-outlined ml-2"></p-button>
                   <p-button type="submit" [label]="getSubmitButtonText()" icon="pi pi-check" [loading]="loading"
-                    styleClass="p-button-raised"></p-button>
+                    styleClass="p-button-raised mr-2"></p-button>
                 </div>
               </div>
             </ng-template>

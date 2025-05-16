@@ -842,7 +842,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           detail: response?.message || 'Workout saved successfully.',
           life: 3000
         });
-        setTimeout(() => this.router.navigate(['dashboard']), 1500);
+        this.router.navigate(['/dashboard'], { state: { workoutJustCompleted: true } });
       },
       error: (error) => {
         this.submitting = false;
@@ -976,9 +976,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
 
     // Add the metric symbol to make it clearer
-    if (placeholder !== (metric?.title || defaultText) && metric?.metricSymbol) {
-      placeholder += ` ${metric.metricSymbol}`;
-    }
+   
 
     return placeholder;
   }

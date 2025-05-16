@@ -4,5 +4,6 @@
 }
 
 .active {
-    text-decoration: underline #10b981 3px;
+    text-decoration: underline 3px;
+    color:var(--primary-color);
 }
