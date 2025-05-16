@@ -43,3 +43,7 @@
 body {
   font-family: 'Atkinson Hyperlegible', sans-serif;
 }
+
+html {
+    font-size: 1.1rem;
+}

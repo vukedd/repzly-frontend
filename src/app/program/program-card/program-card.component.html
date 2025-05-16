@@ -1,5 +1,5 @@
 <div class="h-full w-full p-2 cursor-pointer">
-  <p-card styleClass="h-full border-round-lg shadow-4 transform transition-duration-300 hover:shadow-6" (click)="navigateToDetails()">
+  <p-card styleClass="h-full border-round-lg shadow-4 transform transition-duration-300 hover:shadow-6 surface-50" (click)="navigateToDetails()">
     <ng-template pTemplate="header">
       <div class="relative">
         <img [src]="program.id ? apiUrl+'/image' + '/'+ program.id : 'placeholder-program.png'"

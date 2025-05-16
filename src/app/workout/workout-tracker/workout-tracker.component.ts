@@ -976,9 +976,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
 
     // Add the metric symbol to make it clearer
-    if (placeholder !== (metric?.title || defaultText) && metric?.metricSymbol) {
-      placeholder += ` ${metric.metricSymbol}`;
-    }
+   
 
     return placeholder;
   }
