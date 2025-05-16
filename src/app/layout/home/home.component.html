@@ -33,3 +33,20 @@
 <!-- Bottom spacing -->
 <div class="m-4 md:m-8 pt-4 md:pt-8">
 </div>
+
+<p-dialog header="Congratulations!" [(visible)]="showCongratsDialog" [modal]="true"
+    styleClass="m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
+    [position]="showInputButtons?'center':'bottom'" [draggable]="false" [resizable]="false"
+    (onHide)="showCongratsDialog = false">
+    <div class="flex flex-column align-items-center text-center">
+        <i class="pi pi-check-circle text-green-500 text-6xl mb-3"></i>
+        <p class="text-xl font-semibold">Workout Completed!</p>
+        <p class="text-700">You've successfully finished your workout. Keep up the amazing work!</p>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center w-full">
+            <p-button label="Awesome!" icon="pi pi-thumbs-up" (click)="showCongratsDialog = false"
+                styleClass="w-full "></p-button>
+        </div>
+    </ng-template>
+</p-dialog>
