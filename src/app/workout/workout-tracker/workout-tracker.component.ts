@@ -842,7 +842,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
           detail: response?.message || 'Workout saved successfully.',
           life: 3000
         });
-        setTimeout(() => this.router.navigate(['dashboard']), 1500);
+        this.router.navigate(['dashboard']);
       },
       error: (error) => {
         this.submitting = false;

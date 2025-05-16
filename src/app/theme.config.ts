@@ -103,7 +103,7 @@ const CustomMaterialTheme = definePreset(Nora, {
         font: {
             family: '"Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
         },
-        iconSize: '1.25rem',
+        iconSize: '1.2rem',
         formField: {
             paddingX: '1rem', paddingY: '0.75rem',
             sm: { fontSize: '0.875rem', paddingX: '0.75rem', paddingY: '0.5rem' },

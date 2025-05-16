@@ -115,11 +115,11 @@
                       <h4 class="m-0">Week {{ i + 1 }}</h4>
                       <div>
                         <!-- In your template -->
-                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week"
+                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
 
                         <button pButton type="button" icon="pi pi-times"
-                          class="p-button-rounded p-button-danger p-button-text" pTooltip="Remove Week"
+                          class="p-button-rounded p-button-text" pTooltip="Remove Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
                           [disabled]="weeks.length <= 1"></button>
                       </div>
@@ -429,7 +429,6 @@
                               <li
                                 *ngFor="let exercise of getWorkoutExercises(weekIndex, workoutIndex).controls; let exerciseIndex = index"
                                 class="flex align-items-center py-2 border-bottom-1 surface-border last:border-bottom-none">
-                                <i class="pi pi-bolt mr-2 text-primary"></i>
                                 <span class="text-sm text-700 flex-1">{{ getExerciseTitle(weekIndex, workoutIndex,
                                   exerciseIndex) }}</span>
                                 <span class="text-sm text-500">({{ getSets(weekIndex, workoutIndex,

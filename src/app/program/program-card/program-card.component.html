@@ -41,7 +41,7 @@
           *ngIf="programType=='not-started'"
           label="Start program" 
           icon="pi pi-play" 
-          styleClass="p-button-rounded p-button-primary w-full"
+          styleClass="border-round-lg p-button-primary w-full"
           (click)="startProgram($event)">
         </p-button>
         
@@ -49,7 +49,7 @@
           *ngIf="programType=='started' && !program.finished"
           label="Start next workout" 
           icon="pi pi-play" 
-          styleClass="p-button-rounded p-button-primary" 
+          styleClass="border-round-lg p-button-primary" 
           (click)="startWorkout($event)">
         </p-button>
         
@@ -57,7 +57,7 @@
           *ngIf="programType=='started'"
           label="See History" 
           icon="pi pi-calendar" 
-          styleClass="p-button-rounded p-button-outlined p-button-secondary ml-3" 
+          styleClass="border-round-lg p-button-outlined p-button-secondary ml-3" 
           (click)="seeHistory($event)">
         </p-button>
       </div>
