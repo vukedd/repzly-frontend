@@ -1,6 +1,7 @@
 <p-toast [position]="toastsPositionService.getPosition()"></p-toast>
 <p-toolbar
-  styleClass="fixed surface-50 justify-content-between top-0 right-0 left-0 border-noround border-none headercomponent p-2">
+  [styleClass]="'fixed justify-content-between top-0 right-0 left-0 border-noround border-none headercomponent p-2 ' + (isScrolled ? 'surface-50' : 'bg-transparent')"
+  [ngClass]="{'shadow-3': isScrolled}">
 
   <div class="p-toolbar-group-start flex align-items-center">
     <span class="hidden lg:flex mx-3 text-3xl font-bold font-italic">REPZLY</span>

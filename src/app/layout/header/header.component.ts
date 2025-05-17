@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ThemeService } from '../../theme.service';
@@ -56,6 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLoginMode: boolean = true; // Used to determine which dialog to open initially
   isSearchPossible = false;
   ref: DynamicDialogRef | undefined;
+  isScrolled: boolean = false;
 
   constructor(
     private themeService: ThemeService,
@@ -71,6 +72,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupControls();
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 50;
   }
 
   showAuthDialog() {
