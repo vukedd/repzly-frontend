@@ -1,19 +1,10 @@
 .animated-gradient-banner {
   --gradient-color-blue-anchor: #2563EB;
-
   --gradient-color-accent1: #E0F2FE;
   --gradient-color-accent2: #F3F4F6;
   --text-color: #111827;
   --text-shadow-color: rgba(0, 0, 0, 0.2);
-
-  @media (prefers-color-scheme: dark) {
-    --gradient-color-accent1: #27272A;
-    --gradient-color-accent2: #27272A;
-    --text-color: #F3F4F6;
-    --text-shadow-color: rgba(0, 0, 0, 0.4);
-  }
-
-  --animation-speed: 10s;
+  --animation-speed: 120s;
 
   background: radial-gradient(
     circle,
