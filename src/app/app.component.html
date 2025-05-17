@@ -10,9 +10,12 @@
   <div class="content-area">
     <app-header></app-header>
     <div class="">
-      <div class="main-content">
+      <div class="main-content" *ngIf="isLoggedIn();else landingPage">
         <router-outlet></router-outlet>
       </div>
+      <ng-template #landingPage>
+        <app-landing-page></app-landing-page>
+      </ng-template>
     </div>
   </div>
 </div> 

@@ -1,0 +1,77 @@
+.animated-gradient-banner {
+  --gradient-color-blue-anchor: #2563EB;
+
+  --gradient-color-accent1: #E0F2FE;
+  --gradient-color-accent2: #F3F4F6;
+  --text-color: #111827;
+  --text-shadow-color: rgba(0, 0, 0, 0.2);
+
+  @media (prefers-color-scheme: dark) {
+    --gradient-color-accent1: #27272A;
+    --gradient-color-accent2: #27272A;
+    --text-color: #F3F4F6;
+    --text-shadow-color: rgba(0, 0, 0, 0.4);
+  }
+
+  --animation-speed: 10s;
+
+  background: radial-gradient(
+    circle,
+    var(--gradient-color-blue-anchor),
+    var(--gradient-color-accent1),
+    var(--gradient-color-accent2),
+    var(--gradient-color-blue-anchor)
+  );
+
+  background-size: 300% 300%;
+  background-position: 50% 50%;
+
+  animation: radialGradientAnimation var(--animation-speed) ease infinite;
+
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: var(--text-color);
+  text-align: center;
+  overflow: hidden;
+}
+
+@keyframes radialGradientAnimation {
+  0% {
+    background-position: 20% 20%;
+  }
+  25% {
+    background-position: 80% 20%;
+  }
+  50% {
+    background-position: 20% 80%;
+  }
+  75% {
+    background-position: 80% 80%;
+  }
+  100% {
+    background-position: 20% 20%;
+  }
+}
+
+.animated-gradient-banner h1,
+.animated-gradient-banner p {
+  text-shadow: 1px 1px 3px var(--text-shadow-color);
+  position: relative;
+  z-index: 1;
+}
+
+.animated-gradient-banner h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.animated-gradient-banner p {
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin-bottom: 1.5rem;
+}
