@@ -1,36 +1,25 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from "./layout/header/header.component";
 import { AvatarModule } from 'primeng/avatar';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { JwtService } from './auth/jwt/jwt.service';
-import { LandingPageComponent } from "./layout/landing-page/landing-page.component";
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-
+import { LandingPageComponent } from "./layout/landing-page/landing-page.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, AvatarModule, InputGroupModule, LandingPageComponent, CommonModule, ProgressSpinnerModule],
+  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, AvatarModule, InputGroupModule, CommonModule, ProgressSpinnerModule, LandingPageComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent implements OnInit{
+export class AppComponent {
   title = 'fitness-program-app';
-  isLoading = true;
-  
-  constructor(private jwtService: JwtService) {}
-
-  ngOnInit() {
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 5000);
-  }
-
-  isLoggedIn(): boolean {
-    return this.jwtService.isLoggedIn();
+ 
+  constructor(public jwtService: JwtService) {
+    // Make jwtService public so it can be accessed from the template
   }
 }

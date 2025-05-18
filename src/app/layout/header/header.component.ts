@@ -43,20 +43,22 @@ import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dy
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
-  providers:  [MessageService, DialogService], // Add DialogService
+  providers: [MessageService, DialogService], // Add DialogService
   encapsulation: ViewEncapsulation.None
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  sidemenuVisible:boolean=false;
+  sidemenuVisible: boolean = false;
   isDarkMode = false;
-  searchText:string='';
+  searchText: string = '';
   items: MenuItem[] | undefined;
   // visible: boolean = false; // Removed
   isLoginMode: boolean = true; // Used to determine which dialog to open initially
   isSearchPossible = false;
   ref: DynamicDialogRef | undefined;
   isScrolled: boolean = false;
+
+  areControlsSetup: boolean = false;
 
   constructor(
     private themeService: ThemeService,
@@ -84,14 +86,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const headerText = this.isLoginMode ? 'Sign in' : 'Sign up';
 
     this.ref = this.dialogService.open(componentToShow as any, {
-        header: headerText,
-         // Responsive width
-        baseZIndex: 10000,
-        modal:true,
-        maskStyleClass: 'backdrop-blur-sm',
-        styleClass:'md:w-auto w-full',
-        dismissableMask: true,
-        closable: true
+      header: headerText,
+      // Responsive width
+      baseZIndex: 10000,
+      modal: true,
+      maskStyleClass: 'backdrop-blur-sm',
+      styleClass: 'md:w-auto w-full',
+      dismissableMask: true,
+      closable: true
 
     });
 
@@ -117,7 +119,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // Clear the reference when the dialog is closed for any reason
       this.ref = undefined;
     });
-    
+
   }
 
   // closeDialog() // Not needed anymore, handled by DynamicDialogRef or child components
@@ -133,27 +135,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   handleLoginError(statusCode: number) {
     switch (statusCode) {
       case 401:
-        this.messageService.add({ severity: 'error', summary: "Error", detail: "The credentials you have entered are invalid!"});
+        this.messageService.add({ severity: 'error', summary: "Error", detail: "The credentials you have entered are invalid!" });
         break;
       case 403:
-        this.messageService.add({ severity: 'error', summary: "Error", detail: "Before you continue, please verify your account!"});
+        this.messageService.add({ severity: 'error', summary: "Error", detail: "Before you continue, please verify your account!" });
         break;
       default:
-        this.messageService.add({ severity: 'error', summary: "Error", detail: "An error occurred, please try later!"});
+        this.messageService.add({ severity: 'error', summary: "Error", detail: "An error occurred, please try later!" });
     }
   }
 
   handleLoginSuccess(statusCode: number) {
     if (statusCode == 200) {
-      this.messageService.add({severity: 'success', summary: "Success", detail: "You have successfully logged in!"});
+      this.messageService.add({ severity: 'success', summary: "Success", detail: "You have successfully logged in!" });
       // this.visible=false; // Removed
       this.setupControls();
       // The dialog is closed by the LoginFormComponent itself upon success.
     }
   }
 
-  setupControls():void{
-    if (this.jwtService.isLoggedIn()){
+  setupControls(): void {
+    if (this.jwtService.isLoggedIn()) {
       this.jwtService.getLoggedInUser().subscribe(
         {
           next: (response) => {
@@ -177,21 +179,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 ],
               },
             ];
+            this.areControlsSetup = true;
           },
           error: (error) => {
             // email = "Error"; // 'email' was not used, removing for clarity
             console.error("Error fetching user details for header:", error);
             // Fallback or error display for items if needed
-             this.items = [ { label: 'User Error', icon: PrimeIcons.EXCLAMATION_TRIANGLE }];
+            this.items = [{ label: 'User Error', icon: PrimeIcons.EXCLAMATION_TRIANGLE }];
+            this.areControlsSetup = true;
+
           }
         }
       );
     } else {
-        this.items = undefined; // Ensure items are cleared if not logged in
+      this.items = undefined; // Ensure items are cleared if not logged in
+      this.areControlsSetup = true;
     }
+
   }
 
-  logout(){
+  logout() {
     this.jwtService.logout();
     this.items = undefined; // Clear user-specific menu items
     window.location.href = ''; // Or use Angular Router for navigation
@@ -203,7 +210,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.ref) {
-        this.ref.close();
+      this.ref.close();
     }
   }
 }

@@ -1,29 +1,20 @@
-<!-- <p-button 
-    [icon]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
-    (onClick)="toggleTheme()">
-</p-button>
-<a [routerLink]="['register']">Register</a>
-<a [routerLink]="['']">Products</a>
-<router-outlet></router-outlet> -->
 <div class="">
   <div class="content-area">
-    <app-header></app-header>
     <div class="">
-      <div *ngIf="isLoading" class="loading-container">
-        <p-progress-spinner ariaLabel="loading" />
+      @defer (when jwtService.isAuthInitialized()) {
+      <app-header></app-header>
+      @if (jwtService.isLoggedIn()) {
+      <div class="main-content">
+        <router-outlet></router-outlet>
       </div>
-      
-      <ng-container *ngIf="!isLoading">
-        <app-landing-page *ngIf="!isLoggedIn(); else mainPage"></app-landing-page>
-        <ng-template #mainPage>
-          <div class="main-content">
-            <router-outlet></router-outlet>
-          </div>
-        </ng-template>
-      </ng-container>
+      } @else {
+      <app-landing-page></app-landing-page>
+      }
+      } @loading {
+      <div class="w-full h-screen flex justify-content-center align-items-center">
+        <p-progressSpinner></p-progressSpinner>
+      </div>
+      }
     </div>
   </div>
 </div>
-<!-- <app-program-create></app-program-create> -->
- <!-- src/app/app.component.html -->
-<!-- src/app/app.component.html -->

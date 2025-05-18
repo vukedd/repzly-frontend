@@ -4,48 +4,29 @@
   [ngClass]="{'shadow-3': isScrolled}">
 
   <div class="p-toolbar-group-start flex align-items-center">
-    <span class="hidden lg:flex mx-3 text-3xl font-bold font-italic">REPZLY</span>
+    @defer (when areControlsSetup) {
+
+    @if (items) {
     <p-button icon="pi pi-align-justify"
       styleClass="lg:hidden p-ripple p-button p-component p-button-icon-only p-button-rounded p-button-text"
-      severity="secondary" (onClick)="sidemenuVisible = true" *ngIf="items != undefined" />
-    <div class="flex pl-2" *ngIf="!items">
+      severity="secondary" (onClick)="sidemenuVisible = true" />
+    <span class="hidden lg:flex mx-3 text-3xl font-bold font-italic">REPZLY</span>
+
+    }
+    @else {
+    <div class="flex pl-2">
       <span class="text-3xl font-bold font-italic md:hidden block">REPZLY</span>
     </div>
-    <p-drawer [(visible)]="sidemenuVisible" [modal]="true" position="left" class="w-max">
-      <ng-template #header>
-        <div class="flex items-center gap-2">
-          <span class="text-3xl font-bold font-italic">REPZLY</span>
-        </div>
-      </ng-template>
-      <ul class="list-none px-0">
-        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
-          <p-button [link]="true" [routerLink]="'dashboard'" (click)="sidemenuVisible = false"
-            class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full"><span
-              class="font-bold text-3xl" routerLinkActive="active">Dashboard</span></p-button>
-        </li>
-        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
-          <p-button [link]="true" [routerLink]="'search'" (click)="sidemenuVisible = false"
-            class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
-              class="font-bold text-3xl" routerLinkActive="active">Explore</span></p-button>
-        </li>
-        <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
-          <p-button [link]="true" [routerLink]="'my-programs'" (click)="sidemenuVisible = false"
-            class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
-              class="font-bold text-3xl" routerLinkActive="active">My programs</span></p-button>
-        </li>
-      </ul>
-      <ng-template #footer>
-        <div class="flex items-center gap-2 flex-column">
-          <button pButton label="Profile" icon="pi pi-user" (click)="sidemenuVisible = false" class="w-full text-2xl"
-            routerLink="me"></button>
-          <button pButton label="Logout" icon="pi pi-sign-out" class="w-full text-2xl p-button-outlined"
-            (click)="sidemenuVisible = false; logout()"></button>
-        </div>
-      </ng-template>
-    </p-drawer>
+    }
+
+    }
+
+
   </div>
 
-  <div class="flex justify-content-center" *ngIf="items != undefined">
+  @defer (when areControlsSetup) {
+  @if (items) {
+  <div class="flex justify-content-center">
 
     <ul class="hidden lg:flex align-content-around w-full list-none my-0">
       <li class="mx-4">
@@ -66,19 +47,67 @@
     </ul>
     <span class="flex lg:hidden text-3xl font-bold font-italic">REPZLY</span>
   </div>
-  <div class="p-toolbar-group-end flex align-items-center">
-    <p-button icon="pi pi-lightbulb" styleClass="p-button-rounded p-button-text" severity="contrast" (click)="toggleTheme()" />
+  }}
 
-    <p-button styleClass="p-button-icon-only w-5rem px-5 hidden lg:flex p-button-outlined" severity="contrast" *ngIf="items != undefined"
+
+  <div class="p-toolbar-group-end flex align-items-center">
+    <p-button icon="pi pi-lightbulb" styleClass="p-button-rounded p-button-text" severity="contrast"
+      (click)="toggleTheme()" />
+
+
+
+    
+    @defer (when areControlsSetup) {
+    @if (!items) {
+    <p-button styleClass="p-button-outlined" severity="contrast" label="Log in" (click)="showAuthDialog()" />
+
+    }
+    @else {
+      <p-menu #menu [model]="items" [popup]="true">
+    </p-menu>
+    <p-button styleClass="p-button-icon-only w-5rem px-5 hidden lg:flex p-button-outlined" severity="contrast"
       (click)="menu.toggle($event)">
       <span class="pi pi-user mr-10"></span>
       <span class="pi pi-angle-down"></span>
     </p-button>
+    } }
 
-    <p-menu #menu [model]="items" [popup]="true">
-    </p-menu>
-    <p-button styleClass="p-button-outlined" severity="contrast" label="Log in" *ngIf="items == undefined" (click)="showAuthDialog()" /> <!-- Updated click handler -->
+
+
 
     <!-- REMOVED p-dialog -->
   </div>
 </p-toolbar>
+
+<p-drawer [(visible)]="sidemenuVisible" [modal]="true" position="left" class="w-max">
+  <ng-template #header>
+    <div class="flex items-center gap-2">
+      <span class="text-3xl font-bold font-italic">REPZLY</span>
+    </div>
+  </ng-template>
+  <ul class="list-none px-0">
+    <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+      <p-button [link]="true" [routerLink]="'dashboard'" (click)="sidemenuVisible = false"
+        class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full"><span
+          class="font-bold text-3xl" routerLinkActive="active">Dashboard</span></p-button>
+    </li>
+    <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+      <p-button [link]="true" [routerLink]="'search'" (click)="sidemenuVisible = false"
+        class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
+          class="font-bold text-3xl" routerLinkActive="active">Explore</span></p-button>
+    </li>
+    <li class="py-4 font-bold align-self-center border-primary-300 border-bottom-1 w-full">
+      <p-button [link]="true" [routerLink]="'my-programs'" (click)="sidemenuVisible = false"
+        class="no-underline text-primary hover:text-primary-500 dark:hover:text-primary-300 cursor-pointer w-full font-bold"><span
+          class="font-bold text-3xl" routerLinkActive="active">My programs</span></p-button>
+    </li>
+  </ul>
+  <ng-template #footer>
+    <div class="flex items-center gap-2 flex-column">
+      <button pButton label="Profile" icon="pi pi-user" (click)="sidemenuVisible = false" class="w-full text-2xl"
+        routerLink="me"></button>
+      <button pButton label="Logout" icon="pi pi-sign-out" class="w-full text-2xl p-button-outlined"
+        (click)="sidemenuVisible = false; logout()"></button>
+    </div>
+  </ng-template>
+</p-drawer>
