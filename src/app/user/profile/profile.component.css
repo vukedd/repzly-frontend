@@ -1,8 +1,4 @@
 @media (max-width:768px) {
-    .username {
-        margin-top: 12em;
-    }
-
     .section-container {
         padding-top: 15px;
         padding-bottom: 15px;
@@ -11,10 +7,6 @@
 }
 
 @media (min-width:768px) {
-    .username {
-        margin-top: 15em;
-    }
-
     .section-container {
         flex-wrap: nowrap;
     }

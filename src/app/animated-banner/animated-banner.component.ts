@@ -1,10 +1,11 @@
-import { Component, ElementRef, OnInit, Renderer2, Input, model } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { ThemeService } from '../theme.service';
-import { Console } from 'console';
+import { AnimateOnScrollModule } from 'primeng/animateonscroll';
 
 @Component({
   selector: 'app-animated-banner',
   templateUrl: './animated-banner.component.html',
+  imports: [AnimateOnScrollModule],
   styleUrls: ['./animated-banner.component.css']
 })
 export class AnimatedBannerComponent implements OnInit {
