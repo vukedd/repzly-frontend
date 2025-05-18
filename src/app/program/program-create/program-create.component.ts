@@ -590,10 +590,11 @@ export class ProgramCreateComponent implements OnInit {
 
   onSubmit(): void {
     if (this.programForm.invalid) {
+      this.programForm.markAllAsTouched(); // IMPORTANT: This triggers error display
       this.messageService.add({
         severity: 'error',
         summary: 'Validation Error',
-        detail: 'Please fix the errors in the form before submitting'
+        detail: 'Please correct the highlighted errors in the form before submitting.'
       });
       return;
     }
@@ -1293,6 +1294,118 @@ export class ProgramCreateComponent implements OnInit {
     return this.activeWorkoutAccordionIndices.get(weekIndex) ?? 0;
   }
 
+  // --- NEW HELPER FUNCTIONS FOR VALIDATION MESSAGES ---
+  getErrorMessage(control: AbstractControl | null, controlName: string): string {
+    if (!control) return '';
+
+    if (!control.errors || (!control.touched && !control.dirty)) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return `${controlName} is required.`;
+    }
+    if (control.hasError('minlength')) {
+      const { requiredLength, actualLength } = control.errors['minlength'];
+      return `${controlName} must be at least ${requiredLength} characters (current: ${actualLength}).`;
+    }
+    if (control.hasError('min')) {
+      const { min, actual } = control.errors['min'];
+      return `${controlName} must be at least ${min} (current: ${actual}).`;
+    }
+    if (control.hasError('max')) {
+      const { max, actual } = control.errors['max'];
+      return `${controlName} cannot exceed ${max} (current: ${actual}).`;
+    }
+    // Add more specific error checks here if needed (e.g., pattern, custom validators)
+    return `Invalid value for ${controlName}.`; // Generic fallback
+  }
+
+  getNestedErrorMessage(
+    control: AbstractControl | null,
+    baseName: string,
+    weekIndex?: number,
+    workoutIndex?: number,
+    exerciseIndex?: number
+    // setIndex?: number // Not used for current set error message style, but kept for flexibility
+  ): string {
+    if (!control) return '';
+
+    if (!control.errors || (!control.touched && !control.dirty)) {
+      return '';
+    }
+
+    let context = '';
+    let fieldName = baseName;
+
+    if (weekIndex !== undefined && workoutIndex !== undefined && exerciseIndex !== undefined) {
+      const exerciseCtrl = this.getWorkoutExercises(weekIndex, workoutIndex)?.at(exerciseIndex);
+      const exerciseName = exerciseCtrl?.get('exercise')?.value?.title || `Exercise ${exerciseIndex + 1}`;
+      context = `for ${exerciseName} (Week ${weekIndex + 1}, Workout ${workoutIndex + 1})`;
+    }
+    // If you wanted to include set index in the message, you'd add logic here.
+    // For current implementation, set errors use the simpler `getErrorMessage`.
+
+    if (control.hasError('required')) {
+      return `${fieldName} is required ${context}.`;
+    }
+    if (control.hasError('minlength')) {
+      const { requiredLength, actualLength } = control.errors['minlength'];
+      return `${fieldName} must be at least ${requiredLength} characters ${context} (current: ${actualLength}).`;
+    }
+    if (control.hasError('min')) {
+      const { min, actual } = control.errors['min'];
+      return `${fieldName} must be at least ${min} ${context} (current: ${actual}).`;
+    }
+    // Add more as needed
+    return `Invalid ${fieldName} ${context}.`;
+  }
+  handleNextFromStep1(activateCallback: (step: number) => void): void {
+    const nameControl = this.programForm.get('name');
+    // If you add more required top-level fields for step 1, check them here.
+    // e.g., const descriptionControl = this.programForm.get('description');
+
+    let step1IsValid = true;
+
+    if (nameControl?.invalid) {
+      nameControl.markAsTouched(); // Show error for name
+      step1IsValid = false;
+    }
+    // if (descriptionControl?.invalid) { // Example for another field
+    //   descriptionControl.markAsTouched();
+    //   step1IsValid = false;
+    // }
+
+    if (step1IsValid) {
+      activateCallback(2); // Proceed to step 2
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation Error',
+        detail: 'Please complete the Program Information (Program Name) before proceeding.',
+        life: 3000
+      });
+    }
+  }
+
+  handleNextFromStep2(activateCallback: (step: number) => void): void {
+    const weeksArray = this.programForm.get('weeks') as FormArray;
+
+    // Check if the 'weeks' FormArray and all its children are valid
+    if (weeksArray.valid) {
+      activateCallback(3); // Proceed to step 3
+    } else {
+      weeksArray.markAllAsTouched(); // Mark all controls within weeks as touched to display errors
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Incomplete Workout Structure',
+        detail: 'Please ensure all required fields in the workout structure are filled correctly. Check for missing exercises, metrics, or set values in all weeks and workouts.',
+        life: 5000 // Longer duration for more complex errors
+      });
+      // Optionally, you could try to scroll to the first error, but this can be complex.
+      // For now, the message and highlighting individual fields should guide the user.
+    }
+  }
 
 
 }
