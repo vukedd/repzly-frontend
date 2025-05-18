@@ -5,20 +5,25 @@
 <a [routerLink]="['register']">Register</a>
 <a [routerLink]="['']">Products</a>
 <router-outlet></router-outlet> -->
- <div class="">
- 
+<div class="">
   <div class="content-area">
     <app-header></app-header>
     <div class="">
-      <app-landing-page *ngIf="!isLoggedIn();else mainPage"></app-landing-page>
-      <ng-template #mainPage>
-        <div class="main-content" >
-          <router-outlet></router-outlet>
-        </div>      
-      </ng-template>
+      <div *ngIf="isLoading" class="loading-container">
+        <p-progress-spinner ariaLabel="loading" />
+      </div>
+      
+      <ng-container *ngIf="!isLoading">
+        <app-landing-page *ngIf="!isLoggedIn(); else mainPage"></app-landing-page>
+        <ng-template #mainPage>
+          <div class="main-content">
+            <router-outlet></router-outlet>
+          </div>
+        </ng-template>
+      </ng-container>
     </div>
   </div>
-</div> 
+</div>
 <!-- <app-program-create></app-program-create> -->
  <!-- src/app/app.component.html -->
 <!-- src/app/app.component.html -->

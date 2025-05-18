@@ -11,7 +11,7 @@ import { jwtDecode } from 'jwt-decode';
 @Injectable({
   providedIn: 'root'
 })
-export class    JwtService {
+export class JwtService {
   constructor(private http: HttpClient) { }
 
 
@@ -36,9 +36,7 @@ export class    JwtService {
     }
 
     if (refreshTokenId == null) {
-      // Don't use -1 as it will likely cause an error on the backend
-      // Better to log out the user or return an error
-      this.logout(); // Clear any remaining tokens
+      this.logout();
       return throwError(() => new Error('No refresh token available'));
     }
    
