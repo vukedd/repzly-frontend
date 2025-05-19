@@ -66,22 +66,3 @@
   max-width: 600px;
   margin-bottom: 1.5rem;
 }
-
-.card {
-  border-radius: 50px;
-}
-
-.card {
-  opacity: 0;
-  transform: translateX(-50px);
-  transition: opacity 1000ms ease-in-out, transform 1000ms ease-in-out;
-}
-
-.animate-enter.fade-in-10.slide-in-from-l-8 {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.animate-leave.fade-out-0 {
-  opacity: 0;
-}
