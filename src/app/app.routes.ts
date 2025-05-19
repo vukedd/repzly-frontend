@@ -13,11 +13,11 @@ import { LandingPageComponent } from './layout/landing-page/landing-page.compone
 
 
 export const routes: Routes = [
-    {
-        path: '',
-        component: LandingPageComponent,
-        title: 'Landing page'
-    },
+    // {
+    //     path: 'landing',
+    //     component: LandingPageComponent,
+    //     title: 'Landing page'
+    // },
     {
         path: 'dashboard',
         component: HomeComponent,

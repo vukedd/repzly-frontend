@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -8,9 +8,10 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi
 import CustomMaterialTheme from './theme.config';
 import { AuthInterceptorService } from './auth/interceptor/auth-interceptor.service';
 import { AuthGuard } from './auth/auth-guard';
+import { JwtService } from './auth/jwt/jwt.service';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay()),provideAnimationsAsync(),provideHttpClient(withFetch()),
+    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideClientHydration(withEventReplay()), provideAnimationsAsync(), provideHttpClient(withFetch()),
     providePrimeNG({
         ripple: false
     }),
@@ -24,6 +25,13 @@ export const appConfig: ApplicationConfig = {
         }
     }),
     provideHttpClient(withInterceptorsFromDi())
-    ,{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
-    AuthGuard
-]};
+        , { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
+        AuthGuard,
+    provideAppInitializer(() => {
+        const jwtService = inject(JwtService);
+        // Initialize auth synchronously before app renders
+        jwtService.initAuthState();
+        // Return void since this is synchronous
+    })
+    ]
+};
