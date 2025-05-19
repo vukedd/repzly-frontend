@@ -34,9 +34,9 @@
                       <input id="name" type="text" pInputText formControlName="name" placeholder="Enter program name"
                         class="w-full">
                     </span>
-                    <small class="p-error block mt-1"
-                      *ngIf="programForm.get('name')?.invalid && programForm.get('name')?.touched">
-                      Program name is required (min 3 characters)
+                    <small class="p-error text-red-400 block mt-1"
+                      *ngIf="programForm.get('name')?.invalid && (programForm.get('name')?.touched || programForm.get('name')?.dirty)">
+                      {{ getErrorMessage(programForm.get('name'), 'Program name') }}
                     </small>
                   </div>
 
@@ -91,8 +91,7 @@
               <!-- Navigation Button -->
               <div class="flex justify-content-end mt-4">
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                  [disabled]="programForm.get('name')?.invalid" (onClick)="activateCallback(2)"
-                  styleClass="p-button-raised mr-2"></p-button>
+                  (onClick)="handleNextFromStep1(activateCallback)" styleClass="p-button-raised mr-2"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -115,11 +114,12 @@
                       <h4 class="m-0">Week {{ i + 1 }}</h4>
                       <div>
                         <!-- In your template -->
-                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text" pTooltip="Copy Week" severity="contrast"
+                        <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text"
+                          pTooltip="Copy Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
 
-                        <button pButton type="button" icon="pi pi-times"
-                          class="p-button-rounded p-button-text" pTooltip="Remove Week" severity="contrast"
+                        <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text"
+                          pTooltip="Remove Week" severity="contrast"
                           (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
                           [disabled]="weeks.length <= 1"></button>
                       </div>
@@ -166,12 +166,13 @@
                                   <div class="flex">
                                     <button pButton type="button" icon="pi pi-copy"
                                       class="p-button-rounded p-button-text mr-1"
-                                      (click)="$event.stopPropagation(); copyWorkout(i, workoutIndex)" pTooltip="Copy Workout"></button>
+                                      (click)="$event.stopPropagation(); copyWorkout(i, workoutIndex)"
+                                      pTooltip="Copy Workout"></button>
                                     <button pButton type="button" icon="pi pi-arrow-up" pTooltip="Move Workout Up"
                                       class="p-button-rounded p-button-text mr-1"
                                       (click)="$event.stopPropagation(); moveWorkoutUp(i, workoutIndex)"
                                       [disabled]="workoutIndex === 0"></button>
-                                    <button pButton type="button" icon="pi pi-arrow-down"  pTooltip="Move Workout Down"
+                                    <button pButton type="button" icon="pi pi-arrow-down" pTooltip="Move Workout Down"
                                       class="p-button-rounded p-button-text mr-1"
                                       (click)="$event.stopPropagation(); moveWorkoutDown(i, workoutIndex)"
                                       [disabled]="workoutIndex === getWorkouts(i).length - 1"></button>
@@ -205,12 +206,18 @@
                                       <div class="p-1">
                                         <!-- Exercise Selection and Delete Button -->
                                         <div class="grid">
-                                          <div class="col-9 md:col-7">
+                                          <div class="col-9 md:col-7 h-full">
                                             <p-select id="exercise{{i}}-{{workoutIndex}}-{{exerciseIndex}}"
                                               formControlName="exercise" [options]="exercises" optionLabel="title"
                                               placeholder="Select an Exercise" [filter]="true" filterBy="title"
                                               styleClass="w-full h-full justify-content-center align-items-center"
+                                              [ngClass]="{'ng-invalid ng-dirty': exercise.get('exercise')?.invalid && (exercise.get('exercise')?.touched || exercise.get('exercise')?.dirty)}"
                                               [virtualScroll]="true" [virtualScrollItemSize]="38"></p-select>
+                                            <small class="p-error block mt-1 text-red-400"
+                                              *ngIf="exercise.get('exercise')?.invalid && (exercise.get('exercise')?.touched || exercise.get('exercise')?.dirty)">
+                                              {{ getNestedErrorMessage(exercise.get('exercise'), 'Exercise selection',
+                                              i, workoutIndex, exerciseIndex) }}
+                                            </small>
                                           </div>
                                           <div
                                             class="exercise-controls flex justify-content-end align-items-center col-3 md:col-5">
@@ -288,32 +295,58 @@
                                           [formGroupName]="setIndex" class="grid align-items-center">
                                           <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
                                           <div class="col-5 flex justify-content-center">
-                                            <div class="flex align-items-center" formGroupName="volume">
-                                              <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
-                                                formControlName="minimumVolume" [style]="{'width':'5rem'}"
-                                                [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                                                [min]="0" [max]="100000" />
-                                              <span class="mx-1"
-                                                *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
-                                              <p-inputnumber formControlName="maximumVolume" [style]="{'width':'5rem'}"
-                                                [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                                                [min]="0" [max]="100000" />
+                                            <div class="flex align-items-center flex-column" formGroupName="volume">
+                                              <div class="flex align-items-center">
+                                                <p-inputnumber *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)"
+                                                  formControlName="minimumVolume" [style]="{'width':'5rem'}"
+                                                  [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                                                  [min]="0" [max]="100000"
+                                                  [ngClass]="{'ng-invalid ng-dirty': set.get('volume.minimumVolume')?.invalid && (set.get('volume.minimumVolume')?.touched || set.get('volume.minimumVolume')?.dirty)}" />
+                                                <span class="mx-1"
+                                                  *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex)">-</span>
+                                                <p-inputnumber formControlName="maximumVolume"
+                                                  [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}"
+                                                  [showButtons]="showInputButtons" [min]="0" [max]="100000"
+                                                  [ngClass]="{'ng-invalid ng-dirty': set.get('volume.maximumVolume')?.invalid && (set.get('volume.maximumVolume')?.touched || set.get('volume.maximumVolume')?.dirty)}" />
+                                              </div>
+                                              <small class="p-error text-red-400 block mt-1 text-center"
+                                                *ngIf="isVolumeRange(i, workoutIndex, exerciseIndex) && set.get('volume.minimumVolume')?.invalid && (set.get('volume.minimumVolume')?.touched || set.get('volume.minimumVolume')?.dirty)">
+                                                {{ getErrorMessage(set.get('volume.minimumVolume'), 'Min Volume') }}
+                                              </small>
+                                              <small class="p-error text-red-400 block mt-1 text-center"
+                                                *ngIf="set.get('volume.maximumVolume')?.invalid && (set.get('volume.maximumVolume')?.touched || set.get('volume.maximumVolume')?.dirty)">
+                                                {{ getErrorMessage(set.get('volume.maximumVolume'), 'Max Volume') }}
+                                              </small>
                                             </div>
                                           </div>
                                           <div class="col-5 flex justify-content-center pr-0">
-                                            <div class="flex align-items-center" formGroupName="intensity">
-                                              <p-inputnumber *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)"
-                                                formControlName="minimumIntensity" [style]="{'width':'5rem'}"
-                                                [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                                                [min]="set.get('intensityMetric')?.value?.minimumIntensity"
-                                                [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10" />
-                                              <span class="mx-1"
-                                                *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)">-</span>
-                                              <p-inputnumber formControlName="maximumIntensity"
-                                                [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}"
-                                                [showButtons]="showInputButtons"
-                                                [min]="set.get('intensityMetric')?.value?.minimumIntensity"
-                                                [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10" />
+                                            <div class="flex align-items-center flex-column" formGroupName="intensity">
+                                              <div class="flex align-items-center">
+                                                <p-inputnumber *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)"
+                                                  formControlName="minimumIntensity" [style]="{'width':'5rem'}"
+                                                  [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                                                  [min]="set.get('intensityMetric')?.value?.minimumIntensity"
+                                                  [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10"
+                                                  [ngClass]="{'ng-invalid ng-dirty': set.get('intensity.minimumIntensity')?.invalid && (set.get('intensity.minimumIntensity')?.touched || set.get('intensity.minimumIntensity')?.dirty)}" />
+                                                <span class="mx-1"
+                                                  *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex)">-</span>
+                                                <p-inputnumber formControlName="maximumIntensity"
+                                                  [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}"
+                                                  [showButtons]="showInputButtons"
+                                                  [min]="set.get('intensityMetric')?.value?.minimumIntensity"
+                                                  [max]="set.get('intensityMetric')?.value?.maximumIntensity || 10"
+                                                  [ngClass]="{'ng-invalid ng-dirty': set.get('intensity.maximumIntensity')?.invalid && (set.get('intensity.maximumIntensity')?.touched || set.get('intensity.maximumIntensity')?.dirty)}" />
+                                              </div>
+                                              <small class="p-error text-red-400 block mt-1 text-center"
+                                                *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex) && set.get('intensity.minimumIntensity')?.invalid && (set.get('intensity.minimumIntensity')?.touched || set.get('intensity.minimumIntensity')?.dirty)">
+                                                {{ getErrorMessage(set.get('intensity.minimumIntensity'), 'Min
+                                                Intensity') }}
+                                              </small>
+                                              <small class="p-error text-red-400 block mt-1 text-center"
+                                                *ngIf="set.get('intensity.maximumIntensity')?.invalid && (set.get('intensity.maximumIntensity')?.touched || set.get('intensity.maximumIntensity')?.dirty)">
+                                                {{ getErrorMessage(set.get('intensity.maximumIntensity'), 'Max
+                                                Intensity') }}
+                                              </small>
                                             </div>
                                           </div>
                                           <div class="col-1 flex justify-content-center p-0">
@@ -366,7 +399,7 @@
                 <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" styleClass="ml-2"
                   (onClick)="activateCallback(1)"></p-button>
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" styleClass="mr-2"
-                  (onClick)="activateCallback(3)"></p-button>
+                  (onClick)="handleNextFromStep2(activateCallback)"></p-button>
               </div>
             </ng-template>
           </p-step-panel>
@@ -498,27 +531,27 @@
   </p-dialog>
 
   <!-- Rest Time Dialog -->
-  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible" [style]="{width: '400px',height:'550px'}"
+  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible"
     [modal]="true">
-    <div class="p-fluid grid" *ngIf="selectedExerciseInfo">
-      <div class="field col-12 mb-3">
-        <label for="restTimeMin" class="font-bold">Minimum Rest Time</label>
+    <div class="p-fluid" *ngIf="selectedExerciseInfo">
+      <div class="field flex mb-3 flex-column">
+        <label for="restTimeMin" class="font-bold mr-3 w-full">Minimum Rest Time</label>
         <p-inputnumber id="restTimeMin" [(ngModel)]="editMinRestTime" [showButtons]="true" buttonLayout="horizontal"
-          decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
+          decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" styleClass="w-full"
           incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"
-          [style]="{width: '100%'}"></p-inputnumber>
+          ></p-inputnumber>
       </div>
-      <div class="field col-12 mb-3">
-        <label for="restTimeMax" class="font-bold">Maximum Rest Time</label>
+      <div class="field mb-3 flex flex-column">
+        <label for="restTimeMax" class="font-bold mr-3">Maximum Rest Time</label>
         <p-inputnumber id="restTimeMax" [(ngModel)]="editMaxRestTime" [showButtons]="true" buttonLayout="horizontal"
           decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
           incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"
-          [style]="{width: '100%'}"></p-inputnumber>
+          ></p-inputnumber>
       </div>
-      <div class="field col-12">
-        <label for="restTimeMetric" class="font-bold">Time Unit</label>
+      <div class="field flex flex-column">
+        <label for="restTimeMetric" class="font-bold mr-3">Time Unit</label>
         <p-select id="restTimeMetric" [options]="restTimeMetrics" [(ngModel)]="editRestTimeMetric"
-          styleClass="overflow-visible" [style]="{width: '100%'}"></p-select>
+          styleClass="overflow-visible"></p-select>
       </div>
     </div>
 
