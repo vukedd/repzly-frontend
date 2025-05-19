@@ -9,12 +9,31 @@
       </div>
       } @else {
       <app-landing-page></app-landing-page>
-      }
-      } @loading {
-      <div class="w-full h-screen flex justify-content-center align-items-center">
+      } } @loading {
+      <div
+        class="w-full h-screen flex justify-content-center align-items-center"
+      >
         <p-progressSpinner></p-progressSpinner>
       </div>
       }
+    </div>
+  </div>
+  <div class="footer flex flex-column align-items-center text-center p-4">
+    <p-divider
+      layout="horizontal"
+      styleClass="w-11 mb-4"
+    ></p-divider>
+
+    <div>
+      <span
+        class="hidden lg:block mx-3 text-3xl font-bold font-italic"
+        >REPZLY</span
+      >
+      <div class="lg:hidden text-2xl font-bold mb-2">REPZLY</div>
+
+      <p class="text-sm text-color-secondary mt-1">
+        © 2025 REPZLY. All rights reserved.
+      </p>
     </div>
   </div>
 </div>
