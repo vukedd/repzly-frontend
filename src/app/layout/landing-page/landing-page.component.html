@@ -1,2 +1,103 @@
-<app-animated-banner>
-</app-animated-banner>
+<app-animated-banner> </app-animated-banner>
+<div class="flex md:justify-content-center">
+  <div
+    class="flex justify-content-center mt-3 flex-column align-items-center py-5 md:w-6 card"
+    pAnimateOnScroll
+    enterClass="fadeinleft animation-duration-1000 animation-ease-out"
+  >
+    <h1 class="text-black text-5xl font-bold mb-2">What is Repzly?</h1>
+    <div class="flex justify-content-around flex-row flex-wrap">
+      <span class="text-black text-4xl text-center py-4 md:w-8 md:mx-0 mx-4"
+        >Repzly is your pocket workout journal.</span
+      >
+
+      <span class="text-black text-2xl text-center py-4 md:w-8 md:mx-0 mx-4"
+        >Stop guessing, start growing. Explore proven programs or build your
+        perfect routine from scratch. Track your efforts effortlessly, watch
+        your weekly stats climb, and truly understand your workouts with our
+        interactive muscle engagement map. Achieve your goals faster and more
+        effectively – your peak physique awaits.</span
+      >
+    </div>
+  </div>
+</div>
+<div class="grid md:mx-8 mx-1 md:p-8">
+  <div class="md:col-4 col-12 px-2" pAnimateOnScroll enterClass="fadeindown animation-duration-500">
+    <p-card
+      styleClass="h-full border-round-lg shadow-4 flex flex-row align-items-center px-5 transition-duration-300 hover:shadow-6"
+    >
+      <ng-template pTemplate="header">
+        <div
+          class="relative flex justify-content-center align-items-center border-round-top-lg"
+          style="height: 6rem"
+        >
+          <i
+            class="pi pi-chart-bar"
+            style="font-size: 4rem; color: var(--primary-color)"
+          ></i>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-column justify-content-start gap-3 p-3 flex-grow-1">
+        <div class="text-xl font-bold text-primary">Track</div>
+        <p class="m-0">
+          Log your exercises, sets, reps, and weights. <br />
+          Visualize your gains over time with intuitive charts.
+        </p>
+      </div>
+    </p-card>
+  </div>
+  <div class="md:col-4 col-12 px-2" pAnimateOnScroll enterClass="fadeindown animation-duration-500">
+    <p-card
+      styleClass="h-full border-round-lg shadow-4 flex flex-row align-items-center px-5 transition-duration-300 hover:shadow-6"
+    >
+      <ng-template pTemplate="header">
+        <div
+          class="relative flex justify-content-center align-items-center border-round-top-lg"
+          style="height: 6rem"
+        >
+          <i
+            class="pi pi-compass"
+            style="font-size: 4rem; color: var(--primary-color)"
+          ></i>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-column justify-content-start gap-3 p-3 flex-grow-1">
+        <div class="text-xl font-bold text-primary">Explore</div>
+        <p class="m-0">
+          Your perfect program awaits. <br />
+          Explore a rich library of programs, from expert-designed blueprints by
+          professionals to passion-fueled routines from fellow enthusiasts.
+        </p>
+      </div>
+    </p-card>
+  </div>
+  <div class="md:col-4 col-12 px-2" pAnimateOnScroll enterClass="fadeindown animation-duration-500">
+    <p-card
+      styleClass="h-full border-round-lg shadow-4 flex flex-row align-items-center px-5 transition-duration-300 hover:shadow-6"
+    >
+      <ng-template pTemplate="header">
+        <div
+          class="relative flex justify-content-center align-items-center border-round-top-lg"
+          style="height: 6rem"
+        >
+          <i
+            class="pi pi-hammer"
+            style="font-size: 4rem; color: var(--primary-color)"
+          ></i>
+        </div>
+      </ng-template>
+
+      <div class="flex flex-column justify-content-start gap-3 p-3 flex-grow-1">
+        <div class="text-xl font-bold text-primary">Create</div>
+        <p class="m-0">
+          Craft your ultimate workout plan. <br />
+          Easily design effective workout programs by selecting from our vast
+          library of exercises, each with a video
+          guide to help you perfect your form and train with confidence.
+        </p>
+      </div>
+    </p-card>
+  </div>
+</div>

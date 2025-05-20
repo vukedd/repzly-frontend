@@ -8,10 +8,11 @@ import { JwtService } from './auth/jwt/jwt.service';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LandingPageComponent } from "./layout/landing-page/landing-page.component";
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, AvatarModule, InputGroupModule, CommonModule, ProgressSpinnerModule, LandingPageComponent],
+  imports: [RouterOutlet, ButtonModule, RouterModule, HeaderComponent, AvatarModule, InputGroupModule, CommonModule, ProgressSpinnerModule, LandingPageComponent, DividerModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None
