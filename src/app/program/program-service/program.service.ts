@@ -171,11 +171,10 @@ export class ProgramService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  getProgramsCreatedByMe(size: number, page: number, refreshTokenId: string, title: string): Observable<any> {
+  getProgramsCreatedByMe(size: number, page: number, title: string): Observable<any> {
     let params = new HttpParams()
     .set('size', size.toString())
     .set('page', page.toString())
-    .set('refreshTokenId', refreshTokenId)
     .set('title', title);
 
     console.log(title);

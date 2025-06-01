@@ -109,7 +109,7 @@ export class ProgramListComponent implements OnInit {
         break;
       }
       case "my-programs": {
-        this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1', this.searchInput).subscribe({
+        this.programService.getProgramsCreatedByMe(size, page, this.searchInput).subscribe({
           next: (response) => {
             this.programs = response.content;
             this.totalRecords = response.page.totalElements;
@@ -162,7 +162,7 @@ export class ProgramListComponent implements OnInit {
   }
 
   getProgramsCreatedByMe(size: number, page: number, title: string) {
-    this.programService.getProgramsCreatedByMe(size, page, this.jwtService.getRefreshToken() ?? '-1', title).subscribe({
+    this.programService.getProgramsCreatedByMe(size, page,  title).subscribe({
       next: (response) => {
         this.programs = response.content;
         this.totalRecords = response.page.totalElements;
