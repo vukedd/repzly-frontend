@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/layout/header/header.component.css"],
+  "sourcesContent": [".headercomponent {\r\n    z-index: 1001;\r\n    width: 100%;\r\n}\r\n\r\n.navbar-shadow {\r\n    box-shadow: inset 0px calc(150px * 0.7) 40px calc( (150px * 0.7 * -1) + 25px) rgba(0, 0, 0, 0.288);\r\n}\r\n\r\n.active {\r\n    text-decoration: underline 3px;\r\n    color:var(--primary-color);\r\n}"],
+  "mappings": "AAAA,CAAC,gBACG,QAAS,KACT,MAAO,IACX,CAEA,CAAC,cACG,WAAY,MAAM,EAAI,MAAkB,KAAK,MAAiC,SAClF,CAEA,CAAC,OACG,gBAAiB,UAAU,IAC3B,MAAM,IAAI,gBACd",
+  "names": []
+}

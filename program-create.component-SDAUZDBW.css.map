@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/program/program-create/program-create.component.css"],
+  "sourcesContent": [".p-accordioncontent-content {\r\n  padding: 0rem !important;\r\n}\r\n"],
+  "mappings": "AAAA,CAAC,2BAAD,QACW,cACX",
+  "names": []
+}

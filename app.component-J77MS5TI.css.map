@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/app.component.css"],
+  "sourcesContent": ["\r\n/* Small screens */\r\n@media screen and (max-width: 576px) {\r\n    .main-content {\r\n        margin-top: 5rem;\r\n        margin-left: 0.1rem;\r\n        margin-right: 0.1rem;\r\n    }\r\n}\r\n\r\n/* Medium screens */\r\n@media screen and (min-width: 577px) and (max-width: 991px) {\r\n    .main-content {\r\n        margin-top: 6rem;\r\n        margin-left: 3rem;\r\n        margin-right: 3rem;\r\n    }\r\n}\r\n\r\n/* Large screens */\r\n@media screen and (min-width: 992px){\r\n    .main-content {\r\n        margin-top: 6rem;\r\n        margin-left: 7rem;\r\n        margin-right: 7rem;\r\n    }\r\n}\r\n\r\n.grid{\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n\r\n.p-toast{\r\n    padding-left: 1.5rem !important;\r\n    margin-top: 3rem !important;\r\n    padding-right: 1.5rem !important;\r\n}\r\n\r\n.p-dialog-content{\r\n    padding-top: 0rem !important;\r\n    padding-left: 1.5rem !important;\r\n    padding-right: 1.5rem !important;\r\n}\r\n"],
+  "mappings": "AAEA,OAAO,OAAO,IAAI,CAAC,SAAS,EAAE,OAC1B,CAAC,aACG,WAAY,KACZ,YAAa,MACb,aAAc,KAClB,CACJ,CAGA,OAAO,OAAO,IAAI,CAAC,SAAS,EAAE,OAAO,IAAI,CAAC,SAAS,EAAE,OACjD,CATC,aAUG,WAAY,KACZ,YAAa,KACb,aAAc,IAClB,CACJ,CAGA,OAAO,OAAO,IAAI,CAAC,SAAS,EAAE,OAC1B,CAlBC,aAmBG,WAAY,KACZ,YAAa,KACb,aAAc,IAClB,CACJ,CAEA,CAAC,KA5BD,QA6Ba,EA7Bb,OA8BY,CACZ,CAEA,CAAC,QACG,aAAc,iBACd,WAAY,eACZ,cAAe,gBACnB,CAEA,CAAC,iBACG,YAAa,eACb,aAAc,iBACd,cAAe,gBACnB",
+  "names": []
+}

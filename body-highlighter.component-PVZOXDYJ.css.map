@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/body-highlighter/component/body-highlighter.component.css"],
+  "sourcesContent": ["/* src/app/body-highlighter/body-highlighter.component.css */\r\n:host {\r\n  display: block;\r\n  width: 100%; /* Component should fill its container */\r\n  margin: 0 auto; /* Center horizontally */\r\n}\r\n\r\n.body-svg {\r\n  width: 100%;\r\n  height: 100%;\r\n  display: block;\r\n}\r\n\r\n.body-part-path {\r\n  cursor: pointer;\r\n  transition: opacity 0.2s ease-in-out;\r\n}\r\n\r\n.body-part-path:hover {\r\n  opacity: 0.75;\r\n}"],
+  "mappings": "AACA,MACE,QAAS,MACT,MAAO,KAHT,OAIU,EAAE,IACZ,CAEA,CAAC,SACC,MAAO,KACP,OAAQ,KACR,QAAS,KACX,CAEA,CAAC,eACC,OAAQ,QACR,WAAY,QAAQ,IAAK,WAC3B,CAEA,CALC,cAKc,OACb,QAAS,GACX",
+  "names": []
+}

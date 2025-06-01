@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/user/profile/profile.component.css"],
+  "sourcesContent": ["@media (max-width:768px) {\r\n    .section-container {\r\n        padding-top: 15px;\r\n        padding-bottom: 15px;\r\n        flex-wrap: wrap;\r\n    }\r\n}\r\n\r\n@media (min-width:768px) {\r\n    .section-container {\r\n        flex-wrap: nowrap;\r\n    }\r\n}"],
+  "mappings": "AAAA,OAAO,CAAC,SAAS,CAAC,OACd,CAAC,kBACG,YAAa,KACb,eAAgB,KAChB,UAAW,IACf,CACJ,CAEA,OAAO,CAAC,SAAS,CAAC,OACd,CARC,kBASG,UAAW,MACf,CACJ",
+  "names": []
+}
