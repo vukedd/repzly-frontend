@@ -3,9 +3,10 @@
 </div>
 <div class="flex justify-content-center">
     <p-inputgroup styleClass="w-full lg:w-8 mt-3 mb-6">
-        <input pInputText placeholder="Search" id="searchBar" #searchInput/>
-        <p-inputgroup-addon>
-            <p-button icon="pi pi-search" severity="secondary" variant="text" (onClick)="searchPrograms(searchInput.value)"/>
+        <input pInputText placeholder="Search" id="searchBar" #searchInput
+            (keyup.enter)="searchPrograms(searchInput.value)" /> <p-inputgroup-addon>
+            <p-button icon="pi pi-search" severity="secondary" variant="text"
+                (onClick)="searchPrograms(searchInput.value)" />
         </p-inputgroup-addon>
     </p-inputgroup>
 </div>

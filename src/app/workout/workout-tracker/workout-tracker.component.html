@@ -1,7 +1,7 @@
 <div class="surface-50 px-1 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
   <div *ngIf="loading" class="flex justify-content-center align-items-center min-h-screen">
-    <p-progressBar mode="indeterminate" [style]="{'height': '8px'}"></p-progressBar>
+    <p-progressSpinner></p-progressSpinner>
   </div>
 
   <ng-container *ngIf="!loading && currentWorkout && currentWorkout.nextWorkoutDetails">

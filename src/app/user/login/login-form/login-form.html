@@ -68,6 +68,6 @@
 
     <small class="my-3">You don't have an account? <a href="javascript:void(0)" (click)="changeToRegisterMode()">Sign up here</a></small>
     <!-- Remove [disabled] binding -->
-    <p-button severity="contrast" type="submit">Sign in</p-button>
+    <p-button severity="contrast" type="submit" [loading]="loading">Sign in</p-button>
   </form>
 </div>
