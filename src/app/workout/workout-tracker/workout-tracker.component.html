@@ -269,7 +269,8 @@
           <p-select id="exerciseSelect" [options]="availableExercises" [(ngModel)]="selectedExerciseId"
             optionLabel="title" optionValue="id" [filter]="true" filterBy="title" placeholder="Select an exercise"
             appendTo="body" styleClass="w-17rem lg:w-full" [virtualScroll]="true" [virtualScrollItemSize]="38"
-            panelStyleClass="lg:w-full w-screen">
+            panelStyleClass="lg:w-full w-screen"
+            filterMatchMode="in">
           </p-select>
         </div>
 
