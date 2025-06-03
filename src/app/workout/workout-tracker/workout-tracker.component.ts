@@ -27,6 +27,7 @@ import { SafePipe } from './safe-pipe';
 import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 
 @Component({
@@ -47,7 +48,8 @@ import { ToastsPositionService } from '../../layout/toasts/toasts-position.servi
     SelectModule,
     InputNumberModule,
     SafePipe,
-    MenuModule
+    MenuModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',

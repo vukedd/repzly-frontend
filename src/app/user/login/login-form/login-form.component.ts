@@ -42,6 +42,7 @@ export class LoginFormComponent implements OnInit {
   showMessage: boolean = false;
   messageSeverity: 'success' | 'info' | 'warn' | 'error' | 'secondary' | 'contrast' = 'error';
   messageText: string = '';
+  loading: boolean = false;
 
   submitted: boolean = false; // Flag to track if submit was attempted
 
@@ -61,14 +62,14 @@ export class LoginFormComponent implements OnInit {
     // Hide messages when user starts typing again
     this.loginForm.valueChanges.subscribe(() => {
       if (this.showMessage || this.submitted) {
-          this.hideMessages(); // Clear general message and submitted flag
+        this.hideMessages(); // Clear general message and submitted flag
       }
     });
   }
 
   hideMessages() {
-      this.showMessage = false;
-      this.submitted = false; // Allow new validation attempt
+    this.showMessage = false;
+    this.submitted = false; // Allow new validation attempt
   }
 
 
@@ -100,13 +101,15 @@ export class LoginFormComponent implements OnInit {
     this.showMessage = false; // Hide previous top-level messages
 
     if (this.loginForm.invalid) {
-        // Show general validation failed message at the top
-        this.messageSeverity = 'error';
-        this.messageText = 'Validation Failed. Please check the fields below.';
-        this.showMessage = true;
-        // Per-field messages will appear automatically due to submitted=true and invalid state
-        return; // Stop processing
+      // Show general validation failed message at the top
+      this.messageSeverity = 'error';
+      this.messageText = 'Validation Failed. Please check the fields below.';
+      this.showMessage = true;
+      // Per-field messages will appear automatically due to submitted=true and invalid state
+      return; // Stop processing
     }
+    this.loading=true;
+
 
     // --- Form is valid, proceed with API call ---
     this.jwtService.sendLoginRequest({
@@ -118,9 +121,11 @@ export class LoginFormComponent implements OnInit {
         this.jwtService.setTokens({ accessToken: response.token, refreshToken: response.refreshTokenId, username: response.username });
         this.router.navigate(['/dashboard']);
         this.ref.close({ loginSuccess: 200 });
+        this.loading=false;
       },
       error: (error) => {
         this.handleLoginError(error.status); // Show API error in the top message
+        this.loading=false;
         // Keep submitted = true, but API error is now shown
       }
     });
