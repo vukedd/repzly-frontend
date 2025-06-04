@@ -385,38 +385,37 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       return;
     }
 
+    setControl.get('weightLifted')?.disable();
+    setControl.get('actualVolume')?.disable();
+    setControl.get('actualIntensity')?.disable();
+    const isLastSetOfExercise = setIndex === setsArray.length - 1;
+    const isLastExercise = exerciseIndex === this.exercises.length - 1;
+    if (!isLastSetOfExercise || !isLastExercise) {
+      this.startRestTimer(exerciseIndex);
+    } else {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Workout Complete!',
+        detail: 'All sets finished. Review summary and click Finish.',
+        life: 4000
+      });
+    }
+    setControl.patchValue({
+      completed: true
+    });
+
     this.workoutService.completeSet(doneSetDTO).subscribe({
       next: (response: DoneSet) => {
         setControl.patchValue({
-          completed: true,
           doneSetId: response.id
         });
-
-        setControl.get('weightLifted')?.disable();
-        setControl.get('actualVolume')?.disable();
-        setControl.get('actualIntensity')?.disable();
-
-        this.updateProgress();
-
         if (this.currentWorkout?.nextWorkoutDetails) {
           this.currentWorkout.nextWorkoutDetails.doneSets = [
             ...(this.currentWorkout.nextWorkoutDetails.doneSets ?? []),
             response
           ];
         }
-
-        const isLastSetOfExercise = setIndex === setsArray.length - 1;
-        const isLastExercise = exerciseIndex === this.exercises.length - 1;
-        if (!isLastSetOfExercise || !isLastExercise) {
-          this.startRestTimer(exerciseIndex);
-        } else {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Workout Complete!',
-            detail: 'All sets finished. Review summary and click Finish.',
-            life: 4000
-          });
-        }
+        this.updateProgress();
       },
       error: (error) => {
         const detail = error?.error?.message || 'Failed to save completed set.';
@@ -457,43 +456,68 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       });
       return;
     }
+    setControl.patchValue({
+      completed: false,
+      doneSetId: null
+    });
 
-    this.confirmationService.confirm({
-      message: 'Undo this completed set?',
-      header: 'Undo Set Confirmation',
-      icon: 'pi pi-undo',
-      acceptLabel: 'Yes, Undo',
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-warning',
-      rejectButtonStyleClass: 'p-button-text',
-      accept: () => {
-        this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSetId).subscribe({
-          next: (response) => {
-            if (this.currentWorkout?.nextWorkoutDetails?.doneSets) {
-              this.currentWorkout.nextWorkoutDetails.doneSets =
-                this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSetId);
-            }
+    setControl.get('weightLifted')?.enable();
+    setControl.get('actualVolume')?.enable();
+    setControl.get('actualIntensity')?.enable();
 
-            setControl.patchValue({
-              completed: false,
-              doneSetId: null
-            });
+    this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSetId).subscribe({
+      next: (response) => {
+        if (this.currentWorkout?.nextWorkoutDetails?.doneSets) {
+          this.currentWorkout.nextWorkoutDetails.doneSets =
+            this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSetId);
+        }
 
-            setControl.get('weightLifted')?.enable();
-            setControl.get('actualVolume')?.enable();
-            setControl.get('actualIntensity')?.enable();
+        this.updateProgress();
 
-            this.updateProgress();
-
-          },
-          error: (error) => {
-            const detail = error?.error?.message || 'Failed to undo set.';
-            this.messageService.add({ severity: 'error', summary: 'Undo Failed', detail: detail });
-            console.error('Error uncompleting set:', error);
-          }
-        });
+      },
+      error: (error) => {
+        const detail = error?.error?.message || 'Failed to undo set.';
+        this.messageService.add({ severity: 'error', summary: 'Undo Failed', detail: detail });
+        console.error('Error uncompleting set:', error);
       }
     });
+
+    // this.confirmationService.confirm({
+    //   message: 'Undo this completed set?',
+    //   header: 'Undo Set Confirmation',
+    //   icon: 'pi pi-undo',
+    //   acceptLabel: 'Yes, Undo',
+    //   rejectLabel: 'Cancel',
+    //   acceptButtonStyleClass: 'p-button-warning',
+    //   rejectButtonStyleClass: 'p-button-text',
+    //   accept: () => {
+    //     setControl.patchValue({
+    //       completed: false,
+    //       doneSetId: null
+    //     });
+
+    //     setControl.get('weightLifted')?.enable();
+    //     setControl.get('actualVolume')?.enable();
+    //     setControl.get('actualIntensity')?.enable();
+
+    //     this.workoutService.uncompleteSet(nextWorkoutDetailsId, doneSetId).subscribe({
+    //       next: (response) => {
+    //         if (this.currentWorkout?.nextWorkoutDetails?.doneSets) {
+    //           this.currentWorkout.nextWorkoutDetails.doneSets =
+    //             this.currentWorkout.nextWorkoutDetails.doneSets.filter(ds => ds.id !== doneSetId);
+    //         }
+
+    //         this.updateProgress();
+
+    //       },
+    //       error: (error) => {
+    //         const detail = error?.error?.message || 'Failed to undo set.';
+    //         this.messageService.add({ severity: 'error', summary: 'Undo Failed', detail: detail });
+    //         console.error('Error uncompleting set:', error);
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   // --- UPDATED: Add Set Method to use Backend API ---
@@ -707,9 +731,9 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       data: {
         exercises: exercises
       },
-      modal:true,
-      position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
+      modal: true,
+      position: this.showInputButtons ? "center" : "bottom",
+      styleClass: "m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
     });
 
     this.ref.onClose.subscribe((result) => {
@@ -978,7 +1002,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     }
 
     // Add the metric symbol to make it clearer
-   
+
 
     return placeholder;
   }
@@ -1012,8 +1036,8 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       closable: true,
       dismissableMask: true,
       data: { exerciseId: exerciseId },
-      position:this.showInputButtons?"center":"bottom",
-      styleClass:"m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
+      position: this.showInputButtons ? "center" : "bottom",
+      styleClass: "m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
     });
   }
 
@@ -1045,7 +1069,7 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     this.currentVideoUrl = videoUrl;
     this.showVideoDialog = true;
   }
-  
+
   getExerciseMenuItems(exerciseIndex: number, exerciseControl: AbstractControl | null): MenuItem[] {
     if (!exerciseControl) return [];
 
@@ -1073,5 +1097,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
       }
     ];
   }
+
 
 }
