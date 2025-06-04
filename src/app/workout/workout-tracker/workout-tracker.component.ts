@@ -28,6 +28,7 @@ import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { AutoFocusModule } from 'primeng/autofocus';
 
 
 @Component({
@@ -49,7 +50,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     InputNumberModule,
     SafePipe,
     MenuModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    AutoFocusModule
   ],
   providers: [MessageService, ConfirmationService, DialogService],
   templateUrl: './workout-tracker.component.html',
@@ -91,6 +93,9 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
 
   showVideoDialog = false;
   currentVideoUrl: string | null = null;
+
+  filteredExercises: ExerciseOverview[] = [];
+  exercisesLoading: boolean = false;
 
   // Dialog reference
   private ref: DynamicDialogRef | undefined;
@@ -615,26 +620,34 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
   // --- NEW: Change Exercise Method ---
   openChangeExerciseDialog(exerciseIndex: number): void {
     this.selectedExerciseIndex = exerciseIndex;
+    this.showExerciseChangeDialog = true;
+
     const exerciseControl = this.getExerciseControl(exerciseIndex);
 
     if (exerciseControl) {
       this.selectedExerciseId = exerciseControl.get('exerciseId')?.value || null;
 
       // Load available exercises from the exercise service
-      this.exerciseService.getExercisesOverview().subscribe({
-        next: (exercises: ExerciseOverview[]) => {
-          this.availableExercises = exercises;
-          this.showExerciseChangeDialog = true;
-        },
-        error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load available exercises.'
-          });
-          console.error('Error loading exercises:', error);
-        }
-      });
+      if (!this.availableExercises || this.availableExercises.length === 0) {
+      this.exercisesLoading = true;
+
+        this.exerciseService.getExercisesOverview().subscribe({
+          next: (exercises: ExerciseOverview[]) => {
+            this.availableExercises = exercises;
+            this.filteredExercises = exercises;
+            this.exercisesLoading = false;
+          },
+          error: (error) => {
+            this.exercisesLoading = false;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to load available exercises.'
+            });
+            console.error('Error loading exercises:', error);
+          }
+        });
+      }
     } else {
       this.messageService.add({
         severity: 'error',
@@ -1098,5 +1111,27 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     ];
   }
 
+  getFilteredExercises(): any[] {
+    return this.filteredExercises;
+  }
+
+  onFilterChange(query: string) {
+    if (!query.trim()) {
+      this.filteredExercises = this.availableExercises;
+      return;
+    }
+
+    const queryWords = query.toLowerCase().split(/\s+/);
+    const filtered = this.availableExercises.filter(exercise => {
+      const title = exercise.title.toLowerCase();
+      return queryWords.every((word: string) => title.includes(word));
+    });
+
+    this.filteredExercises = filtered;
+  }
+
+  resetFilteredExercises() {
+    this.filteredExercises = this.availableExercises;
+  }
 
 }

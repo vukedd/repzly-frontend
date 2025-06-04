@@ -53,5 +53,10 @@ html {
 }
 
 .p-inputnumber .p-inputtext {
-  text-align: center;
+  text-align: center !important;
+}
+
+.p-virtualscroller{
+    min-height: 200px !important;
+    max-height: 300px !important;
 }

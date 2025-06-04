@@ -98,20 +98,22 @@
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber type="number" formControlName="weightLifted" [style]="{'width':'5rem'}"
-                    [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}" [showButtons]="showInputButtons" [min]="0" [max]="100000" />
+                    [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}"
+                    [showButtons]="showInputButtons" [min]="0" [max]="100000" />
                 </div>
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualVolume" [placeholder]="getVolumePlaceholder(setControl)"
                     [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                    [min]="0" [max]="100000" 
-                    [inputStyle]="{'width':'100%', 'padding-left': '0rem', 'padding-right': '0rem'}"
-                    />
+                    [min]="0" [max]="100000"
+                    [inputStyle]="{'width':'100%', 'padding-left': '0rem', 'padding-right': '0rem'}" />
                 </div>
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualIntensity" [placeholder]="getIntensityPlaceholder(setControl)"
-                    [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}" [showButtons]="showInputButtons"
+                    [style]="{'width':'5rem'}"
+                    [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}"
+                    [showButtons]="showInputButtons"
                     [min]="setControl.get('intensityMetric')?.value?.minimumIntensity || 0"
                     [max]="setControl.get('intensityMetric')?.value?.maximumIntensity || 10" />
                 </div>
@@ -159,8 +161,10 @@
     </p-dialog>
 
     <!-- Summary Dialog -->
-    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true" 
-       [modal]="true" styleClass="workout-summary-dialog" styleClass="m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7" [position]="showInputButtons?'center':'bottom'">
+    <p-dialog header="Workout Summary" [(visible)]="showSummary" [dismissableMask]="true" [modal]="true"
+      styleClass="workout-summary-dialog"
+      styleClass="m-0 border-round-top-2xl border-noround-bottom md:border-round-top-2xl md:border-round-bottom-2xl w-full md:w-7"
+      [position]="showInputButtons?'center':'bottom'">
       <div class="p-0 surface-0"> <!-- Added surface-ground for consistent background if needed -->
 
         <!-- Duration Section -->
@@ -257,7 +261,7 @@
           <button pButton label="Close" icon="pi pi-times" (click)="showSummary = false"
             class="p-button-text mr-2"></button>
           <button pButton label="Finish Workout" icon="pi pi-flag-fill" (click)="submitWorkout()" [loading]="submitting"
-        class="p-button-primary">
+            class="p-button-primary">
           </button>
         </div>
       </div>
@@ -268,11 +272,14 @@
       <div class="p-fluid">
         <div class="field">
           <label for="exerciseSelect" class="font-bold w-full">Select Exercise</label>
-          <p-select id="exerciseSelect" [options]="availableExercises" [(ngModel)]="selectedExerciseId"
-            optionLabel="title" optionValue="id" [filter]="true" filterBy="title" placeholder="Select an exercise"
-            appendTo="body" styleClass="w-17rem lg:w-full" [virtualScroll]="true" [virtualScrollItemSize]="38"
-            panelStyleClass="lg:w-full w-screen"
-            filterMatchMode="in">
+          <p-select id="exerciseSelect" (onClick)="resetFilteredExercises()" [options]="getFilteredExercises()"
+            [(ngModel)]="selectedExerciseId" optionLabel="title" optionValue="id" [filter]="true"
+            placeholder="Select an exercise" appendTo="body" styleClass="w-17rem lg:w-full" [virtualScroll]="true" 
+            [virtualScrollItemSize]="38" panelStyleClass="lg:w-full w-screen" [loading]="exercisesLoading">
+            <ng-template #filter let-options="options">
+              <input type="text" pInputText placeholder="Filter exercises..." [pAutoFocus]="true"
+                (input)="onFilterChange($any($event.target).value);" class="w-full p-2">
+            </ng-template>
           </p-select>
         </div>
 
@@ -284,8 +291,7 @@
         </div>
       </div>
     </p-dialog>
-    <p-dialog header="Exercise Demonstration" [(visible)]="showVideoDialog" styleClass="w-full md:w-7"
-      [modal]="true">
+    <p-dialog header="Exercise Demonstration" [(visible)]="showVideoDialog" styleClass="w-full md:w-7" [modal]="true">
       <div class="p-fluid">
         <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
           <iframe *ngIf="currentVideoUrl" [src]="currentVideoUrl | safe: 'resourceUrl'"
