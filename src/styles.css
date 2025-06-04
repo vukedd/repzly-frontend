@@ -51,3 +51,12 @@ html {
 .preserve-whitespace {
   white-space: pre-line;
 }
+
+.p-inputnumber .p-inputtext {
+  text-align: center !important;
+}
+
+.p-virtualscroller{
+    min-height: 200px !important;
+    max-height: 300px !important;
+}

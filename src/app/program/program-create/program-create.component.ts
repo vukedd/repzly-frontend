@@ -35,6 +35,7 @@ import { OrderListModule } from 'primeng/orderlist';
 import { AvatarModule } from 'primeng/avatar';
 import { CardModule } from 'primeng/card';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
+import { AutoFocusModule } from 'primeng/autofocus';
 
 @Component({
   selector: 'app-program-create',
@@ -65,7 +66,8 @@ import { ToastsPositionService } from '../../layout/toasts/toasts-position.servi
     TooltipModule,
     OrderListModule,
     AvatarModule,
-    CardModule
+    CardModule,
+    AutoFocusModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -92,6 +94,7 @@ export class ProgramCreateComponent implements OnInit {
   editMinRestTime: number | null = null;
   editMaxRestTime: number | null = null;
   editRestTimeMetric: string | null = null;
+  filteredExercisesMap = new Map<string, any[]>();
 
   // NEW PROPERTIES FOR EDIT MODE
   isEditMode: boolean = false;
@@ -122,6 +125,7 @@ export class ProgramCreateComponent implements OnInit {
   currentVideoUrl: string | null = null;
 
   activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
+  
 
 
   publicOptions: any[];
@@ -1407,5 +1411,36 @@ export class ProgramCreateComponent implements OnInit {
     }
   }
 
+  getExerciseKey(weekIndex: number, workoutIndex: number, exerciseIndex: number): string {
+    return `${weekIndex}-${workoutIndex}-${exerciseIndex}`;
+  }
+
+  getFilteredExercises(weekIndex: number, workoutIndex: number, exerciseIndex: number): any[] {
+    const key = this.getExerciseKey(weekIndex, workoutIndex, exerciseIndex);
+    return this.filteredExercisesMap.get(key) || this.exercises;
+  }
+
+  onFilterChange(query: string, weekIndex: number, workoutIndex: number, exerciseIndex: number) {
+    const key = this.getExerciseKey(weekIndex, workoutIndex, exerciseIndex);
+    
+    if (!query.trim()) {
+      this.filteredExercisesMap.set(key, [...this.exercises]);
+      return;
+    }
+    
+    const queryWords = query.toLowerCase().split(/\s+/);
+    const filtered = this.exercises.filter(exercise => {
+      const title = exercise.title.toLowerCase();
+      return queryWords.every((word: string) => title.includes(word));
+    });
+    
+    this.filteredExercisesMap.set(key, filtered);
+  }
+
+  resetFilteredExercises(){
+    this.filteredExercisesMap.clear();
+  }
+
+  
 
 }

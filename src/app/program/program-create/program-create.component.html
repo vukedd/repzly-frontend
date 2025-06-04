@@ -207,12 +207,22 @@
                                         <!-- Exercise Selection and Delete Button -->
                                         <div class="grid">
                                           <div class="col-9 md:col-7 h-full">
-                                            <p-select id="exercise{{i}}-{{workoutIndex}}-{{exerciseIndex}}"
-                                              formControlName="exercise" [options]="exercises" optionLabel="title"
-                                              placeholder="Select an Exercise" [filter]="true" filterBy="title"
+                                            <p-select [id]="'exercise' + i + '-' + workoutIndex + '-' + exerciseIndex"
+                                              formControlName="exercise"
+                                              (onClick)="resetFilteredExercises()"
+                                              [options]="getFilteredExercises(i, workoutIndex, exerciseIndex)"
+                                              optionLabel="title" placeholder="Select an Exercise" [filter]="true"
                                               styleClass="w-full h-full justify-content-center align-items-center"
                                               [ngClass]="{'ng-invalid ng-dirty': exercise.get('exercise')?.invalid && (exercise.get('exercise')?.touched || exercise.get('exercise')?.dirty)}"
-                                              [virtualScroll]="true" [virtualScrollItemSize]="38"></p-select>
+                                              [virtualScroll]="true" [virtualScrollItemSize]="38">
+
+                                              <!-- Custom filter template to override PrimeNG's filter -->
+                                              <ng-template #filter let-options="options">
+                                                <input type="text" pInputText placeholder="Filter exercises..." [pAutoFocus]="true"
+                                                  (input)="onFilterChange($any($event.target).value, i, workoutIndex, exerciseIndex);"
+                                                  class="w-full p-2">
+                                              </ng-template>
+                                            </p-select>
                                             <small class="p-error block mt-1 text-red-400"
                                               *ngIf="exercise.get('exercise')?.invalid && (exercise.get('exercise')?.touched || exercise.get('exercise')?.dirty)">
                                               {{ getNestedErrorMessage(exercise.get('exercise'), 'Exercise selection',
@@ -531,22 +541,19 @@
   </p-dialog>
 
   <!-- Rest Time Dialog -->
-  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible"
-    [modal]="true">
+  <p-dialog header="Set Rest Time" [(visible)]="restTimeDialogVisible" [modal]="true">
     <div class="p-fluid" *ngIf="selectedExerciseInfo">
       <div class="field flex mb-3 flex-column">
         <label for="restTimeMin" class="font-bold mr-3 w-full">Minimum Rest Time</label>
         <p-inputnumber id="restTimeMin" [(ngModel)]="editMinRestTime" [showButtons]="true" buttonLayout="horizontal"
           decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success" styleClass="w-full"
-          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"
-          ></p-inputnumber>
+          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"></p-inputnumber>
       </div>
       <div class="field mb-3 flex flex-column">
         <label for="restTimeMax" class="font-bold mr-3">Maximum Rest Time</label>
         <p-inputnumber id="restTimeMax" [(ngModel)]="editMaxRestTime" [showButtons]="true" buttonLayout="horizontal"
           decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
-          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"
-          ></p-inputnumber>
+          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"></p-inputnumber>
       </div>
       <div class="field flex flex-column">
         <label for="restTimeMetric" class="font-bold mr-3">Time Unit</label>
