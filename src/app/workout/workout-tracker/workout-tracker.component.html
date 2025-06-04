@@ -98,18 +98,20 @@
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber type="number" formControlName="weightLifted" [style]="{'width':'5rem'}"
-                    [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons" [min]="0" [max]="100000" />
+                    [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}" [showButtons]="showInputButtons" [min]="0" [max]="100000" />
                 </div>
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualVolume" [placeholder]="getVolumePlaceholder(setControl)"
                     [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
-                    [min]="0" [max]="100000" />
+                    [min]="0" [max]="100000" 
+                    [inputStyle]="{'width':'100%', 'padding-left': '0rem', 'padding-right': '0rem'}"
+                    />
                 </div>
 
                 <div class="col-3 flex justify-content-center p-1">
                   <p-inputnumber formControlName="actualIntensity" [placeholder]="getIntensityPlaceholder(setControl)"
-                    [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%'}" [showButtons]="showInputButtons"
+                    [style]="{'width':'5rem'}" [inputStyle]="{'width':'100%','padding-left': '0rem', 'padding-right': '0rem'}" [showButtons]="showInputButtons"
                     [min]="setControl.get('intensityMetric')?.value?.minimumIntensity || 0"
                     [max]="setControl.get('intensityMetric')?.value?.maximumIntensity || 10" />
                 </div>

@@ -51,3 +51,7 @@ html {
 .preserve-whitespace {
   white-space: pre-line;
 }
+
+.p-inputnumber .p-inputtext {
+  text-align: center;
+}
