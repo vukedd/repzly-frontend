@@ -209,6 +209,7 @@
                                           <div class="col-9 md:col-7 h-full">
                                             <p-select [id]="'exercise' + i + '-' + workoutIndex + '-' + exerciseIndex"
                                               formControlName="exercise"
+                                              (onClick)="resetFilteredExercises()"
                                               [options]="getFilteredExercises(i, workoutIndex, exerciseIndex)"
                                               optionLabel="title" placeholder="Select an Exercise" [filter]="true"
                                               styleClass="w-full h-full justify-content-center align-items-center"
@@ -217,8 +218,8 @@
 
                                               <!-- Custom filter template to override PrimeNG's filter -->
                                               <ng-template #filter let-options="options">
-                                                <input type="text" pInputText placeholder="Filter exercises..."
-                                                  (input)="onFilterChange($any($event.target).value, i, workoutIndex, exerciseIndex); options.filter($any($event.target).value)"
+                                                <input type="text" pInputText placeholder="Filter exercises..." [pAutoFocus]="true"
+                                                  (input)="onFilterChange($any($event.target).value, i, workoutIndex, exerciseIndex);"
                                                   class="w-full p-2">
                                               </ng-template>
                                             </p-select>

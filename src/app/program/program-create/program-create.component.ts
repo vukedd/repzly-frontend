@@ -35,6 +35,7 @@ import { OrderListModule } from 'primeng/orderlist';
 import { AvatarModule } from 'primeng/avatar';
 import { CardModule } from 'primeng/card';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
+import { AutoFocusModule } from 'primeng/autofocus';
 
 @Component({
   selector: 'app-program-create',
@@ -65,7 +66,8 @@ import { ToastsPositionService } from '../../layout/toasts/toasts-position.servi
     TooltipModule,
     OrderListModule,
     AvatarModule,
-    CardModule
+    CardModule,
+    AutoFocusModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -123,6 +125,7 @@ export class ProgramCreateComponent implements OnInit {
   currentVideoUrl: string | null = null;
 
   activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
+  
 
 
   publicOptions: any[];
@@ -1432,6 +1435,10 @@ export class ProgramCreateComponent implements OnInit {
     });
     
     this.filteredExercisesMap.set(key, filtered);
+  }
+
+  resetFilteredExercises(){
+    this.filteredExercisesMap.clear();
   }
 
   
