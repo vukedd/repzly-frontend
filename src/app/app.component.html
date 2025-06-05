@@ -1,4 +1,5 @@
-<div class="">
+  <p-toast [position]="toastsPositionService.getPosition()"></p-toast>
+  <div>
   <div class="content-area">
     <div class="">
       @defer (when jwtService.isAuthInitialized()) {

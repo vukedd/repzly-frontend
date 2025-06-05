@@ -8,9 +8,10 @@ import { WorkoutDurationGraphComponent } from "../../workout-duration-graph/work
 import { CommonModule } from '@angular/common';
 import confetti from 'canvas-confetti';
 import { DialogModule } from 'primeng/dialog';
-import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { ActivatedRoute } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-home',
@@ -22,11 +23,14 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     CommonModule,
     DialogModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.css',
+  providers: [MessageService]
 })
 export class HomeComponent implements OnInit {
   constructor(public jwtService: JwtService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private route: ActivatedRoute,
+    private messageService: MessageService
   ) { }
 
   showCongratsDialog: boolean = false;
@@ -34,7 +38,7 @@ export class HomeComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
 
-  ngOnInit(): void {
+ngOnInit(): void {
     const state = history.state as { workoutJustCompleted?: boolean };
 
     if (state && state.workoutJustCompleted) {
@@ -43,6 +47,7 @@ export class HomeComponent implements OnInit {
       delete newHistoryState.workoutJustCompleted;
       history.replaceState(newHistoryState, '');
     }
+
     this.breakpointObserver
       .observe(['(min-width: 768px)'])
       .pipe(takeUntil(this.destroy$))
