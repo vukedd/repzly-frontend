@@ -80,6 +80,6 @@
 
         <small class="my-3">You already have an account? <a href="javascript:void(0)" (click)="changeToLoginMode()">Sign in here</a></small>
         <!-- Remove [disabled] binding -->
-        <p-button label="Sign up" type="submit" severity="contrast"/>
+        <p-button label="Sign up" type="submit" severity="contrast" [loading]="isSubmitting"/>
     </form>
 </div>

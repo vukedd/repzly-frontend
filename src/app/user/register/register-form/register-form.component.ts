@@ -43,12 +43,13 @@ export class RegisterFormComponent implements OnInit {
   messageText: string = '';
 
   submitted: boolean = false; // Flag to track if submit was attempted
+  isSubmitting: boolean = false;
 
   constructor(
     private registerService: RegisterService,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig
-  ) {}
+  ) { }
 
   // Getters for easier access in the template
   get firstName() { return this.registerForm.get('firstName'); }
@@ -62,14 +63,14 @@ export class RegisterFormComponent implements OnInit {
     // Hide messages when user starts typing again
     this.registerForm.valueChanges.subscribe(() => {
       if (this.showMessage || this.submitted) {
-         this.hideMessages(); // Clear general message and submitted flag
+        this.hideMessages(); // Clear general message and submitted flag
       }
     });
   }
 
   hideMessages() {
-      this.showMessage = false;
-      this.submitted = false; // Allow new validation attempt
+    this.showMessage = false;
+    this.submitted = false; // Allow new validation attempt
   }
 
   changeToLoginMode() {
@@ -116,13 +117,14 @@ export class RegisterFormComponent implements OnInit {
     this.showMessage = false; // Hide previous top-level messages
 
     if (this.registerForm.invalid) {
-        // Show general validation failed message at the top
-        this.messageSeverity = 'error';
-        this.messageText = 'Validation Failed. Please check the fields below.';
-        this.showMessage = true;
-        // Per-field messages will appear automatically
-        return; // Stop processing
+      // Show general validation failed message at the top
+      this.messageSeverity = 'error';
+      this.messageText = 'Validation Failed. Please check the fields below.';
+      this.showMessage = true;
+      // Per-field messages will appear automatically
+      return; // Stop processing
     }
+    this.isSubmitting=true;
 
     // --- Form is valid, proceed with API call ---
     this.registerService.registerUser({
@@ -136,6 +138,7 @@ export class RegisterFormComponent implements OnInit {
         this.hideMessages(); // Clear messages on success
         this.registerForm.reset();
         this.ref.close({ registerSuccess: response.message });
+        this.isSubmitting=false;
       },
       error: (error) => {
         const errorMessage = error.error?.message || "An unknown registration error occurred.";
@@ -143,6 +146,7 @@ export class RegisterFormComponent implements OnInit {
         this.messageSeverity = 'error';
         this.messageText = errorMessage;
         this.showMessage = true;
+        this.isSubmitting=false;
         // Keep submitted = true, but API error is now shown
       }
     });

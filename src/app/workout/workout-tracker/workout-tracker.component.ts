@@ -177,7 +177,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
     this.workoutService.getNextWorkout(programId).subscribe({
       next: (nextWorkout: NextWorkout) => {
         this.currentWorkout = nextWorkout;
-        console.log(nextWorkout);
 
         if (nextWorkout.action === 'start' || nextWorkout.action === 'continue') {
           this.initializeForm();
@@ -217,7 +216,6 @@ export class WorkoutTrackerComponent implements OnInit, OnDestroy {
 
     // Create form structure based on the workout data
     nextWorkoutDetails.workoutExercises.forEach((exercise: WorkoutExercise) => {
-      console.log(exercise);
       const exerciseGroup = this.fb.group({
         id: [exercise.id],
         exerciseId: [exercise.exercise.id],

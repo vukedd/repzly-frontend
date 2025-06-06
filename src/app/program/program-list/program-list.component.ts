@@ -169,7 +169,6 @@ export class ProgramListComponent implements OnInit {
         this.totalPages = response.page.totalPages;
         this.loading = false;
         this.programsType = "my-programs"
-        console.log(response);
       },
       error: (error) => {
         console.error('Error loading programs:', error);

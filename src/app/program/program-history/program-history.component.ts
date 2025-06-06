@@ -101,7 +101,6 @@ export class ProgramHistoryComponent implements OnInit {
       next: (data) => {
         this.programHistory = data;
         this.loading = false;
-        console.log(this.programHistory);
 
         // Process and organize the data correctly
         this.processWeeksData();
