@@ -61,8 +61,8 @@
                   <div class="field">
                     <div class="flex justify-content-center align-items-center">
                       <p-fileUpload id="programImage" mode="basic" chooseLabel="Select Image" accept="image/*"
-                        [auto]="true" [maxFileSize]="1000000" (onSelect)="onImageUpload($event)"
-                        [showCancelButton]="false" styleClass="w-full"></p-fileUpload>
+                        [auto]="true" [maxFileSize]="256000" (onSelect)="onImageUpload($event)"
+                        [showCancelButton]="false" styleClass="w-full" fileLimit="1"></p-fileUpload>
                     </div>
 
                     <!-- Image Preview Section -->

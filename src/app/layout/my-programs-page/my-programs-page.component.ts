@@ -49,7 +49,6 @@ export class MyProgramsPageComponent implements OnInit{
 
   searchMyPrograms(searchInput: string) {
     if (this.isSearchPossible) {
-      console.log('This is the input', searchInput);
       this.searchService.updateSearchTerm(searchInput);
     }
   }

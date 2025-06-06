@@ -177,7 +177,6 @@ export class ProgramService {
     .set('page', page.toString())
     .set('title', title);
 
-    console.log(title);
 
     return this.http.get<any>(`${this.apiUrl}/my-programs`, {params});
   }

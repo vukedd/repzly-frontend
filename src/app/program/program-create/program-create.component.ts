@@ -125,7 +125,7 @@ export class ProgramCreateComponent implements OnInit {
   currentVideoUrl: string | null = null;
 
   activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
-  
+
 
 
   publicOptions: any[];
@@ -706,6 +706,10 @@ export class ProgramCreateComponent implements OnInit {
 
   onImageUpload(event: any): void {
     if (event.files && event.files.length > 0) {
+      const file = event.files[0];
+      if (file.size >= 256000) {
+        return;
+      }
       this.uploadedImage = event.files[0];
       if (this.uploadedImage) {
         this.createImagePreview(this.uploadedImage);
@@ -1422,25 +1426,25 @@ export class ProgramCreateComponent implements OnInit {
 
   onFilterChange(query: string, weekIndex: number, workoutIndex: number, exerciseIndex: number) {
     const key = this.getExerciseKey(weekIndex, workoutIndex, exerciseIndex);
-    
+
     if (!query.trim()) {
       this.filteredExercisesMap.set(key, [...this.exercises]);
       return;
     }
-    
+
     const queryWords = query.toLowerCase().split(/\s+/);
     const filtered = this.exercises.filter(exercise => {
       const title = exercise.title.toLowerCase();
       return queryWords.every((word: string) => title.includes(word));
     });
-    
+
     this.filteredExercisesMap.set(key, filtered);
   }
 
-  resetFilteredExercises(){
+  resetFilteredExercises() {
     this.filteredExercisesMap.clear();
   }
 
-  
+
 
 }
