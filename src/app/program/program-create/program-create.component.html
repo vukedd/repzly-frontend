@@ -105,7 +105,9 @@
                   <button pButton type="button" label="Add Week" icon="pi pi-plus" class="p-button-outlined mr-2"
                     (click)="addWeek()"></button>
                   <button pButton type="button" label="Paste Week" icon="pi pi-file-import"
-                    class="p-button-outlined mr-2" (click)="pasteWeek()" [disabled]="!copiedWeek"></button>
+                    class="p-button-outlined mr-2" (click)="pasteWeek()" [disabled]="!copiedWeek || pasteWeekLoading"
+                    [loading]="pasteWeekLoading">
+                  </button>
                 </div>
 
                 <p-tablist #tablist>
@@ -208,8 +210,7 @@
                                         <div class="grid">
                                           <div class="col-9 md:col-7 h-full">
                                             <p-select [id]="'exercise' + i + '-' + workoutIndex + '-' + exerciseIndex"
-                                              formControlName="exercise"
-                                              (onClick)="resetFilteredExercises()"
+                                              formControlName="exercise" (onClick)="resetFilteredExercises()"
                                               [options]="getFilteredExercises(i, workoutIndex, exerciseIndex)"
                                               optionLabel="title" placeholder="Select an Exercise" [filter]="true"
                                               styleClass="w-full h-full justify-content-center align-items-center"
@@ -218,7 +219,8 @@
 
                                               <!-- Custom filter template to override PrimeNG's filter -->
                                               <ng-template #filter let-options="options">
-                                                <input type="text" pInputText placeholder="Filter exercises..." [pAutoFocus]="true"
+                                                <input type="text" pInputText placeholder="Filter exercises..."
+                                                  [pAutoFocus]="true"
                                                   (input)="onFilterChange($any($event.target).value, i, workoutIndex, exerciseIndex);"
                                                   class="w-full p-2">
                                               </ng-template>
@@ -555,10 +557,10 @@
           decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
           incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" [min]="0"></p-inputnumber>
       </div>
-      <div class="field flex flex-column">
+      <div class="field flex flex-column overflow-visible">
         <label for="restTimeMetric" class="font-bold mr-3">Time Unit</label>
         <p-select id="restTimeMetric" [options]="restTimeMetrics" [(ngModel)]="editRestTimeMetric"
-          styleClass="overflow-visible"></p-select>
+          styleClass="overflow-visible" appendTo="body"></p-select>
       </div>
     </div>
 
