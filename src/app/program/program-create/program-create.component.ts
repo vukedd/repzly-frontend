@@ -422,7 +422,9 @@ export class ProgramCreateComponent implements OnInit {
   // Method to handle tab changes
   onTabChange(indx: any): void {
     this.activeWeekTab = (indx as number).toString();
-    console.log(this.activeWeekTab);
+    if(this.activeWorkoutAccordion.split('-')[0] != this.activeWeekTab){
+      this.activeWorkoutAccordion = '';
+    }
     this.scrollToActiveTab();
   }
 
@@ -1494,6 +1496,10 @@ export class ProgramCreateComponent implements OnInit {
   }
 
   setActiveWorkoutAccordion(weekIndex: number, workoutIndex: number) {
+    if(weekIndex===-1||workoutIndex===-1){
+      this.activeWorkoutAccordion = "";
+      return;
+    }
     setTimeout(() => {
       this.activeWorkoutAccordion = `${weekIndex}-${workoutIndex}`;
     }, 200);

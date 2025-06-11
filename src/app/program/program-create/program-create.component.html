@@ -420,7 +420,7 @@
 
               <div class="flex justify-content-between mt-4">
                 <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" styleClass="ml-2"
-                  (onClick)="activateCallback(1)"></p-button>
+                  (onClick)="activateCallback(1); setActiveWorkoutAccordion(-1, -1)"></p-button>
                 <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" styleClass="mr-2"
                   (onClick)="handleNextFromStep2(activateCallback)"></p-button>
               </div>
@@ -516,7 +516,7 @@
 
                 <!-- Navigation Buttons -->
                 <div class="flex justify-content-between mt-5">
-                  <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)"
+                  <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2);setActiveWorkoutAccordion(-1, -1)"
                     styleClass="p-button-outlined ml-2"></p-button>
                   <p-button type="submit" [label]="getSubmitButtonText()" icon="pi pi-check" [loading]="loading"
                     styleClass="p-button-raised mr-2"></p-button>
