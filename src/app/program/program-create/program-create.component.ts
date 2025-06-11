@@ -36,6 +36,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { CardModule } from 'primeng/card';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 import { AutoFocusModule } from 'primeng/autofocus';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-program-create',
@@ -67,7 +68,8 @@ import { AutoFocusModule } from 'primeng/autofocus';
     OrderListModule,
     AvatarModule,
     CardModule,
-    AutoFocusModule
+    AutoFocusModule,
+    SkeletonModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -378,6 +380,7 @@ export class ProgramCreateComponent implements OnInit {
 
     // Set active week tab
     this.activeWeekTab = (this.weeks.length - 1).toString();
+    this.activeWorkoutAccordion = (this.weeks.length - 1)+'-'+0;
 
     // Schedule scrolling to the newly added tab
     setTimeout(() => this.scrollToActiveTab(), 100);
@@ -436,6 +439,7 @@ export class ProgramCreateComponent implements OnInit {
     const workoutsArray = this.getWorkouts(weekIndex);
     workoutsArray.push(workoutForm);
     const newWorkoutIndex = workoutsArray.length - 1;
+    this.activeWorkoutAccordion = weekIndex+'-'+newWorkoutIndex;
 
     this.addWorkoutExercise(weekIndex, newWorkoutIndex);
   }
@@ -1489,8 +1493,10 @@ export class ProgramCreateComponent implements OnInit {
     this.filteredExercisesMap.clear();
   }
 
-  setActiveWorkoutAccordion(weekIndex: number, workoutIndex: number){
-    this.activeWorkoutAccordion = `${weekIndex}-${workoutIndex}`;
+  setActiveWorkoutAccordion(weekIndex: number, workoutIndex: number) {
+    setTimeout(() => {
+      this.activeWorkoutAccordion = `${weekIndex}-${workoutIndex}`;
+    }, 200);
   }
 
 
