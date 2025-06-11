@@ -124,7 +124,8 @@ export class ProgramCreateComponent implements OnInit {
   showVideoDialog = false;
   currentVideoUrl: string | null = null;
 
-  activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
+  activeWorkoutAccordion: string = "";
+
 
   pasteWeekLoading: boolean = false;
 
@@ -416,8 +417,9 @@ export class ProgramCreateComponent implements OnInit {
   }
 
   // Method to handle tab changes
-  onTabChange(event: any): void {
-    this.activeWeekTab = event.index.toString();
+  onTabChange(indx: any): void {
+    this.activeWeekTab = (indx as number).toString();
+    console.log(this.activeWeekTab);
     this.scrollToActiveTab();
   }
 
@@ -434,7 +436,6 @@ export class ProgramCreateComponent implements OnInit {
     const workoutsArray = this.getWorkouts(weekIndex);
     workoutsArray.push(workoutForm);
     const newWorkoutIndex = workoutsArray.length - 1;
-    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
 
     this.addWorkoutExercise(weekIndex, newWorkoutIndex);
   }
@@ -1059,7 +1060,6 @@ export class ProgramCreateComponent implements OnInit {
     const workoutsArray = this.getWorkouts(weekIndex);
     workoutsArray.push(workoutForm);
     const newWorkoutIndex = workoutsArray.length - 1;
-    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
 
     this.copiedWorkout.workoutExercises.forEach((exercise: any) => {
       const exerciseForm = this.fb.group({
@@ -1345,9 +1345,6 @@ export class ProgramCreateComponent implements OnInit {
     event.preventDefault();
   }
 
-  getActiveWorkoutAccordionIndex(weekIndex: number): number {
-    return this.activeWorkoutAccordionIndices.get(weekIndex) ?? 0;
-  }
 
   // --- NEW HELPER FUNCTIONS FOR VALIDATION MESSAGES ---
   getErrorMessage(control: AbstractControl | null, controlName: string): string {
@@ -1490,6 +1487,10 @@ export class ProgramCreateComponent implements OnInit {
 
   resetFilteredExercises() {
     this.filteredExercisesMap.clear();
+  }
+
+  setActiveWorkoutAccordion(weekIndex: number, workoutIndex: number){
+    this.activeWorkoutAccordion = `${weekIndex}-${workoutIndex}`;
   }
 
 

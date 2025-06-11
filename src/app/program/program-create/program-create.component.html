@@ -100,7 +100,7 @@
             <ng-template #content let-activateCallback="activateCallback">
 
 
-              <p-tabs [value]="activeWeekTab" formArrayName="weeks" scrollable (onChange)="onTabChange($event)">
+              <p-tabs [value]="activeWeekTab" formArrayName="weeks" scrollable (valueChange)="onTabChange($event)" [lazy]="true">
                 <div class="flex justify-content-end mb-2">
                   <button pButton type="button" label="Add Week" icon="pi pi-plus" class="p-button-outlined mr-2"
                     (click)="addWeek()"></button>
@@ -111,32 +111,36 @@
                 </div>
 
                 <p-tablist #tablist>
-                  <p-tab *ngFor="let week of weeks.controls; let i = index" [value]="i.toString()">
+                  @for (week of weeks.controls; track $index) {
+                  <p-tab [value]="$index.toString()">
                     <div class="flex justify-content-between align-items-center">
-                      <h4 class="m-0">Week {{ i + 1 }}</h4>
+                      <h4 class="m-0">Week {{ $index + 1 }}</h4>
                       <div>
                         <!-- In your template -->
                         <button pButton type="button" icon="pi pi-copy" class="p-button-rounded p-button-text"
                           pTooltip="Copy Week" severity="contrast"
-                          (click)="$event.stopImmediatePropagation(); copyWeek(i, $event); false"></button>
+                          (click)="$event.stopImmediatePropagation(); copyWeek($index, $event); false"></button>
 
                         <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text"
                           pTooltip="Remove Week" severity="contrast"
-                          (click)="$event.stopImmediatePropagation(); removeWeek(i, $event); false"
+                          (click)="$event.stopImmediatePropagation(); removeWeek($index, $event); false"
                           [disabled]="weeks.length <= 1"></button>
                       </div>
                     </div>
                   </p-tab>
+                }
                 </p-tablist>
 
                 <p-tabpanels class="p-0">
-                  <p-tabpanel *ngFor="let week of weeks.controls; let i = index" [value]="i.toString()">
+                  @for(week of weeks.controls; track $index; let i = $index){
+                  <p-tabpanel [value]="i.toString()">
+                    @if(activeWeekTab === i.toString()){
                     <div [formGroupName]="i">
                       <!-- Workouts for this Week -->
                       <div formArrayName="workouts" class="w-full">
-                        <p-accordion [value]="getActiveWorkoutAccordionIndex(i)">
+                        <p-accordion>
                           @for (workout of getWorkouts(i).controls; track workout; let workoutIndex = $index) {
-                          <p-accordion-panel [value]="workoutIndex" styleClass="mb-4 z-0">
+                          <p-accordion-panel [value]="i + '-' + workoutIndex" styleClass="mb-4 z-0" (click)="$event.stopPropagation(); setActiveWorkoutAccordion(i, workoutIndex)">
                             <p-accordion-header>
                               <ng-template #toggleicon let-active="active">
                                 @if (active) {
@@ -190,6 +194,7 @@
                               <div [formGroupName]="workoutIndex"
                                 class="surface-50 border-1 border-300 border-round mb-4">
                                 <!-- Hidden form controls (not visible to user) -->
+                                @if(activeWorkoutAccordion === i + '-' + workoutIndex){
                                 <div class="hidden">
                                   <input id="title{{i}}-{{workoutIndex}}" type="text" pInputText
                                     formControlName="title">
@@ -200,8 +205,8 @@
                                 <!-- Exercises Section -->
                                 <div formArrayName="workoutExercises" class="">
                                   <!-- Exercise Cards -->
+                                   @for(exercise of getWorkoutExercises(i, workoutIndex).controls; track exerciseIndex; let exerciseIndex = $index){
                                   <div
-                                    *ngFor="let exercise of getWorkoutExercises(i, workoutIndex).controls; let exerciseIndex = index"
                                     class="surface-50 mb-3 border-bottom-1 surface-border">
                                     <div [formGroupName]="exerciseIndex">
                                       <!-- Exercise Details Card -->
@@ -301,9 +306,8 @@
                                       <!-- Sets Section -->
                                       <div formArrayName="sets" class="">
 
-
+                                        @for(set of getSets(i, workoutIndex, exerciseIndex).controls;track $index; let setIndex = $index){
                                         <div
-                                          *ngFor="let set of getSets(i, workoutIndex, exerciseIndex).controls; let setIndex = index"
                                           [formGroupName]="setIndex" class="grid align-items-center">
                                           <div class="col-1 flex justify-content-center">{{setIndex + 1}}</div>
                                           <div class="col-5 flex justify-content-center">
@@ -351,13 +355,11 @@
                                               </div>
                                               <small class="p-error text-red-400 block mt-1 text-center"
                                                 *ngIf="isIntensityRange(i, workoutIndex, exerciseIndex) && set.get('intensity.minimumIntensity')?.invalid && (set.get('intensity.minimumIntensity')?.touched || set.get('intensity.minimumIntensity')?.dirty)">
-                                                {{ getErrorMessage(set.get('intensity.minimumIntensity'), 'Min
-                                                Intensity') }}
+                                                {{ getErrorMessage(set.get('intensity.minimumIntensity'), 'Min Intensity') }}
                                               </small>
                                               <small class="p-error text-red-400 block mt-1 text-center"
                                                 *ngIf="set.get('intensity.maximumIntensity')?.invalid && (set.get('intensity.maximumIntensity')?.touched || set.get('intensity.maximumIntensity')?.dirty)">
-                                                {{ getErrorMessage(set.get('intensity.maximumIntensity'), 'Max
-                                                Intensity') }}
+                                                {{ getErrorMessage(set.get('intensity.maximumIntensity'), 'Max Intensity') }}
                                               </small>
                                             </div>
                                           </div>
@@ -367,7 +369,9 @@
                                               (click)="removeSet(i, workoutIndex, exerciseIndex, setIndex)"
                                               [disabled]="getSets(i, workoutIndex, exerciseIndex).length <= 1"></button>
                                           </div>
+                                        
                                         </div>
+                                      }
 
                                         <!-- Add Set Button - Now positioned after all sets -->
                                         <div class="flex justify-content-center mt-3 mb-2">
@@ -377,7 +381,9 @@
                                         </div>
                                       </div>
                                     </div>
+                                  
                                   </div>
+                                }
 
                                   <!-- Add Exercise Button - Now positioned after all exercises -->
                                   <div class="flex justify-content-center mt-3 mb-3">
@@ -388,6 +394,7 @@
                                       [disabled]="!copiedExercise"></button>
                                   </div>
                                 </div>
+                              }
                               </div>
                             </p-accordion-content>
                           </p-accordion-panel>
@@ -403,7 +410,9 @@
                         </div>
                       </div>
                     </div>
+                  }
                   </p-tabpanel>
+                }
                 </p-tabpanels>
               </p-tabs>
 
