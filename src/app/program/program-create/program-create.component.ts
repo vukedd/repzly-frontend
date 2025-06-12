@@ -36,6 +36,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { CardModule } from 'primeng/card';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
 import { AutoFocusModule } from 'primeng/autofocus';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-program-create',
@@ -67,7 +68,8 @@ import { AutoFocusModule } from 'primeng/autofocus';
     OrderListModule,
     AvatarModule,
     CardModule,
-    AutoFocusModule
+    AutoFocusModule,
+    SkeletonModule
   ],
   templateUrl: './program-create.component.html',
   styleUrl: './program-create.component.css',
@@ -124,7 +126,10 @@ export class ProgramCreateComponent implements OnInit {
   showVideoDialog = false;
   currentVideoUrl: string | null = null;
 
-  activeWorkoutAccordionIndices: Map<number, number | null> = new Map();
+  activeWorkoutAccordion: string = "";
+
+
+  pasteWeekLoading: boolean = false;
 
 
 
@@ -375,6 +380,7 @@ export class ProgramCreateComponent implements OnInit {
 
     // Set active week tab
     this.activeWeekTab = (this.weeks.length - 1).toString();
+    this.activeWorkoutAccordion = (this.weeks.length - 1)+'-'+0;
 
     // Schedule scrolling to the newly added tab
     setTimeout(() => this.scrollToActiveTab(), 100);
@@ -414,8 +420,11 @@ export class ProgramCreateComponent implements OnInit {
   }
 
   // Method to handle tab changes
-  onTabChange(event: any): void {
-    this.activeWeekTab = event.index.toString();
+  onTabChange(indx: any): void {
+    this.activeWeekTab = (indx as number).toString();
+    if(this.activeWorkoutAccordion.split('-')[0] != this.activeWeekTab){
+      this.activeWorkoutAccordion = '';
+    }
     this.scrollToActiveTab();
   }
 
@@ -432,7 +441,7 @@ export class ProgramCreateComponent implements OnInit {
     const workoutsArray = this.getWorkouts(weekIndex);
     workoutsArray.push(workoutForm);
     const newWorkoutIndex = workoutsArray.length - 1;
-    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
+    this.activeWorkoutAccordion = weekIndex+'-'+newWorkoutIndex;
 
     this.addWorkoutExercise(weekIndex, newWorkoutIndex);
   }
@@ -892,7 +901,7 @@ export class ProgramCreateComponent implements OnInit {
     });
   }
 
-  pasteWeek(): void {
+  async pasteWeek(): Promise<void> {
     if (!this.copiedWeek) {
       this.messageService.add({
         severity: 'warn',
@@ -902,80 +911,125 @@ export class ProgramCreateComponent implements OnInit {
       return;
     }
 
-    // Create a new week with the copied data
-    const weekForm = this.fb.group({
-      workouts: this.fb.array([])
-    });
-    this.weeks.push(weekForm);
+    this.pasteWeekLoading = true;
 
-    // Populate the new week with workouts
-    const newWeekIndex = this.weeks.length - 1;
-    this.copiedWeek.workouts.forEach((workout: any) => {
-      const workoutForm = this.fb.group({
-        title: [workout.title || ''],
-        description: [workout.description || ''],
-        workoutExercises: this.fb.array([])
+    try {
+      // Create a new week with the copied data
+      const weekForm = this.fb.group({
+        workouts: this.fb.array([])
       });
-      this.getWorkouts(newWeekIndex).push(workoutForm);
+      this.weeks.push(weekForm);
 
-      const workoutIndex = this.getWorkouts(newWeekIndex).length - 1;
+      const newWeekIndex = this.weeks.length - 1;
 
-      // Add exercises to the workout
-      workout.workoutExercises.forEach((exercise: any) => {
-        const exerciseForm = this.fb.group({
-          exercise: [this.findExerciseById(exercise.exercise?.id) || null, Validators.required],
-          volumeMetric: [this.findVolumeMetricById(exercise.volumeMetric?.id) || null, Validators.required],
-          intensityMetric: [this.findIntensityMetricById(exercise.intensityMetric?.id) || null, Validators.required],
-          sets: this.fb.array([]),
-          minimumRestTime: [exercise.minimumRestTime || 0, Validators.required],
-          maximumRestTime: [exercise.maximumRestTime || 60, Validators.required],
-          restTimeMetric: [exercise.restTimeMetric || this.restTimeMetrics[0], Validators.required]
-        });
+      // Process workouts in chunks to prevent blocking
+      for (let i = 0; i < this.copiedWeek.workouts.length; i++) {
+        const workout = this.copiedWeek.workouts[i];
 
-        this.getWorkoutExercises(newWeekIndex, workoutIndex).push(exerciseForm);
-        const exerciseIndex = this.getWorkoutExercises(newWeekIndex, workoutIndex).length - 1;
-
-        // Update metric maps
-        const key = `${newWeekIndex}-${workoutIndex}-${exerciseIndex}`;
-        const volumeMetricValue = exerciseForm.get('volumeMetric')?.value;
-        if (volumeMetricValue) {
-          this.selectedVolumeMetrics.set(key, volumeMetricValue);
+        // Allow UI to breathe every few iterations
+        if (i > 0 && i % 3 === 0) {
+          await this.delay(10); // Small delay to yield control back to the browser
         }
-        const intensityMetricValue = exerciseForm.get('intensityMetric')?.value;
-        if (intensityMetricValue) {
-          this.selectedIntensityMetrics.set(key, intensityMetricValue);
-        }
-        this.selectedRestTime.set(key, exerciseForm.get('restTimeMetric')?.value);
 
-        // Add sets to the exercise
-        exercise.sets.forEach((set: any) => {
-          const setForm = this.fb.group({
-            volume: this.fb.group({
-              minimumVolume: [set.volume.minimumVolume],
-              maximumVolume: [set.volume.maximumVolume, Validators.required]
-            }),
-            intensity: this.fb.group({
-              minimumIntensity: [set.intensity.minimumIntensity],
-              maximumIntensity: [set.intensity.maximumIntensity, Validators.required]
-            }),
-            volumeMetric: [exerciseForm.get('volumeMetric')?.value],
-            intensityMetric: [exerciseForm.get('intensityMetric')?.value]
-          });
+        await this.processWorkout(workout, newWeekIndex);
+      }
 
-          this.getSets(newWeekIndex, workoutIndex, exerciseIndex).push(setForm);
-        });
+      // Set the active tab to the new week
+      this.activeWeekTab = (this.weeks.length - 1).toString();
+
+      // Use setTimeout to ensure DOM updates before scrolling
+      setTimeout(() => this.scrollToActiveTab(), 100);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Week Pasted',
+        detail: 'Week has been pasted successfully'
       });
+
+    } catch (error) {
+      console.error('Error pasting week:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Paste Failed',
+        detail: 'An error occurred while pasting the week'
+      });
+    } finally {
+      this.pasteWeekLoading = false;
+    }
+  }
+
+  private async processWorkout(workout: any, newWeekIndex: number): Promise<void> {
+    const workoutForm = this.fb.group({
+      title: [workout.title || ''],
+      description: [workout.description || ''],
+      workoutExercises: this.fb.array([])
     });
 
-    // Set the active tab to the new week
-    this.activeWeekTab = (this.weeks.length - 1).toString();
-    setTimeout(() => this.scrollToActiveTab(), 100);
+    this.getWorkouts(newWeekIndex).push(workoutForm);
+    const workoutIndex = this.getWorkouts(newWeekIndex).length - 1;
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Week Pasted',
-      detail: 'Week has been pasted successfully'
+    // Process exercises in chunks
+    for (let i = 0; i < workout.workoutExercises.length; i++) {
+      const exercise = workout.workoutExercises[i];
+
+      // Allow UI to breathe every few exercises
+      if (i > 0 && i % 2 === 0) {
+        await this.delay(5);
+      }
+
+      await this.processExercise(exercise, newWeekIndex, workoutIndex);
+    }
+  }
+
+  private async processExercise(exercise: any, newWeekIndex: number, workoutIndex: number): Promise<void> {
+    const exerciseForm = this.fb.group({
+      exercise: [this.findExerciseById(exercise.exercise?.id) || null, Validators.required],
+      volumeMetric: [this.findVolumeMetricById(exercise.volumeMetric?.id) || null, Validators.required],
+      intensityMetric: [this.findIntensityMetricById(exercise.intensityMetric?.id) || null, Validators.required],
+      sets: this.fb.array([]),
+      minimumRestTime: [exercise.minimumRestTime || 0, Validators.required],
+      maximumRestTime: [exercise.maximumRestTime || 60, Validators.required],
+      restTimeMetric: [exercise.restTimeMetric || this.restTimeMetrics[0], Validators.required]
     });
+
+    this.getWorkoutExercises(newWeekIndex, workoutIndex).push(exerciseForm);
+    const exerciseIndex = this.getWorkoutExercises(newWeekIndex, workoutIndex).length - 1;
+
+    // Update metric maps
+    const key = `${newWeekIndex}-${workoutIndex}-${exerciseIndex}`;
+    const volumeMetricValue = exerciseForm.get('volumeMetric')?.value;
+    if (volumeMetricValue) {
+      this.selectedVolumeMetrics.set(key, volumeMetricValue);
+    }
+
+    const intensityMetricValue = exerciseForm.get('intensityMetric')?.value;
+    if (intensityMetricValue) {
+      this.selectedIntensityMetrics.set(key, intensityMetricValue);
+    }
+
+    this.selectedRestTime.set(key, exerciseForm.get('restTimeMetric')?.value);
+
+    // Process sets
+    for (const set of exercise.sets) {
+      const setForm = this.fb.group({
+        volume: this.fb.group({
+          minimumVolume: [set.volume.minimumVolume],
+          maximumVolume: [set.volume.maximumVolume, Validators.required]
+        }),
+        intensity: this.fb.group({
+          minimumIntensity: [set.intensity.minimumIntensity],
+          maximumIntensity: [set.intensity.maximumIntensity, Validators.required]
+        }),
+        volumeMetric: [exerciseForm.get('volumeMetric')?.value],
+        intensityMetric: [exerciseForm.get('intensityMetric')?.value]
+      });
+
+      this.getSets(newWeekIndex, workoutIndex, exerciseIndex).push(setForm);
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // Methods to copy/paste workouts
@@ -1012,7 +1066,6 @@ export class ProgramCreateComponent implements OnInit {
     const workoutsArray = this.getWorkouts(weekIndex);
     workoutsArray.push(workoutForm);
     const newWorkoutIndex = workoutsArray.length - 1;
-    this.activeWorkoutAccordionIndices.set(weekIndex, newWorkoutIndex);
 
     this.copiedWorkout.workoutExercises.forEach((exercise: any) => {
       const exerciseForm = this.fb.group({
@@ -1298,9 +1351,6 @@ export class ProgramCreateComponent implements OnInit {
     event.preventDefault();
   }
 
-  getActiveWorkoutAccordionIndex(weekIndex: number): number {
-    return this.activeWorkoutAccordionIndices.get(weekIndex) ?? 0;
-  }
 
   // --- NEW HELPER FUNCTIONS FOR VALIDATION MESSAGES ---
   getErrorMessage(control: AbstractControl | null, controlName: string): string {
@@ -1443,6 +1493,16 @@ export class ProgramCreateComponent implements OnInit {
 
   resetFilteredExercises() {
     this.filteredExercisesMap.clear();
+  }
+
+  setActiveWorkoutAccordion(weekIndex: number, workoutIndex: number) {
+    if(weekIndex===-1||workoutIndex===-1){
+      this.activeWorkoutAccordion = "";
+      return;
+    }
+    setTimeout(() => {
+      this.activeWorkoutAccordion = `${weekIndex}-${workoutIndex}`;
+    }, 200);
   }
 
 

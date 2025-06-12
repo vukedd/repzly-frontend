@@ -77,22 +77,20 @@ export class ProgramService {
   }
 
   // Map the frontend program model to match backend expectations
-  private mapProgramForBackend(program: Program): any {
+  private mapProgramForBackend(program: any): any {
     return {
       name: program.name,
       public:program.public,
       description:program.description,
-      weeks: program.weeks.map(week => ({
-        workouts: week.workouts.map(workout => ({
+      weeks: program.weeks.map((week:any) => ({
+        workouts: week.workouts.map((workout:any) => ({
           title: workout.title,
           description: workout.description,
-          workoutExercises: workout.workoutExercises.map(exercise => ({
+          workoutExercises: workout.workoutExercises.map((exercise:any) => ({
             exercise: exercise.exercise.id,
-            minimumRestTime: exercise.minimumRestTime,
-            maximumRestTime: exercise.maximumRestTime,
-            sets: exercise.sets.map(set => {
-              // Debug logs to help identify problems
-
+            minimumRestTime: exercise.restTimeMetric === 's' ? exercise.minimumRestTime : exercise.minimumRestTime * 60,
+            maximumRestTime: exercise.restTimeMetric === 's' ? exercise.maximumRestTime : exercise.maximumRestTime * 60,
+            sets: exercise.sets.map((set:any) => {
               return {
                 volumeMin: set.volume.minimumVolume,
                 volumeMax: set.volume.maximumVolume,
@@ -108,24 +106,24 @@ export class ProgramService {
     };
   }
 
-  private mapProgramForBackendUpdate(program: Program): any {
+  private mapProgramForBackendUpdate(program: any): any {
     return {
       name: program.name,
       id: program.id,
       public:program.public,
       description:program.description,
-      weeks: program.weeks.map(week => ({
+      weeks: program.weeks.map((week:any) => ({
         id:week.id,
-        workouts: week.workouts.map(workout => ({
+        workouts: week.workouts.map((workout:any) => ({
           id:workout.id,
           title: workout.title,
           description: workout.description,
-          workoutExercises: workout.workoutExercises.map(exercise => ({
+          workoutExercises: workout.workoutExercises.map((exercise:any) => ({
             id:exercise.id,
             exercise: exercise.exercise.id,
-            minimumRestTime: exercise.minimumRestTime,
-            maximumRestTime: exercise.maximumRestTime,
-            sets: exercise.sets.map(set => {
+            minimumRestTime: exercise.restTimeMetric === 's' ? exercise.minimumRestTime : exercise.minimumRestTime * 60,
+            maximumRestTime: exercise.restTimeMetric === 's' ? exercise.maximumRestTime : exercise.maximumRestTime * 60,
+            sets: exercise.sets.map((set:any) => {
               return {
                 id:set.id,
                 volumeMin: set.volume.minimumVolume,
