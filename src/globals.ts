@@ -1,1 +1,1 @@
-export const API_URL: string = "https://repzly-latest.onrender.com/api";
+export const API_URL: string = "http://192.168.1.9:8080/api";

@@ -1,7 +1,7 @@
 <!-- program-details.component.html (Updated with Dialog) -->
 <div class="surface-50 px-2 py-2 md:px-4 md:py-5">
   <!-- Loading state -->
-  <div *ngIf="loading" class="flex justify-content-center align-items-center">
+  <div *ngIf="loading || !program" class="flex justify-content-center align-items-center">
     <p-progressSpinner></p-progressSpinner>
   </div>
 
@@ -69,21 +69,21 @@
                 <div class="col-6 sm:col-3 p-2">
                   <div class="surface-100 border-round-lg p-3 text-center">
                     <div class="text-600 text-base md:text-lg font-medium mb-2">Workouts</div>
-                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalWorkouts()}} Sessions</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{program | totalWorkouts}} Sessions</div>
                   </div>
                 </div>
 
                 <div class="col-6 sm:col-3 p-2">
                   <div class="surface-100 border-round-lg p-3 text-center">
                     <div class="text-600 text-base md:text-lg font-medium mb-2">Exercises</div>
-                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalExercises()}}</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{program | totalExercises}}</div>
                   </div>
                 </div>
 
                 <div class="col-6 sm:col-3 p-2">
                   <div class="surface-100 border-round-lg p-3 text-center">
                     <div class="text-600 text-base md:text-lg font-medium mb-2">Sets</div>
-                    <div class="text-900 text-lg md:text-xl font-bold">{{getTotalSets()}}</div>
+                    <div class="text-900 text-lg md:text-xl font-bold">{{program | totalSets}}</div>
                   </div>
                 </div>
               </div>
@@ -109,7 +109,7 @@
 
 
     <!-- Weeks Section with Tabs -->
-    <p-tabs [value]="activeWeekTab" scrollable (onChange)="onTabChange($event)">
+    <p-tabs [value]="activeWeekTab" scrollable (valueChange)="onTabChange($event)">
       <p-tablist #tablist>
         @for (week of program.weeks; track $index) {
         <p-tab [value]="$index.toString()">
@@ -188,19 +188,19 @@
                     <div class="grid align-items-center py-2 mb-1 text-sm" [ngClass]="{'border-bottom-1 surface-border': setIndex < exercise.sets.length - 1}"> <!-- Conditional border -->
                       <div class="col-1 flex justify-content-center text-600">{{setIndex + 1}}</div>
                       <div class="col-5 flex justify-content-center text-700">
-                        <ng-container *ngIf="isVolumeRange(set)">
+                        <ng-container *ngIf="set.volumeMetric?.range">
                           {{set.volume.minimumVolume}} - {{set.volume.maximumVolume}}
                         </ng-container>
-                        <ng-container *ngIf="!isVolumeRange(set)">
+                        <ng-container *ngIf="!set.volumeMetric?.range">
                           {{set.volume.maximumVolume}}
                         </ng-container>
                         <span class="ml-1 text-500">{{set.volumeMetric.metricSymbol}}</span>
                       </div>
                       <div class="col-6 flex justify-content-center text-700">
-                        <ng-container *ngIf="isIntensityRange(set)">
+                        <ng-container *ngIf="set.intensityMetric?.range">
                           {{set.intensity.minimumIntensity}} - {{set.intensity.maximumIntensity}}
                         </ng-container>
-                        <ng-container *ngIf="!isIntensityRange(set)">
+                        <ng-container *ngIf="!set.intensityMetric?.range">
                           {{set.intensity.maximumIntensity}}
                         </ng-container>
                         <span class="ml-1 text-500">{{set.intensityMetric.metricSymbol}}</span>
