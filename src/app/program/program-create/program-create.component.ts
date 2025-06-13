@@ -633,7 +633,7 @@ export class ProgramCreateComponent implements OnInit {
           summary: 'Success',
           detail: this.isEditMode ? 'Program updated successfully' : 'Program created successfully'
         });
-        this.router.navigate(['/programs', result.id]);
+        this.router.navigate(['/my-programs']);
       },
       error: (error: any) => {
         this.loading = false;

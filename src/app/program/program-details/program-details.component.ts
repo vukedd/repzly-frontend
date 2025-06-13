@@ -28,6 +28,10 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AvatarModule } from 'primeng/avatar';
 import { ToastsPositionService } from '../../layout/toasts/toasts-position.service';
+import { TotalWorkoutsPipe } from "../pipes/total-workouts.pipe";
+import { TotalExercisesPipe } from '../pipes/total-exercises.pipe';
+import { TotalSetsPipe } from '../pipes/total-sets.pipe';
+
 
 @Component({
   selector: 'app-program-details',
@@ -55,7 +59,10 @@ import { ToastsPositionService } from '../../layout/toasts/toasts-position.servi
     FileUploadModule,
     DialogModule,
     TagModule,
-    AvatarModule
+    AvatarModule,
+    TotalWorkoutsPipe,
+    TotalExercisesPipe,
+    TotalSetsPipe
   ],
   templateUrl: './program-details.component.html',
   styleUrl: './program-details.component.css',
