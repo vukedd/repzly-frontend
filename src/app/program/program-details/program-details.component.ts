@@ -484,7 +484,7 @@ export class ProgramDetailsComponent implements OnInit {
   }
 
   onTabChange(event: any): void {
-    this.activeWeekTab = event.index.toString();
+    this.activeWeekTab = (event as number).toString();
     this.scrollToActiveTab();
   }
 

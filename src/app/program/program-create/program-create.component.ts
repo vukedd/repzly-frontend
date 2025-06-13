@@ -843,7 +843,7 @@ export class ProgramCreateComponent implements OnInit {
       exercises.insert(exerciseIndex - 1, temp);
 
       // Update the keys in our maps for the moved exercises
-      this.updateExerciseMetricKeys(weekIndex, workoutIndex, exerciseIndex - 1, exerciseIndex);
+      this.updateExerciseMetricKeys(weekIndex, workoutIndex, exerciseIndex , exerciseIndex-1);
     }
   }
 
@@ -859,30 +859,35 @@ export class ProgramCreateComponent implements OnInit {
     }
   }
 
-  // Helper method to update the metric map keys when exercises change positions
-  private updateExerciseMetricKeys(weekIndex: number, workoutIndex: number, fromIndex: number, toIndex: number): void {
-    // Create temporary storage for the metric values
+ private updateExerciseMetricKeys(weekIndex: number, workoutIndex: number, fromIndex: number, toIndex: number): void {
     const fromKey = `${weekIndex}-${workoutIndex}-${fromIndex}`;
     const toKey = `${weekIndex}-${workoutIndex}-${toIndex}`;
 
-    // Store the values
-    const volumeMetricFrom = this.selectedVolumeMetrics.get(fromKey);
-    const volumeMetricTo = this.selectedVolumeMetrics.get(toKey);
-    const intensityMetricFrom = this.selectedIntensityMetrics.get(fromKey);
-    const intensityMetricTo = this.selectedIntensityMetrics.get(toKey);
-    const restTimeFrom = this.selectedRestTime.get(fromKey);
-    const restTimeTo = this.selectedRestTime.get(toKey);
+    // Helper function to swap or delete entries in a given map
+    const swapOrDeleteInMap = (map: Map<string, any>) => {
+        const dataFromOriginalPosition = map.get(fromKey);
+        const dataFromTargetPosition = map.get(toKey);
 
-    // Swap the values in the maps
-    if (volumeMetricFrom) this.selectedVolumeMetrics.set(toKey, volumeMetricFrom);
-    if (volumeMetricTo) this.selectedVolumeMetrics.set(fromKey, volumeMetricTo);
+        // Update data for the target position (where 'from' item moves to)
+        if (dataFromOriginalPosition !== undefined) {
+            map.set(toKey, dataFromOriginalPosition);
+        } else {
+            map.delete(toKey); // Ensure no stale data if 'from' item had no data
+        }
 
-    if (intensityMetricFrom) this.selectedIntensityMetrics.set(toKey, intensityMetricFrom);
-    if (intensityMetricTo) this.selectedIntensityMetrics.set(fromKey, intensityMetricTo);
+        // Update data for the original position (where 'to' item moves to)
+        if (dataFromTargetPosition !== undefined) {
+            map.set(fromKey, dataFromTargetPosition);
+        } else {
+            map.delete(fromKey); // Ensure no stale data if 'to' item had no data
+        }
+    };
 
-    if (restTimeFrom) this.selectedRestTime.set(toKey, restTimeFrom);
-    if (restTimeTo) this.selectedRestTime.set(fromKey, restTimeTo);
-  }
+    swapOrDeleteInMap(this.selectedVolumeMetrics);
+    swapOrDeleteInMap(this.selectedIntensityMetrics);
+    swapOrDeleteInMap(this.selectedRestTime);
+    swapOrDeleteInMap(this.filteredExercisesMap); // Crucially, update this map too
+}
 
   copyWeek(weekIndex: number, event: Event): void {
     event.preventDefault();
