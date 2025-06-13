@@ -205,7 +205,7 @@
                                 <!-- Exercises Section -->
                                 <div formArrayName="workoutExercises" class="">
                                   <!-- Exercise Cards -->
-                                   @for(exercise of getWorkoutExercises(i, workoutIndex).controls; track exerciseIndex; let exerciseIndex = $index){
+                                   @for(exercise of getWorkoutExercises(i, workoutIndex).controls; track exercise; let exerciseIndex = $index){
                                   <div
                                     class="surface-50 mb-3 border-bottom-1 surface-border">
                                     <div [formGroupName]="exerciseIndex">
